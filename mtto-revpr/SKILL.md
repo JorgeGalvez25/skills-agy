@@ -64,7 +64,9 @@ Si Jorge pega el token en el chat, usarlo solo en esta sesión (`$env:AZURE_DEVO
    - Mientras trabajan, avisar a Jorge de cada agente que termine: veredicto y hallazgo más grave por TT, en 3 a 6 viñetas. No inventar resultados de agentes que siguen en curso.
 
 4. **Verificar los hallazgos Alta** antes de darlos por buenos. Leer el código en `head\` (y `base\` o el diff) en las líneas citadas y confirmar que el problema existe tal como se describe. Por ejemplo, que el código "eliminado" no se haya movido a otra parte del archivo, o que el campo nulo de verdad no se envíe.
-   - Si un Alta no se sostiene, corregir el informe con la herramienta de edición (bajar la severidad o quitar el hallazgo) y decirlo en el resumen.
+   - Confirmar también que la unidad y las líneas de "Cambios requeridos" son las correctas y que el mensaje para el solicitante dice lo mismo que el hallazgo.
+   - Si un Alta no se sostiene, corregir el informe con la herramienta de edición (bajar la severidad o quitar el hallazgo con su bloque de cambios) y decirlo en el resumen.
+   - Si un informe trae hallazgos de estilo o sin escenario concreto, quitarlos.
 
 5. **Contar e indexar:**
    ```powershell
@@ -85,6 +87,8 @@ Si Jorge pega el token en el chat, usarlo solo en esta sesión (`$env:AZURE_DEVO
 
 ## Criterios
 
+- **Solo hallazgos importantes:** cada hallazgo debe obligar al desarrollador a cambiar el código, con un escenario concreto de falla. Estilo, refactors y riesgos teóricos no se reportan.
+- **Sugerencias accionables:** cada hallazgo trae en "Cambios requeridos" la unidad o unidades, las líneas y el método que hay que cambiar, y el mensaje listo para enviar al solicitante del PR.
 - **Revisión estática:** no se compila ni se ejecuta. Lo que dependa de procedimientos almacenados, triggers, scripts de BD o clases fuera del diff es "No verificable", no un hallazgo.
 - **`.dfm` re-guardados:** un `.dfm` de miles de líneas de diff suele ser ruido del IDE (imágenes recodificadas). El revisor separa ese ruido de los cambios reales; el tamaño del diff, por sí solo, no es un hallazgo.
 - **Acuerdos del Excel:** son compromisos de la reunión de versión. Si un acuerdo concreto no está en el PR (p. ej. "Se aplicará StrToIntDef"), se pide cambios aunque el resto esté bien.
