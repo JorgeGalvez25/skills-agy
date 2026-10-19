@@ -1,0 +1,26 @@
+{
+  "tipo": "Cambio",
+  "cliente": "IMAGENSOFT",
+  "version": "4.3.8.0",
+  "fecha": "13/01/2026",
+  "antecedente": ["Se busca poder cambiar el color de los Combustibles a partir del iGas Administrador."],
+  "descripcionGeneral": ["Se añadió un nuevo espacio en el apartado de combustibles para permitir que el usuario pueda modificar el color de los mismos; este se almacena en la base de datos de Gasolinera para que se acceda fácilmente al dato."],
+  "complejidad": "Baja",
+  "modulos": ["PGASMENU", "PPVGMENU"],
+  "basesDatos": ["BD Gasolinera"],
+  "idVtiger": "TT96324",
+  "autor": "Susana Gámez",
+  "configuracionesEspeciales": ["Ejecutar el siguiente script de SQL sobre la BD de Gasolinera. Este añadirá un nuevo campo a la tabla DGASTCMB denominado HEXCOLOR, el cual contendrá el hexadecimal del color."],
+  "scriptsAdjuntos": ["C:\\Scripts\\TT96324\\GASOLINERA_DGASTCMB_HEXCOLOR.sql"],
+  "detalle": [
+    {
+      "opcionMenu": "iGas Administrador >> Archivos >> Combustibles",
+      "pasos": [
+        { "texto": "Seleccionamos el combustible que queremos modificar o bien insertamos uno nuevo.", "captura": "Catálogo de combustibles con el botón Modificar señalado" },
+        { "texto": "En la ventana se añadió la sección de color. Al activar Personalizar Color damos clic en el recuadro de su lado y se despliegan las opciones de colores.", "captura": "Sección Color con la paleta abierta" },
+        { "texto": "Seleccionamos el color deseado, presionamos Aceptar y Guardamos. El color aparece en la tabla de combustibles para identificarlo más rápido.", "captura": "Catálogo de combustibles mostrando la columna de color" }
+      ]
+    }
+  ],
+  "archivoSalida": "C:\\Proyecto Cambios y Correcciones a Productos 2026\\02 Cambios a Productos 2026\\Informes de Cambios\\IGas\\20260113_IC_TT96324 -IMAGENSOFT-IGAS ADMIN-CAMBIO DE COLOR EN IGAS ADMINISTRADOR.docx"
+}
