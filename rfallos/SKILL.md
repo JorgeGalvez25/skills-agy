@@ -10,7 +10,7 @@ Generas el reporte de evidencia del **indicador 1 — Cumplimiento de atención 
 El Excel lo crea **siempre** el script `scripts/generar.js`, nunca a mano ni con otro código, para que el estilo sea idéntico todos los meses.
 Tu trabajo es: validar la entrada, **asignar la criticidad de cada caso a partir de su título**, preguntar lo que tenga duda, ejecutar el script y reportar el resultado.
 
-**Carpeta de la skill** (en este documento, `$SK`): `C:\Users\jorge\.claude\skills\rfallos`. Los scripts están en `$SK\scripts` y ya tienen sus dependencias (`node_modules` con `xlsx` y `exceljs`).
+**Carpeta de la skill** (en este documento, `$SK`): `C:\Users\jorge\.gemini\config\skills\rfallos`. Los scripts están en `$SK\scripts` y ya tienen sus dependencias (`node_modules` con `xlsx` y `exceljs`).
 **Carpeta raíz de indicadores** (`$RAIZ`): `C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Indicadores`.
 No hay Python en este equipo: todo se ejecuta con **Node** (`node`). Ejecuta los scripts con la herramienta Bash usando rutas absolutas.
 
@@ -49,7 +49,7 @@ Si el usuario cambia algún objetivo, actualiza `OBJETIVOS` en `$SK\scripts\comu
 ## Paso 1 — Extraer y validar los casos
 
 ```bash
-node "C:/Users/jorge/.claude/skills/rfallos/scripts/extraer.js" YYYYMM
+node "C:/Users/jorge/.gemini/config/skills/rfallos/scripts/extraer.js" YYYYMM
 ```
 
 Devuelve un JSON con `entrada`, `salida`, `salidaExiste`, `evaluables[]` (id, tipo, estatus, asignacion, respuesta, titulo), `cancelados[]` y `avisos[]`.
@@ -98,7 +98,7 @@ Escribe las criticidades en un JSON del scratchpad (no en la carpeta del mes) co
 ## Paso 3 — Generar el Excel
 
 ```bash
-node "C:/Users/jorge/.claude/skills/rfallos/scripts/generar.js" YYYYMM "<ruta>/criticidades.json"
+node "C:/Users/jorge/.gemini/config/skills/rfallos/scripts/generar.js" YYYYMM "<ruta>/criticidades.json"
 ```
 
 Agrega `--sobrescribir` como tercer argumento solo si el usuario lo autorizó. El script valida que todos los evaluables tengan una criticidad válida y que no sobren IDs. Si falla, corrige el JSON (no el script) y vuelve a ejecutarlo.
@@ -131,7 +131,7 @@ Referencia visual: `$RAIZ\202609\092026_RelacionFallosAtendidos.xlsx`. El script
 
 ## Paso 4 — Verificar
 
-Vuelca el xlsx generado con la librería `xlsx` desde `$SK\scripts` (por ejemplo `node -e` con `require('C:/Users/jorge/.claude/skills/rfallos/scripts/node_modules/xlsx')`) y confirma:
+Vuelca el xlsx generado con la librería `xlsx` desde `$SK\scripts` (por ejemplo `node -e` con `require('C:/Users/jorge/.gemini/config/skills/rfallos/scripts/node_modules/xlsx')`) y confirma:
 - que hay tantas filas de detalle como evaluables y tantas de cancelados como `cancelados`;
 - que el total, los que cumplen, el % y la clasificación coinciden con el JSON de salida.
 

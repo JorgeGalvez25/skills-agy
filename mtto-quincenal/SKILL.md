@@ -14,7 +14,7 @@ Columnas (desde `13-10`): **Desarrollador | Caso | Estatus | Observaciones | Fec
 - **Fecha de la hoja**: el argumento o, sin él, hoy. Nombre de la hoja: `dd-mm`.
 - **Periodo**: desde la fecha de la última hoja del archivo (su nombre `dd-mm`, mismo año o el anterior si el mes es mayor) hasta el día anterior a la fecha de la hoja.
 
-**Script:** `C:\Users\jorge\.claude\skills\mtto-quincenal\scripts\hoja.js` (Node, con `exceljs` en su `node_modules`). Archivos de trabajo en el scratchpad.
+**Script:** `C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js` (Node, con `exceljs` en su `node_modules`). Archivos de trabajo en el scratchpad.
 
 ## Reglas de Jorge (aplican siempre, salvo que pida otra cosa)
 

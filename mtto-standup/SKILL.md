@@ -16,8 +16,8 @@ de mensaje directo por colaborador y **solo envías los que autorice**.
 - La **fecha revisada** es la que resulta de lo anterior; en el resto de la skill, "hoy" / "standup de hoy" se refiere a ella. Dila en la primera línea del Paso 4.
 - `/mtto-standup respuestas`: solo el Paso 0 y su parte de los Pasos 4 y 5 (útil por la mañana, cuando ya contestaron la retro de la tarde anterior).
 
-**Script:** `C:\Users\jorge\.claude\skills\mtto-standup\scripts\revisar.js` (Node, sin dependencias). JSON de trabajo en el scratchpad.
-**Aclaraciones:** `C:\Users\jorge\.claude\skills\mtto-standup\aclaraciones.json` (persistente; el script lo lee solo; ver "Aclaraciones" al final).
+**Script:** `C:\Users\jorge\.gemini\config\skills\mtto-standup\scripts\revisar.js` (Node, sin dependencias). JSON de trabajo en el scratchpad.
+**Aclaraciones:** `C:\Users\jorge\.gemini\config\skills\mtto-standup\aclaraciones.json` (persistente; el script lo lee solo; ver "Aclaraciones" al final).
 
 ## Delegación (ahorro de tokens)
 
@@ -79,7 +79,7 @@ con líneas `TT#####: estatus` que indican cómo queda cada caso al cierre del d
   en el siguiente standup: si reaparece con otro estatus de cierre (p. ej. CEC) se marca `retroceso`, y si regresa a trabajo es reapertura (lleva REABIERTO).
 
 Vocabulario: RSP (Revisión SCRUM Pendiente: el cliente dio por bueno), LDP (liberado de pruebas por el tester), CEC (a cerrar), Cancelado (sale del seguimiento), Entregado / en espera de respuesta, Pausa / standby / en espera de logs, "x2", "x3"… = veces que se repite la acción.
-Eventos aparte (mensaje propio, ver `C:\Users\jorge\.claude\skills\rcalidad\GUIA_CANAL.md`): `LDP` (sustituye a `LIBERADO` desde el 09/10/2026), `REABIERTO`, `ORIGEN`.
+Eventos aparte (mensaje propio, ver `C:\Users\jorge\.gemini\config\skills\rcalidad\GUIA_CANAL.md`): `LDP` (sustituye a `LIBERADO` desde el 09/10/2026), `REABIERTO`, `ORIGEN`.
 
 ## Paso 0 — Leer las respuestas a la retro anterior
 

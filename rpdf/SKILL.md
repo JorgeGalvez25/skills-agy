@@ -8,7 +8,7 @@ description: Genera la versión PDF de los reportes mensuales de indicadores del
 Conviertes a PDF los reportes del mes (normalmente 6: 4 Excel + 2 Word) y verificas visualmente que no falte información.
 **Todo lo hace el script `rpdf.ps1`.** No escribas código propio ni ajustes la configuración de página a mano: el script ya resuelve los casos conocidos.
 
-**Carpeta de la skill** (`$SK`): `C:\Users\jorge\.claude\skills\rpdf`.
+**Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\rpdf`.
 **Carpeta de reportes**: el directorio de trabajo actual. El usuario corre la skill desde la carpeta del mes, así que **no pidas mes ni ruta**.
 - Entrada: `.\*.xlsx` y `.\*.docx`.
 - Salida: `.\PDF\<mismo nombre>.pdf`. El script crea la carpeta `PDF` si no existe. Si ya hay un PDF con el mismo nombre, se sobrescribe.
@@ -19,7 +19,7 @@ Requiere Excel y Word instalados (se usan por COM). No hay Python en el equipo.
 
 1. **Ejecuta**, sin argumentos, con la herramienta PowerShell, en primer plano y con `timeout` de 600000. El script toma la carpeta actual:
    ```powershell
-   & "C:\Users\jorge\.claude\skills\rpdf\scripts\rpdf.ps1"
+   & "C:\Users\jorge\.gemini\config\skills\rpdf\scripts\rpdf.ps1"
    ```
    Tarda alrededor de 1 minuto. La salida incluye:
    - `ENTRADA`: los archivos encontrados. Si no son 6, menciónalo al final, pero no te detengas.

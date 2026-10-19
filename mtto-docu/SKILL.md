@@ -20,7 +20,7 @@ la ruta. Tu trabajo es entregar **dos documentos** a partir de lo que realmente 
 
 Todos los desarrolladores deben obtener documentos con la misma estructura, el mismo tono y el mismo nivel de detalle. Sigue los pasos **en orden** y no te saltes ninguno.
 
-**Carpeta del estándar** (en este documento, `$STD`): `$env:USERPROFILE\.claude\skills\mtto-docu`.
+**Carpeta del estándar** (en este documento, `$STD`): `$env:USERPROFILE\.gemini\config\skills\mtto-docu`.
 Es un vínculo que crea `Instalar.ps1` hacia la carpeta versionada en SVN. Si no existe, usa la
 carpeta donde está este archivo. Contiene `scripts\`, `plantillas\` y `referencias\`.
 
@@ -51,7 +51,7 @@ carpeta donde está este archivo. Contiene `scripts\`, `plantillas\` y `referenc
 ## Paso 1. Recolectar los cambios
 
 ```powershell
-& "$env:USERPROFILE\.claude\skills\mtto-docu\scripts\Get-CambiosTT.ps1" -Rutas "<ruta>" [-Rama "<rama>"] [-Ticket TT#####]
+& "$env:USERPROFILE\.gemini\config\skills\mtto-docu\scripts\Get-CambiosTT.ps1" -Rutas "<ruta>" [-Rama "<rama>"] [-Ticket TT#####]
 ```
 
 El script genera en `%TEMP%\InformesTT\TT#####\` los archivos `resumen.md` (léelo primero), `resumen.json` y `diffs\<repo>.patch`.
@@ -157,7 +157,7 @@ Sigue `$STD\referencias\guia-redaccion-distribuidor.md` campo por campo, incluid
 Ejecuta:
 
 ```powershell
-& "$env:USERPROFILE\.claude\skills\mtto-docu\scripts\New-InformeDistribuidor.ps1" -Datos "<ruta informe.json>"
+& "$env:USERPROFILE\.gemini\config\skills\mtto-docu\scripts\New-InformeDistribuidor.ps1" -Datos "<ruta informe.json>"
 ```
 
 Si el script da advertencias (complejidad o BD no válidas, script no encontrado, marcadores sin llenar), corrige el JSON, borra el .docx generado y vuelve a ejecutarlo. Tarda de 20 a 60 segundos porque usa Word.
@@ -208,7 +208,7 @@ Responde con este formato:
 5. **Validación final** antes de entregar al distribuidor:
 
    ```powershell
-   & "$env:USERPROFILE\.claude\skills\mtto-docu\scripts\Test-InformeDistribuidor.ps1" -Ruta "<ruta del .docx>"
+   & "$env:USERPROFILE\.gemini\config\skills\mtto-docu\scripts\Test-InformeDistribuidor.ps1" -Ruta "<ruta del .docx>"
    ```
 
 6. Recordatorio: entregar el `.md` al compañero revisor (puede pegarse como descripción del PR en Azure DevOps).

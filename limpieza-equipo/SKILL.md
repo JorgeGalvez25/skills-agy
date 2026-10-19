@@ -7,7 +7,7 @@ description: Revisa, desinfecta y deja limpio un equipo Windows. Detecta malware
 
 Tu trabajo es averiguar si el equipo está comprometido, eliminar la amenaza **sin romper lo que el usuario usa legítimamente**, comprobar que el antivirus vuelve a ver todo, y dejar un informe claro de qué pasó y qué falta.
 
-**Carpeta de la skill** (`$SK`): `C:\Users\jorge\.claude\skills\limpieza-equipo`.
+**Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\limpieza-equipo`.
 **Carpeta del incidente** (`$INC`): crea `%USERPROFILE%\Documents\Incidentes\AAAA-MM-DD` al empezar. Ahí van el reporte de auditoría, los registros, los respaldos de registro (`.reg`), los hashes y el informe final. Así la evidencia sobrevive a reinicios y puede pasarse a TI.
 
 ## Principios (por qué importan)

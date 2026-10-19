@@ -21,19 +21,19 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)] [fecha reu
 
 1. **Digest y casos** (un solo comando; extrae solo los `.md` a `%TEMP%\mttoacu` para evitar rutas de más de 260 caracteres):
    ```powershell
-   & "C:\Users\jorge\.claude\skills\mtto-acuerdos\scripts\extraer.ps1" -Carpeta "<carpeta>" -Salida "<scratchpad>"
+   & "C:\Users\jorge\.gemini\config\skills\mtto-acuerdos\scripts\extraer.ps1" -Carpeta "<carpeta>" -Salida "<scratchpad>"
    ```
    Genera `<scratchpad>\casos.json` (A–F por caso) y `<scratchpad>\digest.md`. Leer el digest completo con Read y `allow_large: true` (una sola lectura; sin esa opción se corta en versiones con muchos casos): trae la tabla de casos (qué TT no tiene informe, tester ya asignado, filas con G/H llenos) y, por informe, las secciones 1 (Ficha), 2 (Resumen técnico), 3.1/3.3 (archivos modificados, BD y configuración) y 4 (hallazgos).
    - Si alguna fila ya tiene G/H llenos, preguntar antes de sobrescribirla.
 2. **Redactar** `<scratchpad>\acuerdos.json` con Write: arreglo `[{ "id", "G", "H", "I", "J" }]`, solo para los TT con informe. Saltos de línea dentro de I y J con `\n`. Seguir los criterios de abajo y el ejemplo `references\ejemplo-4.3.12.0.json`.
 3. **Asignar testers** (solo a los casos sin tester; usa G e I del paso 2):
    ```powershell
-   & "C:\Users\jorge\.claude\skills\mtto-acuerdos\scripts\asignar.ps1" -Carpeta "<carpeta>" -Casos "<scratchpad>\casos.json" -Acuerdos "<scratchpad>\acuerdos.json"
+   & "C:\Users\jorge\.gemini\config\skills\mtto-acuerdos\scripts\asignar.ps1" -Carpeta "<carpeta>" -Casos "<scratchpad>\casos.json" -Acuerdos "<scratchpad>\acuerdos.json"
    ```
    Escribe el tester en `casos.json` e imprime la asignación con su motivo y la carga por tester. No ajustar a mano salvo que el resultado rompa una regla (p. ej. "SIN CUPO"); en ese caso editar `casos.json` y explicarlo en el resumen.
 4. **Llenar** (crea el archivo desde la plantilla si no existe; si existe lo respalda en el scratchpad y valida que no esté abierto; escribe Tester vacío, G–J del JSON y K–L en todas las filas):
    ```powershell
-   & "C:\Users\jorge\.claude\skills\mtto-acuerdos\scripts\llenar.ps1" -Carpeta "<carpeta>" -Casos "<scratchpad>\casos.json" -Json "<scratchpad>\acuerdos.json" -Fecha yyyy-MM-dd -Respaldo "<scratchpad>"
+   & "C:\Users\jorge\.gemini\config\skills\mtto-acuerdos\scripts\llenar.ps1" -Carpeta "<carpeta>" -Casos "<scratchpad>\casos.json" -Json "<scratchpad>\acuerdos.json" -Fecha yyyy-MM-dd -Respaldo "<scratchpad>"
    ```
    Su salida (fila | ID | responsable | tester | complejidad | versión | fecha) es la verificación; no volver a abrir el archivo.
 5. **Resumen al usuario** con este formato: qué se llenó o creó y de dónde salió; tabla de carga por tester (casos, Alta, Media, Baja, puntos) y la asignación caso → tester; reparto de complejidad en una tabla (Alta / Media / Baja con sus TT); tabla de los casos donde la complejidad difiere de la que trae el informe; acuerdos con pendientes agrupados por tipo; y la lista "Revisa esto antes de la reunión" (TT sin informe, Fallos sin ID Soporte, fecha usada si fue la de hoy, URLs de repositorio que quedaron en la base del repo).

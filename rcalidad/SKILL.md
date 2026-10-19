@@ -16,7 +16,7 @@ Generas la evidencia mensual de dos indicadores del jefe de Mantenimiento (Jorge
 Los Excel los crea **siempre** `scripts/generar.js`. Tu trabajo es: leer el canal, convertir los mensajes en eventos con `scripts/eventos.js`,
 resolver dudas con el usuario, ejecutar el generador, verificar y reportar.
 
-**Carpeta de la skill** (`$SK`): `C:\Users\jorge\.claude\skills\rcalidad`. Scripts en `$SK\scripts` con sus dependencias (`xlsx`, `exceljs`).
+**Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\rcalidad`. Scripts en `$SK\scripts` con sus dependencias (`xlsx`, `exceljs`).
 **Carpeta raíz** (`$RAIZ`): `C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Indicadores`.
 No hay Python: todo se ejecuta con `node` desde la herramienta Bash con rutas absolutas. Los JSON de trabajo van en el scratchpad, nunca en la carpeta del mes.
 
@@ -44,7 +44,7 @@ No hay Python: todo se ejecuta con `node` desde la herramienta Bash con rutas ab
 ## Paso 1 — Preparar
 
 ```bash
-node "C:/Users/jorge/.claude/skills/rcalidad/scripts/preparar.js" YYYYMM
+node "C:/Users/jorge/.gemini/config/skills/rcalidad/scripts/preparar.js" YYYYMM
 ```
 
 Devuelve `mes`, `periodo`, `finSeguimiento`, `corte`, `seguimientoCompleto`, `slack` (canal y fechas `after`/`before` para buscar),
@@ -114,7 +114,7 @@ Los comentarios generales (transición, eventos confirmados, baja muestra) se in
 ## Paso 5 — Generar
 
 ```bash
-node "C:/Users/jorge/.claude/skills/rcalidad/scripts/generar.js" YYYYMM "<scratchpad>/datos.json"
+node "C:/Users/jorge/.gemini/config/skills/rcalidad/scripts/generar.js" YYYYMM "<scratchpad>/datos.json"
 ```
 
 (`--sobrescribir` como tercer argumento solo con autorización.) Crea en `$RAIZ\YYYYMM`:
@@ -127,7 +127,7 @@ La consola devuelve un JSON con los resultados, los casos con incidencia, `cambi
 
 ## Paso 6 — Verificar
 
-Vuelca ambos xlsx con `require('C:/Users/jorge/.claude/skills/rcalidad/scripts/node_modules/xlsx')` y confirma que las filas de detalle y los totales coinciden con el JSON de salida.
+Vuelca ambos xlsx con `require('C:/Users/jorge/.gemini/config/skills/rcalidad/scripts/node_modules/xlsx')` y confirma que las filas de detalle y los totales coinciden con el JSON de salida.
 
 ## Paso 7 — Entregar (en el chat, breve)
 
