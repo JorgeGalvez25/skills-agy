@@ -76,4 +76,5 @@ En español, breve, con este formato:
 - **Sin información** (si aplica).
 
 No envíes mensajes a Slack ni modifiques nada: solo es lectura y recomendación. Si el usuario después pide
-mandar recordatorios a los responsables, redacta el mensaje en mrkdwn y pide confirmación antes de enviarlo.
+mandar recordatorios a los responsables, redacta el mensaje en mrkdwn y pide confirmación; con ella, déjalo como borrador
+(`slack_send_message_draft`) para que Jorge lo envíe. Nunca lo envíes con `slack_send_message`.

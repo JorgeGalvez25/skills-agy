@@ -12,6 +12,7 @@ const DIAS_ESTANCADO = 5;      // días hábiles con el mismo estatus
 const DIAS_SIN_CASO = 5;       // días hábiles con trabajo "pendiente de caso" o sin TT
 const DESFASE_SLACK_H = -7;    // Slack muestra los mensajes en MST (UTC-7)
 const INICIO_SOLO_HOY = '2026-10-08'; // desde esta fecha el standup lleva solo el bloque "Hoy"
+const INICIO_CODIGOS = null;          // 'AAAA-MM-DD' desde la que el formato "TT##### - C/F - Código: motivo" es obligatorio (null: aún no se marca)
 // Martín atiende directo al cliente JAG y registra ese tiempo en una actividad aparte: sus líneas de JAG sin TT no se marcan
 const sinTtPermitido = (autor, linea) => /^mart[ií]n reyes$/i.test(autor) && /\bJAG\b/i.test(linea);
 
@@ -58,7 +59,8 @@ const RX_EVENTO = /^(LDP|LIBERADO|REABIERTO|ORIGEN)\b/i; // LIBERADO: eventos an
 const RX_CANCELADO = /\bcancelad[oa]s?\b|\bcancelacion\b/i;
 // LDP: el tester liberó de pruebas. "En espera de LDP", "SDP enviada"... no son cierre.
 const esLdp = est => { const s = sinAcentos(est).toLowerCase(); return /\bldp\b|liberad[oa] de pruebas/.test(s) && !/espera|pendiente|falta|solicit|\bsdp\b/.test(s); };
-const esCierre = est => /\bcec\b|cerrad/i.test(sinAcentos(est)) || RX_CANCELADO.test(sinAcentos(est)) || esLdp(est);
+// FINPRU (fin de pruebas como tester) cierra la parte del tester; la LDP es solo del dueño del caso
+const esCierre = est => /\bcec\b|cerrad|fin de pruebas/i.test(sinAcentos(est)) || RX_CANCELADO.test(sinAcentos(est)) || esLdp(est);
 
 // Rango de avance del estatus (5 = cierre; un cerrado que reaparece es retroceso)
 function rango(est) {
@@ -66,7 +68,7 @@ function rango(est) {
   if (/cierre/.test(s) || esCierre(s)) return 5;
   if (/entreg|\brsp\b|liberad|instalad/.test(s)) return 4;
   if (/prueba|compila|integra|document/.test(s)) return 3;
-  if (/codific|correcci|desarroll/.test(s)) return 2;
+  if (/codific|correcci|desarroll|piloto/.test(s)) return 2;
   if (/revis|analis|consult|espera|pausa|pendiente|standby/.test(s)) return 1;
   return 0;
 }
@@ -112,8 +114,33 @@ function erroresDedo(texto) {
   return r;
 }
 
-// Códigos de estatus del formato abreviado de Saulo (RSP, CEC y LDP se quedan igual)
-const CODIGOS = { P: 'Pausa', R: 'Revisando', AN: 'Analizando', D: 'Desarrollo', PIL: 'Piloto', ENT: 'Entregado', EST: 'Preguntar estatus', CAN: 'Cancelado' };
+// Códigos de estatus del formato estándar "TT##### - C/F - Código: motivo" (RSP, CEC y LDP se quedan igual).
+// ESPLDP, BUGPRU, PRU, ESPBUG y FINPRU se traducen con "espera de LDP" o "tester" para que cuenten como pruebas iniciadas;
+// los de quien prueba el caso de un compañero (PRU, ESPBUG, FINPRU) llevan "como tester".
+const CODIGOS = { P: 'Pausa', R: 'Revisando', AN: 'Analizando', D: 'Desarrollo', PIL: 'Piloto', ENT: 'Entregado', EST: 'Preguntar estatus', CAN: 'Cancelado',
+  ESPLDP: 'En espera de LDP', BUGPRU: 'Bug del tester en pruebas', PRU: 'Pruebas como tester', ESPBUG: 'Espera de corrección como tester',
+  FINPRU: 'Fin de pruebas como tester' };
+const CODIGOS_TESTER = ['PRU', 'ESPBUG', 'FINPRU'];
+const RX_COMO_TESTER = /como tester/i;
+const esCodigo = c => !!CODIGOS[c.toUpperCase()] || ['RSP', 'CEC', 'LDP'].includes(c.toUpperCase());
+
+// Palabras que distinguen un caso (sin estatus ni palabras comunes), para reconocer un cambio de ID
+const COMUNES = new Set([...VOCAB, ...VALIDAS, 'cliente', 'clientes', 'fallo', 'cambio', 'mejora', 'continua', 'continuando', 'sigue', 'todavia',
+  'tester', 'correo', 'soporte', 'estatus', 'preguntar', 'desarrollo', 'analizando', 'piloto', 'espera']);
+const palabras = s => new Set(sinAcentos(s.toLowerCase()).split(/[^a-zñ]+/).filter(p => p.length >= 5 && !COMUNES.has(p)));
+// TT nuevo que parece continuar al que desapareció (se atendió con el ID de soporte y sigue con el definitivo):
+// mismo tipo (si ambos lo traen) y dos o más palabras en común, o el único TT nuevo cuando solo desapareció uno
+function parecido(it, nuevos, unoAUno) {
+  const w = palabras(it.estatus);
+  const compatibles = nuevos.filter(n => !(it.tipo && n.tipo && it.tipo !== n.tipo));
+  let mejor = null, max = 0;
+  for (const n of compatibles) {
+    const c = [...palabras(n.estatus)].filter(p => w.has(p)).length;
+    if (c > max) { max = c; mejor = n; }
+  }
+  if (max >= 2) return mejor;
+  return unoAUno && nuevos.length === 1 && compatibles.length === 1 ? compatibles[0] : null;
+}
 
 // Convierte el texto de un standup en bloques { etiqueta, items[] }.
 // Sin título de día, la primera sección standby/seguimiento abre el bloque "hoy".
@@ -137,9 +164,17 @@ function parsear(texto) {
     if (item.tt) {
       const i = l.indexOf(':');
       item.estatus = i >= 0 ? l.slice(i + 1).trim() : l.replace(/\bTT\s*-?\s*\d+\s*/i, '').replace(/^\d{5,6}\s*/, '').trim();
-      // Formatos con tipo y estatus antes de los dos puntos: "TT##### - C - RSP: ..." o "TT##### Cambio · Pausa: ..."
-      const mT = l.match(/\bTT\s*-?\s*\d+\s*(?:[-–·]\s*)?(?:C|F|M|Cambio|Fallo|Mejora)\s*[-–·]\s*([^:]{1,25}?)\s*:\s*(.*)$/i);
-      if (mT) item.estatus = `${CODIGOS[mT[1].toUpperCase()] || mT[1]}: ${mT[2]}`.trim();
+      // Formato estándar con tipo y código antes de los dos puntos: "TT##### - C - RSP: ...", "TT##### Cambio · Pausa: ...",
+      // sin tipo ("TT##### - P: ...", solo con código válido) o sin motivo ("TT##### - C - P")
+      const mT = l.match(/\bTT\s*-?\s*\d+\s*(?:[-–·]\s*)?(?:(C|F|M|Cambio|Fallo|Mejora)\s*[-–·]\s*)?([^:]{1,25}?)\s*(?::\s*(.*)|\.?$)/i);
+      if (mT && (mT[1] || esCodigo(mT[2]))) {
+        item.tipo = mT[1] ? mT[1][0].toUpperCase() : null;
+        item.codigo = esCodigo(mT[2]) ? mT[2].toUpperCase() : null;
+        item.estatus = `${CODIGOS[mT[2].toUpperCase()] || mT[2]}${mT[3] ? ': ' + mT[3] : ''}`.trim();
+      }
+      // Cambio de ID: "(antes TT#####)" en la línea del ID nuevo
+      const mA = l.match(/\bantes:?\s+(?:era\s+)?(?:el\s+)?TT\s*-?\s*(\d+)/i);
+      if (mA && 'TT' + mA[1] !== item.tt) item.antes = 'TT' + mA[1];
       if (/^cancelad[oa]\b/i.test(sinAcentos(l)) && !RX_CANCELADO.test(sinAcentos(item.estatus))) item.estatus = 'Cancelado · ' + item.estatus;
     }
     const c = item.estatus.match(/(?:^|[a-záéíóú\s)])x\s?(\d{1,2})\b(?!\s*[a-z])/i);
@@ -204,9 +239,18 @@ try {
     const porDia = {};
     for (const s of lista.sort((a, b) => a.dia - b.dia || String(a.hora).localeCompare(String(b.hora)))) porDia[s.dia.getTime()] = s;
     const serie = Object.values(porDia).sort((a, b) => a.dia - b.dia);
+    // Cambio de ID (se atendió con el ID de soporte y sigue con el definitivo): lo indica "(antes TT#####)" en la línea nueva
+    // o una aclaración aceptada (regla "cambio-id" con "nuevo"). La historia del ID anterior pasa al nuevo.
+    const alias = new Map();
+    for (const s of serie) if (s.dia <= dia) for (const b of s.bloques) for (const it of b.items) if (it.antes) alias.set(it.antes, { nuevo: it.tt, fuente: `marca del ${dmy(s.dia)}` });
+    for (const a of aclaraciones) if (a.regla === 'cambio-id' && a.tt && a.nuevo && llave(a.colaborador) === llave(autor))
+      alias.set(a.tt.toUpperCase(), { nuevo: a.nuevo.toUpperCase(), fuente: a.fuente || 'aclaración' });
+    const destino = tt => { let t = tt, n = 0; while (alias.has(t) && n++ < 5) t = alias.get(t).nuevo; return t; };
+    for (const s of serie) for (const b of s.bloques) for (const it of b.items) if (alias.has(it.tt)) { it.ttOriginal = it.tt; it.tt = destino(it.tt); }
+    for (const e of eventos) if (alias.has(e.tt)) e.tt = destino(e.tt);
     const act = serie.find(s => s.dia.getTime() === dia.getTime());
     const h = [];
-    const r = { standupDeHoy: !!act, hora: act ? act.hora : null, hallazgos: h, estancados: [], aclarados: [], faltantes: [] };
+    const r = { standupDeHoy: !!act, hora: act ? act.hora : null, hallazgos: h, estancados: [], aclarados: [], faltantes: [], cambiosId: [] };
     resultado.colaboradores[autor] = r;
     // Un día sin standup no es hallazgo por sí solo: se revisa en el siguiente que publique (solo informativo para Jorge)
     if (!act) {
@@ -219,6 +263,7 @@ try {
     const bHoy = bloqueHoy(act);
     // Estatus del TT en sus standups anteriores y hoy, en orden
     const historial = tt => [...previos, act].map(p => bloqueHoy(p).items.find(i => i.tt === tt)).filter(Boolean).map(i => i.estatus);
+    r.cambiosId = [...alias].filter(([, v]) => bHoy.items.some(i => i.tt === destino(v.nuevo))).map(([antes, v]) => ({ antes, nuevo: v.nuevo, fuente: v.fuente }));
 
     // Estructura: solo secciones standby/seguimiento con casos, sin títulos de día
     const titulos = [...new Set(act.bloques.map(b => b.etiqueta).filter(e => e !== 'hoy'))];
@@ -241,9 +286,15 @@ try {
       if (lineas(bHoy) && lineas(bHoy) === lineas(bloqueHoy(ant)))
         h.push({ regla: 'copiado', detalle: `La sección de seguimiento es idéntica a la del standup del ${dmy(ant.dia)}: ningún caso cambió de estatus ni de contador.` });
 
-      // TT que sale del "Hoy" sin estatus final
-      for (const [tt, it] of mHoyAnt) if (!mHoy.has(tt) && !esFinal(it.estatus))
-        h.push({ regla: 'desaparece', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado).` });
+      // TT que sale del "Hoy" sin estatus final. Si hoy aparece un TT nuevo parecido (no uno que prueba como tester),
+      // puede ser cambio de ID: se pregunta en lugar de marcarlo como desaparecido
+      const salen = [...mHoyAnt].filter(([tt, it]) => !mHoy.has(tt) && !esFinal(it.estatus));
+      const nuevos = [...mHoy.values()].filter(i => !RX_COMO_TESTER.test(i.estatus) &&!previos.some(p => p.bloques.some(b => b.items.some(x => x.tt === i.tt))));
+      for (const [tt, it] of salen) {
+        const par = parecido(it, nuevos, salen.length === 1);
+        if (par) h.push({ regla: 'cambio-id', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece; hoy aparece ${par.tt} ("${par.estatus}"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con "(antes ${tt})".` });
+        else h.push({ regla: 'desaparece', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado).` });
+      }
 
       // Contadores
       for (const [tt, it] of mHoy) {
@@ -266,32 +317,40 @@ try {
         h.push({ regla: 'retroceso', tt, detalle: `${tt} pasó de "${ult.it.estatus}" (${dmy(ult.dia)}) a "${it.estatus}" y no hay mensaje REABIERTO en el canal.` });
       }
       // Cerrado (CEC, cancelado, LDP) que reaparece. CEC o cancelado que regresa a trabajo es reapertura (lleva REABIERTO);
-      // LDP no se reabre. Un cancelado ya no aparece en el siguiente standup, aunque sea con otro cierre (p. ej. CEC).
+      // LDP no se reabre. CEC (y el cancelado anterior al 21/10/2026) aparece solo el día del cierre: no se repite en el siguiente standup.
       const avisados = new Set();
       for (const p of previos) for (const b of p.bloques) for (const it of b.items) {
-        if (!it.tt || !esCierre(it.estatus) || !mHoy.has(it.tt) || avisados.has(it.tt)) continue;
+        if (!it.tt || !esCierre(it.estatus) || RX_COMO_TESTER.test(it.estatus) || !mHoy.has(it.tt) || avisados.has(it.tt)) continue;
         const hoyEst = mHoy.get(it.tt).estatus;
-        const cancelado = RX_CANCELADO.test(sinAcentos(it.estatus));
         let detalle = null;
         if (esLdp(it.estatus)) {
           if (!esLdp(hoyEst)) detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer hoy ("${hoyEst}"). Después de la LDP el caso no se reabre: el problema nuevo va en otro TT (con ORIGEN si lo causó este).`;
         } else if (rango(hoyEst) < 5) {
           if (!eventos.some(e => e.tt === it.tt && e.tipo === 'REABIERTO' && e.dia >= p.dia))
             detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer hoy ("${hoyEst}") sin mensaje REABIERTO en el canal.`;
-        } else if (cancelado && !RX_CANCELADO.test(sinAcentos(hoyEst)))
-          detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y hoy aparece con "${hoyEst}". Un cancelado ya no aparece en el siguiente standup; si iba a cerrarse con otro estatus, se anota ese directamente.`;
+        } else
+          detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y hoy vuelve a aparecer ("${hoyEst}"). El cierre con CEC aparece solo el día en que se envía; en el siguiente standup el caso ya no va.`;
         if (detalle) { avisados.add(it.tt); h.push({ regla: 'retroceso', tt: it.tt, detalle }); }
       }
     }
 
-    // IDs, duplicados y errores de dedo en el standup de hoy
+    // IDs, duplicados, formato y errores de dedo en el standup de hoy
+    const codigosObligatorios = INICIO_CODIGOS && dia >= leerFecha(INICIO_CODIGOS).dia;
     for (const b of act.bloques) {
       const vistos = new Set();
       for (const it of b.items) {
+        const id = it.ttOriginal || it.tt;
         if (it.idSinPrefijo) h.push({ regla: 'id', tt: it.tt, detalle: `"${it.linea}": el ID va sin el prefijo TT.` });
         if (it.idCorto) h.push({ regla: 'id', tt: it.tt, detalle: `"${it.linea}": el ID tiene menos de 5 dígitos.` });
-        if (it.tt && vistos.has(it.tt)) h.push({ regla: 'id', tt: it.tt, detalle: `${it.tt} aparece dos veces en el bloque "${b.etiqueta}".` });
-        if (it.tt) vistos.add(it.tt);
+        if (id && vistos.has(id)) h.push({ regla: 'id', tt: it.tt, detalle: `${id} aparece dos veces en el bloque "${b.etiqueta}".` });
+        if (id) vistos.add(id);
+        if (codigosObligatorios && b === bHoy && it.tt) {
+          if (!it.codigo) h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": falta el código de estatus; el formato es TT##### - C/F - Código: motivo (R, AN, D, PIL, ENT, EST, RSP, ESPLDP, BUGPRU, PRU, ESPBUG, FINPRU, LDP, CEC, P).` });
+          else if (it.codigo === 'CAN') h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": CAN ya no se usa; un caso que se cierra sin pasar a RSP (también si se cancela) va con CEC y el motivo.` });
+          else if (!it.tipo || it.tipo === 'M') h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": ${it.tipo ? 'las mejoras van con C' : 'falta el tipo'} (C = cambio o mejora, F = fallo).` });
+          if (it.codigo && it.seccion && (it.codigo === 'P') !== /stand/.test(it.seccion))
+            h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": P (pausa) va en standby y los demás códigos en seguimiento.` });
+        }
         if ((/tt\s*sin\s*id/i.test(it.linea) || /^tt\s*:/i.test(it.linea)) && !sinTtPermitido(autor, it.linea)) h.push({ regla: 'id', detalle: `"${it.linea}": trabajo registrado sin número de caso.` });
         // Trabajo nuevo sin TT (si ya venía de antes, lo cubre sin-caso)
         else if (!it.tt && b === bHoy && RX_TRABAJO.test(it.linea) && !RX_NO_CASO.test(it.linea) && !sinTtPermitido(autor, it.linea) &&
@@ -303,7 +362,20 @@ try {
         if (tuvoRsp && !iniciaronPruebas(historial(it.tt)) && !h.some(x => x.regla === 'retroceso' && x.tt === it.tt) &&
           /reabr|regres[oó]|volvi[oó] a|otra vez|de nuevo/i.test(it.estatus) && !eventos.some(e => e.tt === it.tt && /REABIERTO|ORIGEN/.test(e.tipo)))
           h.push({ regla: 'evento', tt: it.tt, detalle: `${it.tt} estuvo en RSP, hoy dice "${it.estatus}" y no hay mensaje REABIERTO u ORIGEN en el canal.` });
-        if (it.tt && esLdp(it.estatus) && !eventos.some(e => e.tt === it.tt && /LDP|LIBERADO/.test(e.tipo)))
+        // Las pruebas y la LDP de un caso propio van después de RSP: de ENT, EST o trabajo no se pasa directo a pruebas
+        // (de RSP a LDP directo sí, si la SCRUM, las pruebas y la liberación son el mismo día). Solo si el TT ya aparecía antes en la ventana.
+        if (b === bHoy && it.tt && !RX_COMO_TESTER.test(it.estatus) && (esLdp(it.estatus) || iniciaronPruebas([it.estatus]))) {
+          const antes = previos.map(p => bloqueHoy(p).items.find(x => x.tt === it.tt)).filter(Boolean);
+          const prev = antes[antes.length - 1];
+          const ests = antes.map(x => x.estatus);
+          if (prev && !esLdp(prev.estatus) && !ests.some(esRsp) && !iniciaronPruebas(ests) && !ests.some(e => RX_COMO_TESTER.test(e)))
+            h.push({ regla: 'sin-rsp', tt: it.tt, detalle: `${it.tt} pasó de "${prev.estatus}" a "${it.estatus}" sin pasar por RSP. Las pruebas con el tester empiezan después de RSP (cuando el cliente da por bueno el caso); el día en que quedó en RSP se anota con ese código.` });
+        }
+        // LDP es solo del dueño del caso: quien lo probó como tester cierra con FINPRU
+        if (b === bHoy && it.codigo === 'LDP' && historial(it.tt).some(e => RX_COMO_TESTER.test(e)))
+          h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": LDP es solo del dueño del caso; quien lo probó como tester cierra con FINPRU (sin evento).` });
+        // El evento LDP lo publica el desarrollador responsable; quien lo probó como tester (PRU, ESPBUG) no
+        if (it.tt && esLdp(it.estatus) && !historial(it.tt).some(e => RX_COMO_TESTER.test(e)) && !eventos.some(e => e.tt === it.tt && /LDP|LIBERADO/.test(e.tipo)))
           h.push({ regla: 'evento', tt: it.tt, detalle: `${it.tt} dice "${it.estatus}" y no hay mensaje LDP en el canal.` });
       }
     }
@@ -329,7 +401,7 @@ try {
     }
 
     // Hueco de standups: solo se señala si al comparar con el anterior algo no cuadra
-    const CONTINUIDAD = ['desaparece', 'copiado', 'contador', 'retroceso', 'evento'];
+    const CONTINUIDAD = ['desaparece', 'cambio-id', 'copiado', 'contador', 'retroceso', 'sin-rsp', 'evento'];
     if (faltan > 0 && h.some(x => CONTINUIDAD.includes(x.regla)))
       h.unshift({ regla: 'sin-standup', detalle: `No hay standup en ${faltan} día(s) hábil(es) entre el ${dmy(ant.dia)} y hoy, y al comparar con el del ${dmy(ant.dia)} hay cambios sin explicar.` });
 
@@ -345,16 +417,20 @@ try {
       .map(({ regla, detalle, ...e }) => e);
   }
 
-  // TT reportado por más de un colaborador hoy
-  const duenos = {};
+  // TT reportado por más de un colaborador hoy (con PRU o ESPBUG, quien lo prueba como tester)
+  const duenos = {}, testers = {};
   for (const [autor, lista] of Object.entries(standups)) for (const s of lista) if (s.dia.getTime() === dia.getTime())
-    for (const b of s.bloques) for (const it of b.items) if (it.tt) (duenos[it.tt] = duenos[it.tt] || new Set()).add(autor);
+    for (const b of s.bloques) for (const it of b.items) if (it.tt) {
+      (duenos[it.tt] = duenos[it.tt] || new Set()).add(autor);
+      if (CODIGOS_TESTER.includes(it.codigo)) (testers[it.tt] = testers[it.tt] || new Set()).add(autor);
+    }
   // Sin hallazgos repetidos
   for (const c of Object.values(resultado.colaboradores)) {
     const v = new Set();
     c.hallazgos = c.hallazgos.filter(x => { const k = x.regla + '|' + x.detalle.replace(/ x\d+/g, ''); return !v.has(k) && v.add(k); });
   }
-  resultado.ttCompartidos = Object.entries(duenos).filter(([, s]) => s.size > 1).map(([tt, s]) => ({ tt, colaboradores: [...s] }));
+  resultado.ttCompartidos = Object.entries(duenos).filter(([, s]) => s.size > 1)
+    .map(([tt, s]) => ({ tt, colaboradores: [...s], ...(testers[tt] ? { tester: [...testers[tt]] } : {}) }));
   resultado.ventana = { standups: Object.values(standups).flat().length, eventos: eventos.length, aclaraciones: aclaraciones.length };
   console.log(JSON.stringify(resultado, null, 2));
 } catch (e) {
