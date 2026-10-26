@@ -54,8 +54,10 @@ para correr en paralelo. Pásale los puntos de abajo y pídele que escriba `<scr
 
 Instrucciones para el subagente:
 - Canal **#mtto**, ID `C02CGD1D9NX`. Obtén los mensajes ejecutando:
-  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" history C02CGD1D9NX <oldest> 100 "<scratchpad>/raw_mtto.json"`
+  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" history C02CGD1D9NX <oldest> 1000 "<scratchpad>/raw_mtto.json"`
   con `oldest` = timestamp Unix de la fecha de la última hoja a las 00:00 MST (UTC-7; calcúlalo con `node -e`).
+  `slack.js history` se detiene al juntar el tope (1000): un `oldest` mal calculado (p. ej. error de año) trae meses de mensajes.
+  Si el archivo sale con 1000 mensajes o es demasiado grande, revisa el `oldest` y acorta la ventana en lugar de procesarlo.
 - Formato de los standups: secciones **standby** y **seguimiento** con `TT#####: estatus`. Los anteriores al 08/10/2026 traen "Ayer"/"Viernes" + "Hoy": usa solo "Hoy".
   Saulo marca el tipo como `- C -` (cambio) / `- F -` (fallo); los demás escriben "Cambio"/"Fallo". Eventos aparte: `LDP`/`LIBERADO`, `REABIERTO`, `ORIGEN`; `CANCELADO TT##### | …` dentro del standup.
 - Equipo: Saulo López, Miguel Armenta, Martín Reyes, Susana Gámez (los mensajes de Jorge son avisos, no standups).

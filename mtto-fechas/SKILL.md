@@ -25,8 +25,10 @@ más una línea con el rango leído y el último standup de cada responsable. El
 Instrucciones para el subagente:
 - Canal: **#mtto**, privado, ID `C02CGD1D9NX` (el usuario a veces escribe "mmto"; es el mismo).
 - Para obtener los mensajes, ejecuta con `run_command`:
-  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" history C02CGD1D9NX <oldest> 100 "<scratchpad>\mensajes_mtto.json"`
+  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" history C02CGD1D9NX <oldest> 1000 "<scratchpad>\mensajes_mtto.json"`
   con `oldest` = timestamp Unix de **hace ~12 días** (calcúlalo con cuidado a partir de la fecha de hoy).
+  `slack.js history` se detiene al juntar el tope (1000): un `oldest` mal calculado (p. ej. error de año) trae meses de mensajes.
+  Si el archivo sale con 1000 mensajes o es demasiado grande, revisa el `oldest` y acorta la ventana en lugar de procesarlo.
 - Si algún mensaje relevante tiene hilo, léelo con:
   `node "C:\Users\jorge\.gemini\config\scripts\slack.js" replies C02CGD1D9NX <threadTs> "<scratchpad>\hilo.json"`
 

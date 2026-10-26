@@ -69,12 +69,17 @@ Verifica tú cada sospechoso antes de preguntarle a Jorge (lee su ts con el help
 
 ## Paso 2 — Leer los eventos del canal [subagente]
 
-Canal **#mtto**, privado, ID `C02CGD1D9NX`. Ejecuta con `run_command` el helper de Slack (`slack.js search` o búsquedas por palabra clave):
-`node "C:\Users\jorge\.gemini\config\scripts\slack.js" search "<query>" "<scratchpad>\<archivo>.json"`
+Canal **#mtto**, privado, ID `C02CGD1D9NX`. Ejecuta con `run_command` el helper de Slack **cuatro veces**, una por palabra clave:
+`node "C:\Users\jorge\.gemini\config\scripts\slack.js" search "<clave> in:<#C02CGD1D9NX> after:<fecha> before:<slack.before>" "<scratchpad>\<clave>.json"`
 
-- Palabras clave: `"LDP"`, luego `"LIBERADO"` (eventos publicados antes del 09/10/2026), `"REABIERTO"` y `"ORIGEN"`
+- Palabras clave: `LDP`, luego `LIBERADO` (eventos publicados antes del 09/10/2026), `REABIERTO` y `ORIGEN`.
+- `after:<slack.after>` para LDP y LIBERADO; para REABIERTO y ORIGEN usa `after:<slack.afterIncidencias>` (desde que existen los eventos), porque las de un cambio pueden ser de meses anteriores a su LDP.
+- El helper pagina hasta agotar resultados y los deja en orden cronológico (más antiguo primero), con el texto completo de cada mensaje.
 - La guía de registro es el mensaje fijado del 07/10/2026 (ts `1791397394.905699`); sus ejemplos llevan prefijo y no son eventos. Si aparece en los resultados, ignóralo.
 - La búsqueda de `LDP` también trae standups ("en espera de LDP", `TT#####: LDP`). `eventos.js` solo toma las líneas que **empiezan** con la clave; el resto se ignora.
+
+Si el helper falla por el token de Slack, díselo al usuario y detente.
+Si algún texto aparece truncado, léelo completo con `node "C:\Users\jorge\.gemini\config\scripts\slack.js" replies C02CGD1D9NX <ts> "<scratchpad>\msg.json"` (devuelve el mensaje aunque no tenga hilo; si es una respuesta en hilo, usa el `ts` del mensaje padre).
 
 Guarda **todos** los mensajes encontrados, tal cual, en `<scratchpad>/mensajes.json`:
 
@@ -93,7 +98,7 @@ Devuelve `cambios`, `fallosLdp`, `reaperturas`, `origenes`, `noLeidos` (líneas 
 ## Paso 3 — Barrido de control (menciones sin etiqueta) [subagente]
 
 Para detectar reaperturas que no se registraron con el formato, busca cada TT evaluado (fallos del paso 1 y cambios del mes) en el canal:
-`keywords: ["TT######"]`, `filters: "in:<#C02CGD1D9NX> after:<día anterior a su fecha base> before:<fecha base + 31 días>"` (para los cambios, `after:<slack.afterIncidencias>`), `content_types: "messages"`, `include_context: false`, `response_format: "concise"`.
+`node "C:\Users\jorge\.gemini\config\scripts\slack.js" search "TT###### in:<#C02CGD1D9NX> after:<día anterior a su fecha base> before:<fecha base + 31 días>" "<scratchpad>\TT######.json"` (para los cambios, `after:<slack.afterIncidencias>`).
 
 Márcalo como **sospechoso** solo si una mención **posterior a la fecha base** (en los cambios, cualquiera hasta 30 días después de su LDP) indica que el problema regresó o la corrección no funcionó
 ("reabre", "regresó", "otra vez", "de nuevo", "nuevamente", "persiste", "sigue fallando", "no quedó", "lo rechazaron", "volvió a").

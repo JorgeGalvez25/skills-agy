@@ -83,7 +83,10 @@ Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejo
 - Desde el **08/10/2026** ya no lleva "Ayer"/"Viernes" ni "Hoy": lo hecho el día anterior se lee en el standup anterior.
 - Un caso solo sale del standup después de aparecer una última vez con estatus de cierre (RSP, LDP, CEC, cancelado).
 - Desde el **09/10/2026**: **RSP** (Revisión SCRUM Pendiente) = el cliente dio por bueno el cambio o la corrección del fallo; falta integrarlo a MAIN
-  y que el tester lo libere de pruebas. Hasta antes de RSP el caso no está terminado. Desde que entra a RSP no se le pide que avance (no se marca estancado).
+  y las pruebas previas a liberar la versión. El caso puede salir del standup y vuelve a seguimiento cuando entra a integración y pruebas con el tester.
+  **LDP** = el tester mandó el correo de liberación de pruebas (cambios, mejoras y fallos): ese día el caso aparece como `TT#####: LDP`
+  y se publica el evento `LDP`. "En espera de LDP" no es cierre.
+- **Reapertura** (desde el 16/10/2026) = el caso pasa de RSP, CEC o Cancelado a revisión o desarrollo; lleva REABIERTO.
   Entregado que regresa a revisión **no** es reapertura (es parte del ciclo antes de que el cliente lo dé por bueno). **Una vez iniciadas las pruebas no hay retroceso
   ni reapertura**: lo que encuentre el tester se corrige en el mismo TT hasta la LDP. Después de la LDP tampoco se reabre:
   un problema nuevo va en otro TT, con ORIGEN si lo causó ese caso.
@@ -135,8 +138,10 @@ Si no hay retros previas en el DM, sigue al Paso 1.
 ## Paso 1 — Leer el canal [subagente]
 
 - Canal **#mtto**, ID `C02CGD1D9NX`. Ejecuta con `run_command`:
-  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" history C02CGD1D9NX <oldest> 100 "<scratchpad>/raw_mtto.json"`
+  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" history C02CGD1D9NX <oldest> 1000 "<scratchpad>/raw_mtto.json"`
   con `oldest` = timestamp Unix de **10 días naturales antes** de la fecha revisada a las 00:00 (calcúlalo con `node -e` para no equivocarte de año).
+  `slack.js history` se detiene al juntar el tope (1000): un `oldest` mal calculado (p. ej. error de año) trae meses de mensajes.
+  Si el archivo sale con 1000 mensajes o es demasiado grande, revisa el `oldest` y acorta la ventana en lugar de procesarlo.
 - Transcribe **todos** los mensajes, sin resumir ni corregir nada, a `<scratchpad>/standups.json`:
 
 ```json

@@ -2,7 +2,7 @@
 # Sin -Ado: título y actividades del HorasCambio. Con -Ado: ramas, commits y archivos en Azure DevOps.
 param([string]$Mes = (Get-Location).Path, [string[]]$TT, [switch]$Ado)
 $ErrorActionPreference = 'Stop'
-. 'C:\Users\jorge\.claude\skills\mtto-revpr\scripts\comun.ps1'
+. 'C:\Users\jorge\.gemini\config\skills\mtto-revpr\scripts\comun.ps1'
 
 $archivos = @(Get-ChildItem "$Mes\CambiosInternos" -Recurse -Filter 'HorasCambioTT*.xlsx' | Where-Object { -not $TT -or ($_.BaseName -replace 'HorasCambio', '') -in $TT })
 
