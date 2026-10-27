@@ -6,3 +6,7 @@ node_modules/
 ~$*
 .DS_Store
 Thumbs.db
+
+# Caches y sincronizaciones externas de Claude/Anthropic
+synced/
+.bucket-*
