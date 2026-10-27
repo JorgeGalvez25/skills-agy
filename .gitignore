@@ -10,3 +10,6 @@ Thumbs.db
 # Caches y sincronizaciones externas de Claude/Anthropic
 synced/
 .bucket-*
+
+# Skills externas de terceros
+anatomy/
