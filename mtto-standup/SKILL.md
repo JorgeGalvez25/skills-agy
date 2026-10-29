@@ -21,18 +21,20 @@ de mensaje directo por colaborador y **solo dejas en Slack, como borrador, los q
 
 ## Delegación (ahorro de tokens)
 
-Las lecturas de Slack son mecánicas y voluminosas: **no las hagas tú**. Al empezar, calcula los timestamps con `node -e` y lanza en **una sola llamada a `invoke_subagent`** dos subagentes en paralelo (`TypeName: "self"`, `Model: "flash"`):
+Las lecturas de Slack son mecánicas y voluminosas: **no las hagas tú**. Al empezar, calcula los timestamps con `node -e` y lanza en **un solo mensaje**
+dos subagentes en paralelo con una sola llamada a `invoke_subagent` (`TypeName: "self"`, `Model: "flash"`): `Role: "Lector Canal Slack"` y `Role: "Lector DMs Slack"`, con las instrucciones exactas de los Pasos 0 y 1 marcadas como **[subagente]**:
 
-- **Lector del canal** (`Role: "Lector Canal Slack"`, Paso 1) → escribe `<scratchpad>/standups.json`.
-- **Lector de DMs** (`Role: "Lector DMs Slack"`, Paso 0, puntos 1–3) → escribe `<scratchpad>/retros.json`.
+- **Lector del canal** (Paso 1) → escribe `<scratchpad>/standups.json`.
+- **Lector de DMs** (Paso 0, puntos 1–3) → escribe `<scratchpad>/retros.json`.
 
 Pídeles que respondan solo con: archivo escrito, número de mensajes, rango de fechas y mensajes que no pudieron leer completos (nada del contenido).
-Con `/mtto-standup respuestas` lanza solo el lector de DMs. Tú haces la clasificación (Paso 0.4), Pasos 2–5 y todo borrador: **nunca delegues la redacción ni los borradores de mensajes**. Si un subagente falla, avisa y detente; no repitas tú la lectura completa salvo que Jorge lo pida.
+Con `/mtto-standup respuestas` lanza solo el lector de DMs. Tú haces la clasificación (Paso 0.4), Pasos 2–5 y todo borrador: **nunca delegues
+la redacción ni los borradores de mensajes**. Si un subagente falla o el helper de Slack falla por el token (p. ej. error de autenticación o token expirado no renovable), avisa al usuario y detente; no repitas tú la lectura completa salvo que Jorge lo pida.
 
 ## Reglas que no se negocian
 
 1. **Nunca envíes mensajes**: solo dejas borradores, y únicamente con autorización explícita en el chat, colaborador por colaborador ("envía a Saulo y Susana", "envía todos" = déjales el borrador). Si Jorge pide cambios, muestra la nueva versión y espera otra vez.
-2. **Solo borradores de mensajes directos** al colaborador (`node "C:\Users\jorge\.gemini\config\scripts\slack.js" draft <User_ID> "<texto>"`). **Nunca** escribas en #mtto ni en otro canal.
+2. **Solo borradores de mensajes directos** al colaborador (`node "C:\Users\jorge\.gemini\config\scripts\slack.js" draft <User_ID> --file "<ruta_archivo>"`). **Nunca** escribas en #mtto ni en otro canal.
 3. Señala solo lo que el canal muestra. Cita el dato (qué puso y qué día). No supongas intenciones ni califiques a la persona.
 4. Esto revisa la **calidad del registro**, no el desempeño. El estancamiento se le informa a Jorge, no al colaborador (salvo que Jorge lo pida).
 5. Si un colaborador no tiene hallazgos que valgan la pena, no se le escribe.
@@ -67,6 +69,7 @@ Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejo
 | `ENT` | Entregado, en espera de respuesta | seguimiento |
 | `EST` | Preguntar estatus (correo a soporte) | seguimiento |
 | `RSP` | Revisión SCRUM Pendiente (ver abajo) | seguimiento |
+| `REVPR` | Corrección de código por observaciones de Jorge al PR de un caso que ya pasó por RSP (ver abajo) | seguimiento |
 | `ESPLDP` | Caso propio en pruebas con el tester, en espera de LDP | seguimiento |
 | `BUGPRU` | El tester reportó un bug en el caso (se corrige en el mismo TT) | seguimiento |
 | `PRU` | Caso de un compañero que se está probando como tester | seguimiento |
@@ -90,6 +93,11 @@ Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejo
   Entregado que regresa a revisión **no** es reapertura (es parte del ciclo antes de que el cliente lo dé por bueno). **Una vez iniciadas las pruebas no hay retroceso
   ni reapertura**: lo que encuentre el tester se corrige en el mismo TT hasta la LDP. Después de la LDP tampoco se reabre:
   un problema nuevo va en otro TT, con ORIGEN si lo causó ese caso.
+- Desde el **28/10/2026**: **REVPR** (Revisión de PR) = el desarrollador corrige el código por las observaciones que Jorge hizo al PR de un caso que ya pasó
+  por RSP. Se registra con el **mismo TT del caso** (`TT##### - F - REVPR: observaciones del PR`), no es retroceso ni reapertura (no lleva REABIERTO) y no es cierre:
+  al atender las observaciones, el caso aparece una última vez como `RSP` (p. ej. `RSP: observaciones del PR atendidas`) o sigue a pruebas (`ESPLDP`).
+  Si el caso nunca estuvo en RSP, el script marca `sin-rsp`. Antes del 28/10/2026 este trabajo aparecía como "corrección para liberación" (p. ej. TT98105 y
+  TT102632 de Miguel, 21–22/10/2026): no se trata como cambio de ID ni como trabajo sin cierre.
 - El script da por iniciadas las pruebas cuando el caso trae `ESPLDP`, `BUGPRU`, `PRU`, `ESPBUG` o `FINPRU`, menciona SDP, al tester o "en espera de LDP", o cuando después de RSP
   menciona pruebas, integración, MAIN o SCRUM. Desde ahí no marca `retroceso` ni sugiere REABIERTO.
 - Los casos atendidos y cerrados el mismo día también se anotan, con su estatus final.
@@ -102,7 +110,7 @@ Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejo
   `CAN` ya no se usa (con `INICIO_CODIGOS` se marca `formato`). Los cancelados anteriores (`TT#####: Cancelado` o la línea
   `CANCELADO TT##### | …`) se siguen leyendo como cierre en el historial: no se marca `desaparece` ni `estancados`.
 
-Vocabulario: RSP (Revisión SCRUM Pendiente: el cliente dio por bueno), LDP (liberado de pruebas por el tester), CEC (correo de cierre: cierre sin RSP, incluidos los cancelados), Cancelado (formato anterior al 21/10/2026, equivale a CEC), Entregado / en espera de respuesta, Pausa / standby / en espera de logs, "x2", "x3"… = veces que se repite la acción.
+Vocabulario: RSP (Revisión SCRUM Pendiente: el cliente dio por bueno), REVPR (corrección por observaciones a la revisión del PR, después de RSP), LDP (liberado de pruebas por el tester), CEC (correo de cierre: cierre sin RSP, incluidos los cancelados), Cancelado (formato anterior al 21/10/2026, equivale a CEC), Entregado / en espera de respuesta, Pausa / standby / en espera de logs, "x2", "x3"… = veces que se repite la acción.
 Eventos aparte (mensaje propio, ver `C:\Users\jorge\.gemini\config\skills\rcalidad\GUIA_CANAL.md`): `LDP` (sustituye a `LIBERADO` desde el 09/10/2026), `REABIERTO`, `ORIGEN`.
 
 ## Paso 0 — Leer las respuestas a la retro anterior
@@ -142,6 +150,7 @@ Si no hay retros previas en el DM, sigue al Paso 1.
   con `oldest` = timestamp Unix de **10 días naturales antes** de la fecha revisada a las 00:00 (calcúlalo con `node -e` para no equivocarte de año).
   `slack.js history` se detiene al juntar el tope (1000): un `oldest` mal calculado (p. ej. error de año) trae meses de mensajes.
   Si el archivo sale con 1000 mensajes o es demasiado grande, revisa el `oldest` y acorta la ventana en lugar de procesarlo.
+- Si el helper de Slack falla por el token (p. ej. error de autenticación o token expirado no renovable), avisa al usuario y detente.
 - Transcribe **todos** los mensajes, sin resumir ni corregir nada, a `<scratchpad>/standups.json`:
 
 ```json
@@ -149,7 +158,7 @@ Si no hay retros previas en el DM, sigue al Paso 1.
 ```
 
   `fecha` es la que muestra Slack (MST) en formato `AAAA-MM-DD HH:MM`; `autor` es el nombre tal cual aparece. Incluye también los mensajes de eventos y los de Jorge (el script los clasifica).
-  Si un mensaje viene truncado ("..."), léelo completo antes de transcribirlo.
+  Si un mensaje viene truncado ("..."), léelo completo con: `node "C:\Users\jorge\.gemini\config\scripts\slack.js" replies C02CGD1D9NX <ts> "<scratchpad>\msg.json"` antes de transcribirlo.
 
 ## Paso 2 — Ejecutar la revisión
 
@@ -169,11 +178,11 @@ Devuelve por colaborador `standupDeHoy`, `hora`, `hallazgos[]` (`regla`, `tt`, `
 | `estructura` | No hay casos en standby/seguimiento o (desde el 08/10/2026) todavía incluye "Ayer"/"Viernes" |
 | `desaparece` | Un TT de su "Hoy" anterior ya no aparece y su último estatus no era de cierre (RSP, LDP, CEC, cancelado), y no hay un TT nuevo que lo continúe |
 | `cambio-id` | Un TT desaparece sin cierre y hoy aparece uno nuevo (que no es `PRU`, `ESPBUG` ni `FINPRU`) del mismo tipo con dos o más palabras en común en el motivo, o el único TT nuevo cuando solo desapareció uno, sin la marca `(antes TT#####)` |
-| `sin-rsp` | Un caso propio entra a pruebas (`ESPLDP`, `BUGPRU`, SDP, "en espera de LDP") o a `LDP` desde `ENT`, `EST` o trabajo, sin haber estado en RSP. De RSP a LDP directo sí vale (SCRUM, pruebas y liberación el mismo día). Solo si el TT ya aparecía en la ventana leída: si es nuevo en la ventana, su RSP pudo ser anterior |
+| `sin-rsp` | Un caso propio entra a pruebas (`ESPLDP`, `BUGPRU`, SDP, "en espera de LDP"), a `REVPR` o a `LDP` desde `ENT`, `EST` o trabajo, sin haber estado en RSP. De RSP a LDP directo sí vale (SCRUM, pruebas y liberación el mismo día). Solo si el TT ya aparecía en la ventana leída: si es nuevo en la ventana, su RSP pudo ser anterior |
 | `formato` | Solo desde `INICIO_CODIGOS`: línea con TT sin código de la tabla, sin tipo o con `M` (las mejoras van con `C`), con `CAN` (va `CEC`), o `P` fuera de standby / otro código en standby. Siempre (sin esperar `INICIO_CODIGOS`): `LDP` puesto por quien probó el caso como tester (va `FINPRU`) |
 | `copiado` | La sección de seguimiento es idéntica a la del standup anterior (ningún estatus ni contador cambió) |
 | `contador` | Un contador baja, salta más de lo que permiten los días transcurridos (uno por día hábil, contando los días sin standup) o desaparece con el mismo estatus |
-| `retroceso` | Un TT pasa de RSP (en su última aparición, aunque haya salido del standup) a revisando/codificando/piloto (`R`, `AN`, `D`, `PIL`) sin mensaje REABIERTO y sin haber iniciado pruebas; un TT con CEC o cancelado regresa a trabajo sin mensaje REABIERTO; un CEC o cancelado reaparece en el siguiente standup con un cierre (CEC va solo el día en que se envía); o un TT con LDP reaparece con otro estatus, y se indica que no se reabre: va en otro TT con ORIGEN. Entregado → revisión no se marca |
+| `retroceso` | Un TT pasa de RSP (en su última aparición, aunque haya salido del standup) a revisando/codificando/piloto (`R`, `AN`, `D`, `PIL`) sin mensaje REABIERTO y sin haber iniciado pruebas; un TT con CEC o cancelado regresa a trabajo sin mensaje REABIERTO; un CEC o cancelado reaparece en el siguiente standup con un cierre (CEC va solo el día en que se envía); o un TT con LDP reaparece con otro estatus, y se indica que no se reabre: va en otro TT con ORIGEN. Entregado → revisión y RSP → `REVPR` no se marcan |
 | `id` | ID sin prefijo TT, con menos de 5 dígitos, repetido en el bloque, o trabajo nuevo sin número de caso (línea que empieza con Fallo, Cambio, Mejora o Apoyo, o que dice "pendiente de caso") |
 | `ortografia` | Posible error de dedo en palabras del vocabulario de estatus |
 | `evento` | Un TT que estuvo en RSP dice "otra vez", "regresó"… y no existe el mensaje REABIERTO/ORIGEN, o un TT tiene estatus LDP en el standup y no existe su mensaje aparte `LDP TT##### | ...` (o un LIBERADO anterior), que es el que lee /rcalidad. No se le pide a quien lo probó como tester (`PRU`, `ESPBUG`, `FINPRU`): lo publica el desarrollador responsable |
@@ -196,6 +205,8 @@ El script es estricto a propósito. Antes de redactar, descarta o matiza:
   la aclaración con `regla: "cambio-id"`, `tt` (el ID anterior) y `nuevo` (ver "Aclaraciones"). Si lo ves leyendo los mensajes aunque el script no lo marcó
   (desaparece un TT y aparece otro con otras palabras), conviértelo también en pregunta en lugar de `desaparece`.
 - `formato`: los primeros días después de `INICIO_CODIGOS`, agrúpalo en una sola viñeta de recordatorio amable con la tabla de códigos, no una por línea.
+- Un caso que después de RSP vuelve con "corrección para liberación", "observaciones del PR" o similar es `REVPR`: no es retroceso ni cambio de ID.
+  Si no trae el código, sugiere `TT##### - C/F - REVPR: <motivo>` en lugar de pedir REABIERTO.
 - `BUGPRU` que pasa a `R`, `AN` o `D`: no es retroceso (las pruebas ya iniciaron); sugiere mantener `BUGPRU` hasta que lo devuelva al tester.
 - `ttCompartidos`: puede ser trabajo en conjunto; solo infórmalo a Jorge. Si trae `tester`, es el caso que ese colaborador prueba (`PRU`, `ESPBUG` o `FINPRU`): es normal y no se menciona.
 - `faltantes`: no se redacta nada por ellos. Si hubo hueco y hay hallazgos de continuidad, redacta el punto mencionando el hueco como contexto
@@ -232,12 +243,12 @@ Hola <nombre>, revisé tu standup del dd/mm contra los de días anteriores y enc
 ## Paso 5 — Dejar borradores y guardar (solo con autorización)
 
 Los mensajes **no se envían**: se dejan como borrador en Slack para que Jorge los revise y los envíe él (así no llevan "Enviado usando Claude" ni textos automáticos).
-Nunca los envíes con `send`.
+Nunca los envíes con `slack.js send`.
 
-- **Retro nueva:** por cada colaborador autorizado, ejecuta con `run_command`:
-  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" draft <User_ID> "<texto aprobado>"`
-- **Corrección de una retro:** ejecuta con `run_command`:
-  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" draft <User_ID> "<texto aprobado>" <ts_de_la_retro>`
+- **Retro nueva:** por cada colaborador autorizado, guarda el texto aprobado en `<scratchpad>/borrador_<userId>.txt` (soporta markdown estándar: `**negritas**`, y las viñetas `•` se conservan como texto) y ejecuta con `run_command`:
+  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" draft <User_ID> --file "<scratchpad>/borrador_<userId>.txt"`
+- **Corrección de una retro:** guarda el texto de corrección en `<scratchpad>/correccion_<userId>.txt` y ejecuta con `run_command`:
+  `node "C:\Users\jorge\.gemini\config\scripts\slack.js" draft <User_ID> --file "<scratchpad>/correccion_<userId>.txt" <ts_de_la_retro>`
 - Slack admite un solo borrador por conversación: si responde `attached_draft_exists`, avisa a Jorge que tiene un borrador pendiente con ese colaborador
   (que lo envíe o lo borre) y no lo reintentes hasta que lo diga.
 - **Aclaraciones aprobadas:** agrégalas a `aclaraciones.json` (créalo con `[]` si no existe; nunca borres entradas sin que Jorge lo pida). Si Jorge cambia una regla para todo el equipo, eso no es aclaración: propón el cambio a esta skill o al script.

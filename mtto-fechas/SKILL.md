@@ -16,11 +16,13 @@ Si no hay imagen adjunta, pídela y detente.
 
 ## 2. Leer el canal #mtto (subagente)
 
-**No leas el canal tú.** Calcula el `oldest` con `node -e` y delega la lectura a un subagente (invocando `invoke_subagent` con `TypeName: "self"`, `Role: "Lector de Standups Slack"`, `Model: "flash"`); puedes lanzarlo **antes** de leer la imagen, para que trabaje mientras tanto. Pásale esta sección completa (incluida "Cómo son los mensajes") y pídele que entregue **solo** el estado por TT, una línea cada uno, sin transcribir los mensajes:
+**No leas el canal tú.** Calcula el `oldest` con `node -e` y delega la lectura a un subagente (invocando `invoke_subagent` con `TypeName: "self"`, `Role: "Lector de Standups Slack"`, `Model: "flash"`); puedes lanzarlo **antes** de leer la imagen, para que trabaje mientras tanto. Pásale esta sección completa (incluida
+"Cómo son los mensajes") y pídele que entregue **solo** el estado por TT, una línea cada uno, sin transcribir los mensajes:
 
 `TT##### | responsable | último estatus tal cual | fecha de ese standup | ¿sigue en el último standup del responsable? (sí/no) | estatus previos con fecha, breves`
 
-más una línea con el rango leído y el último standup de cada responsable. El cruce con el tablero (paso 3) lo haces tú. Si necesitas el texto exacto de un caso dudoso, pídeselo al mismo subagente con `send_message` en lugar de releer el canal.
+más una línea con el rango leído y el último standup de cada responsable. El cruce con el tablero (paso 3) lo haces tú. Si necesitas el
+texto exacto de un caso dudoso, pídeselo al mismo subagente con `send_message` en lugar de releer el canal.
 
 Instrucciones para el subagente:
 - Canal: **#mtto**, privado, ID `C02CGD1D9NX` (el usuario a veces escribe "mmto"; es el mismo).
@@ -29,6 +31,7 @@ Instrucciones para el subagente:
   con `oldest` = timestamp Unix de **hace ~12 días** (calcúlalo con cuidado a partir de la fecha de hoy).
   `slack.js history` se detiene al juntar el tope (1000): un `oldest` mal calculado (p. ej. error de año) trae meses de mensajes.
   Si el archivo sale con 1000 mensajes o es demasiado grande, revisa el `oldest` y acorta la ventana en lugar de procesarlo.
+- Si el helper de Slack falla por el token (p. ej. error de autenticación o token expirado no renovable), avisa al usuario y detente.
 - Si algún mensaje relevante tiene hilo, léelo con:
   `node "C:\Users\jorge\.gemini\config\scripts\slack.js" replies C02CGD1D9NX <threadTs> "<scratchpad>\hilo.json"`
 
@@ -42,6 +45,7 @@ Equipo: Martín Reyes, Miguel Armenta, Susana Gámez, Saulo López.
 
 Vocabulario de estatus:
 - **RSP** (Revisión SCRUM Pendiente): el cliente dio por bueno el cambio o la corrección del fallo; falta integrarlo a MAIN y las pruebas previas a liberar la versión. Vuelve a seguimiento cuando entra a integración y pruebas con el tester.
+- **REVPR** (Revisión de PR): después de RSP, el desarrollador corrige el código por las observaciones al PR, con el mismo TT. Sigue abierto (no es cierre ni reapertura).
 - **LDP**: el tester terminó sus pruebas y mandó el correo de liberación de pruebas (cambios, mejoras y fallos). "En espera de LDP" sigue abierto.
 - **CEC**: se manda a cerrar.
 - **Cancelado** (`TT#####: Cancelado` o la línea `CANCELADO TT##### | ...`): ya no se le da seguimiento. "Probablemente se cancele" no cuenta.
@@ -78,5 +82,6 @@ En español, breve, con este formato:
 - **Sin información** (si aplica).
 
 No envíes mensajes a Slack ni modifiques nada: solo es lectura y recomendación. Si el usuario después pide
-mandar recordatorios a los responsables, redacta el mensaje en mrkdwn y pide confirmación; con ella, déjalo como borrador
-(`slack_send_message_draft`) para que Jorge lo envíe. Nunca lo envíes con `slack_send_message`.
+mandar recordatorios a los responsables, redacta el mensaje en mrkdwn y pide confirmación; con ella, guarda el texto en `<scratchpad>/recordatorio_<userId>.txt` y déjalo como borrador ejecutando con `run_command`:
+`node "C:\Users\jorge\.gemini\config\scripts\slack.js" draft <userId> --file "<scratchpad>/recordatorio_<userId>.txt"`
+para que Jorge lo envíe. Nunca lo envíes con `slack.js send`.

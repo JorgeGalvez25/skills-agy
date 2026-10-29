@@ -65,7 +65,7 @@ Las búsquedas en Slack son lo que más tokens consume y no requieren criterio f
 
 Pásale a cada subagente el texto completo de su paso, los datos de `preparar.js` que necesita (`slack.*`, lista de TT con su fecha base) y la ruta del scratchpad.
 Lanza el subagente del paso 2 en cuanto tengas la salida del paso 1. El del paso 3 necesita la lista de cambios del mes (sale de `datos.json`).
-Verifica tú cada sospechoso antes de preguntarle a Jorge (lee su ts con el helper de Slack o scripts). Nunca descartes un evento etiquetado por lo que diga un subagente.
+Verifica tú cada sospechoso antes de preguntarle a Jorge (lee su ts con: `node "C:\Users\jorge\.gemini\config\scripts\slack.js" replies C02CGD1D9NX <ts> "<scratchpad>\msg.json"`). Nunca descartes un evento etiquetado por lo que diga un subagente.
 
 ## Paso 2 — Leer los eventos del canal [subagente]
 
@@ -78,7 +78,7 @@ Canal **#mtto**, privado, ID `C02CGD1D9NX`. Ejecuta con `run_command` el helper 
 - La guía de registro es el mensaje fijado del 07/10/2026 (ts `1791397394.905699`); sus ejemplos llevan prefijo y no son eventos. Si aparece en los resultados, ignóralo.
 - La búsqueda de `LDP` también trae standups ("en espera de LDP", `TT#####: LDP`). `eventos.js` solo toma las líneas que **empiezan** con la clave; el resto se ignora.
 
-Si el helper falla por el token de Slack, díselo al usuario y detente.
+Si el helper de Slack falla por el token (p. ej. error de autenticación o token expirado no renovable), avisa al usuario y detente.
 Si algún texto aparece truncado, léelo completo con `node "C:\Users\jorge\.gemini\config\scripts\slack.js" replies C02CGD1D9NX <ts> "<scratchpad>\msg.json"` (devuelve el mensaje aunque no tenga hilo; si es una respuesta en hilo, usa el `ts` del mensaje padre).
 
 Guarda **todos** los mensajes encontrados, tal cual, en `<scratchpad>/mensajes.json`:
@@ -103,7 +103,7 @@ Para detectar reaperturas que no se registraron con el formato, busca cada TT ev
 Márcalo como **sospechoso** solo si una mención **posterior a la fecha base** (en los cambios, cualquiera hasta 30 días después de su LDP) indica que el problema regresó o la corrección no funcionó
 ("reabre", "regresó", "otra vez", "de nuevo", "nuevamente", "persiste", "sigue fallando", "no quedó", "lo rechazaron", "volvió a").
 Que el TT siga en los standups como "Entregado, en espera de respuesta", "RSP" o "CEC" **no** es reapertura.
-Sí es reapertura que el caso pase de RSP, CEC o Cancelado a revisión o desarrollo (desde el 16/10/2026). Que pase de Entregado a revisión no lo es (antes del 16/10/2026 sí contaba). Una vez iniciadas las pruebas (SDP, tester, integración) no hay reapertura: lo que encuentre el tester se corrige en el mismo TT hasta la LDP. No marques sospechosos en ese tramo.
+Sí es reapertura que el caso pase de RSP, CEC o Cancelado a revisión o desarrollo (desde el 16/10/2026). Que pase de Entregado a revisión no lo es (antes del 16/10/2026 sí contaba), ni que pase de RSP a `REVPR` (corrección por observaciones al PR, desde el 28/10/2026; antes aparecía como "corrección para liberación"). Una vez iniciadas las pruebas (SDP, tester, integración) no hay reapertura: lo que encuentre el tester se corrige en el mismo TT hasta la LDP. No marques sospechosos en ese tramo.
 
 ## Paso 4 — Resolver dudas con el usuario (ask_question, varias por llamada)
 

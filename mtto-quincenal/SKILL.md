@@ -19,7 +19,7 @@ Columnas (desde `13-10`): **Desarrollador | Caso | Estatus | Observaciones | Fec
 ## Reglas de Jorge (aplican siempre, salvo que pida otra cosa)
 
 1. **Solo trabajo vigente.** Un caso que en el periodo quedó con estatus de cierre (CEC, RSP, LDP, LIBERADO, Cancelado/CANCELADO, Cerrado) **no se incluye**,
-   aunque estuviera en la hoja anterior. Si después de RSP volvió al standup (integración/pruebas con el tester), sí se incluye.
+   aunque estuviera en la hoja anterior. Si después de RSP volvió al standup (REVPR por observaciones al PR, integración/pruebas con el tester), sí se incluye.
 2. **Fecha cierre vacía** salvo que haya información para determinarla (Jorge la da o pasa una captura del tablero con la fecha). No se arrastran las fechas de la hoja anterior ni se calculan.
 3. **Bloque de Jorge**: no se genera contenido. Se dejan 5 filas vacías con "Jorge" en Desarrollador y su color (lila) para que él capture (`captura` en la spec).
 4. **Casos de la hoja anterior sin información en #mtto** (no se pueden ligar a ningún TT ni mención del periodo): se incluyen igual, con el texto de Caso y Observaciones de la hoja anterior,
@@ -40,7 +40,8 @@ node "C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js" titul
 ## Paso 2 — Leer #mtto del periodo (subagente)
 
 **No leas el canal tú.** Calcula el `oldest` y delega a un subagente (invocando `invoke_subagent` con `TypeName: "self"`, `Role: "Lector Standups Quincenal"`, `Model: "flash"`), lanzado
-para correr en paralelo. Pásale los puntos de abajo y pídele que escriba `<scratchpad>/estado_mtto.json` y responda solo con la ruta, el rango leído y cuántos standups por desarrollador:
+**en el mismo mensaje** que los comandos del Paso 1 para que corran en paralelo. Pásale los puntos de abajo y pídele que escriba
+`<scratchpad>/estado_mtto.json` y responda solo con la ruta, el rango leído y cuántos standups por desarrollador:
 
 ```json
 { "rango": "28/09–12/10",
@@ -58,6 +59,7 @@ Instrucciones para el subagente:
   con `oldest` = timestamp Unix de la fecha de la última hoja a las 00:00 MST (UTC-7; calcúlalo con `node -e`).
   `slack.js history` se detiene al juntar el tope (1000): un `oldest` mal calculado (p. ej. error de año) trae meses de mensajes.
   Si el archivo sale con 1000 mensajes o es demasiado grande, revisa el `oldest` y acorta la ventana en lugar de procesarlo.
+- Si el helper de Slack falla por el token (p. ej. error de autenticación o token expirado no renovable), avisa al usuario y detente.
 - Formato de los standups: secciones **standby** y **seguimiento** con `TT#####: estatus`. Los anteriores al 08/10/2026 traen "Ayer"/"Viernes" + "Hoy": usa solo "Hoy".
   Saulo marca el tipo como `- C -` (cambio) / `- F -` (fallo); los demás escriben "Cambio"/"Fallo". Eventos aparte: `LDP`/`LIBERADO`, `REABIERTO`, `ORIGEN`; `CANCELADO TT##### | …` dentro del standup.
 - Equipo: Saulo López, Miguel Armenta, Martín Reyes, Susana Gámez (los mensajes de Jorge son avisos, no standups).
@@ -95,12 +97,12 @@ Por desarrollador, toma su **último standup** del periodo como estatus vigente 
    `estatus` va en todas las filas (Paso 3). `fecha` (AAAA-MM-DD) solo si aplica la regla 2. Las filas de captura salen con Estatus vacío. `dev` usa los nombres cortos: Saulo, Miguel, Martín, Susana (cada uno tiene su color fijo en el script).
 3. Genera:
 
-```bash
-node hoja.js generar "C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/Casos_por_Desarrollador_mantenimiento.xlsx" "<scratchpad>/spec_dd-mm.json"
+```powershell
+node "C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js" generar "C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/Casos_por_Desarrollador_mantenimiento.xlsx" "<scratchpad>/spec_dd-mm.json"
 ```
 
    Si falla porque el archivo está abierto en Excel (EBUSY/EPERM), pídele a Jorge que lo cierre y reintenta.
-4. Verifica con `node hoja.js leer … dd-mm` que la hoja quedó con las filas esperadas.
+4. Verifica con `node "C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js" leer … dd-mm` que la hoja quedó con las filas esperadas.
 
 ## Paso 5 — Resumen para Jorge (en el chat)
 

@@ -65,7 +65,7 @@ Si Jorge pega el token en el chat, usarlo solo en esta sesión (`$env:AZURE_DEVO
 
 4. **Verificar los hallazgos Alta** antes de darlos por buenos. Leer el código en `head\` (y `base\` o el diff) en las líneas citadas y confirmar que el problema existe tal como se describe. Por ejemplo, que el código "eliminado" no se haya movido a otra parte del archivo, o que el campo nulo de verdad no se envíe.
    - Confirmar también que la unidad y las líneas de "Cambios requeridos" son las correctas y que el mensaje para el solicitante dice lo mismo que el hallazgo.
-   - Si un Alta no se sostiene, corregir el informe con la herramienta de edición (bajar la severidad o quitar el hallazgo con su bloque de cambios) y decirlo en el resumen.
+   - Si un Alta no se sostiene, corregir el informe con Edit (bajar la severidad o quitar el hallazgo con su bloque de cambios) y decirlo en el resumen.
    - Si un informe trae hallazgos de estilo o sin escenario concreto, quitarlos.
 
 5. **Contar e indexar:**

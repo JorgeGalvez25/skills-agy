@@ -74,6 +74,8 @@ function rango(est) {
 }
 const esRsp = est => /\brsp\b|revision scrum/i.test(sinAcentos(est));
 const esFinal = est => esCierre(est) || esRsp(est);
+// REVPR: corrección por observaciones a la revisión del PR de un caso que ya pasó por RSP (no es retroceso ni reapertura)
+const esRevpr = est => /\brevpr\b|revision de(l)? pr\b/i.test(sinAcentos(est));
 
 // Pruebas iniciadas: una vez que el caso entra a pruebas no hay retroceso ni reapertura hasta la LDP;
 // lo que encuentre el tester se corrige en el mismo TT. SDP, tester o "en espera de LDP" lo indican siempre;
@@ -119,7 +121,7 @@ function erroresDedo(texto) {
 // los de quien prueba el caso de un compañero (PRU, ESPBUG, FINPRU) llevan "como tester".
 const CODIGOS = { P: 'Pausa', R: 'Revisando', AN: 'Analizando', D: 'Desarrollo', PIL: 'Piloto', ENT: 'Entregado', EST: 'Preguntar estatus', CAN: 'Cancelado',
   ESPLDP: 'En espera de LDP', BUGPRU: 'Bug del tester en pruebas', PRU: 'Pruebas como tester', ESPBUG: 'Espera de corrección como tester',
-  FINPRU: 'Fin de pruebas como tester' };
+  FINPRU: 'Fin de pruebas como tester', REVPR: 'Corrección por revisión de PR' };
 const CODIGOS_TESTER = ['PRU', 'ESPBUG', 'FINPRU'];
 const RX_COMO_TESTER = /como tester/i;
 const esCodigo = c => !!CODIGOS[c.toUpperCase()] || ['RSP', 'CEC', 'LDP'].includes(c.toUpperCase());
@@ -310,7 +312,7 @@ try {
       for (const [tt, it] of mHoy) {
         let ult = null;
         for (const p of previos) { const x = bloqueHoy(p).items.find(i => i.tt === tt); if (x) ult = { it: x, dia: p.dia }; }
-        if (!ult || esCierre(ult.it.estatus) || !esRsp(ult.it.estatus) || iniciaronPruebas(historial(tt))) continue;
+        if (!ult || esCierre(ult.it.estatus) || !esRsp(ult.it.estatus) || esRevpr(it.estatus) || iniciaronPruebas(historial(tt))) continue;
         const r1 = rango(it.estatus);
         if (r1 < 1 || r1 > 2) continue;
         if (eventos.some(e => e.tt === tt && e.tipo === 'REABIERTO' && e.dia >= ult.dia)) continue; // ya registrada
@@ -345,7 +347,7 @@ try {
         if (id && vistos.has(id)) h.push({ regla: 'id', tt: it.tt, detalle: `${id} aparece dos veces en el bloque "${b.etiqueta}".` });
         if (id) vistos.add(id);
         if (codigosObligatorios && b === bHoy && it.tt) {
-          if (!it.codigo) h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": falta el código de estatus; el formato es TT##### - C/F - Código: motivo (R, AN, D, PIL, ENT, EST, RSP, ESPLDP, BUGPRU, PRU, ESPBUG, FINPRU, LDP, CEC, P).` });
+          if (!it.codigo) h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": falta el código de estatus; el formato es TT##### - C/F - Código: motivo (R, AN, D, PIL, ENT, EST, RSP, REVPR, ESPLDP, BUGPRU, PRU, ESPBUG, FINPRU, LDP, CEC, P).` });
           else if (it.codigo === 'CAN') h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": CAN ya no se usa; un caso que se cierra sin pasar a RSP (también si se cancela) va con CEC y el motivo.` });
           else if (!it.tipo || it.tipo === 'M') h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": ${it.tipo ? 'las mejoras van con C' : 'falta el tipo'} (C = cambio o mejora, F = fallo).` });
           if (it.codigo && it.seccion && (it.codigo === 'P') !== /stand/.test(it.seccion))
@@ -359,17 +361,20 @@ try {
         for (const e of erroresDedo(it.estatus)) h.push({ regla: 'ortografia', tt: it.tt, detalle: `Posible error de dedo ${e} en "${it.linea}".` });
         // REABIERTO aplica a lo que ya estuvo en RSP (si ya se marcó retroceso, no se repite)
         const tuvoRsp = it.tt && previos.some(p => bloqueHoy(p).items.some(x => x.tt === it.tt && !esCierre(x.estatus) && esRsp(x.estatus)));
-        if (tuvoRsp && !iniciaronPruebas(historial(it.tt)) && !h.some(x => x.regla === 'retroceso' && x.tt === it.tt) &&
+        if (tuvoRsp && !esRevpr(it.estatus) && !iniciaronPruebas(historial(it.tt)) && !h.some(x => x.regla === 'retroceso' && x.tt === it.tt) &&
           /reabr|regres[oó]|volvi[oó] a|otra vez|de nuevo/i.test(it.estatus) && !eventos.some(e => e.tt === it.tt && /REABIERTO|ORIGEN/.test(e.tipo)))
           h.push({ regla: 'evento', tt: it.tt, detalle: `${it.tt} estuvo en RSP, hoy dice "${it.estatus}" y no hay mensaje REABIERTO u ORIGEN en el canal.` });
         // Las pruebas y la LDP de un caso propio van después de RSP: de ENT, EST o trabajo no se pasa directo a pruebas
         // (de RSP a LDP directo sí, si la SCRUM, las pruebas y la liberación son el mismo día). Solo si el TT ya aparecía antes en la ventana.
-        if (b === bHoy && it.tt && !RX_COMO_TESTER.test(it.estatus) && (esLdp(it.estatus) || iniciaronPruebas([it.estatus]))) {
+        // REVPR (corrección por revisión del PR) también va después de RSP; si el caso ya venía en REVPR, su RSP fue antes.
+        if (b === bHoy && it.tt && !RX_COMO_TESTER.test(it.estatus) && (esLdp(it.estatus) || esRevpr(it.estatus) || iniciaronPruebas([it.estatus]))) {
           const antes = previos.map(p => bloqueHoy(p).items.find(x => x.tt === it.tt)).filter(Boolean);
           const prev = antes[antes.length - 1];
           const ests = antes.map(x => x.estatus);
-          if (prev && !esLdp(prev.estatus) && !ests.some(esRsp) && !iniciaronPruebas(ests) && !ests.some(e => RX_COMO_TESTER.test(e)))
-            h.push({ regla: 'sin-rsp', tt: it.tt, detalle: `${it.tt} pasó de "${prev.estatus}" a "${it.estatus}" sin pasar por RSP. Las pruebas con el tester empiezan después de RSP (cuando el cliente da por bueno el caso); el día en que quedó en RSP se anota con ese código.` });
+          if (prev && !esLdp(prev.estatus) && !ests.some(e => esRsp(e) || esRevpr(e)) && !iniciaronPruebas(ests) && !ests.some(e => RX_COMO_TESTER.test(e)))
+            h.push({ regla: 'sin-rsp', tt: it.tt, detalle: esRevpr(it.estatus)
+              ? `${it.tt} pasó de "${prev.estatus}" a "${it.estatus}" sin pasar por RSP. REVPR es para corregir observaciones del PR de un caso que ya pasó por RSP; el día en que quedó en RSP se anota con ese código.`
+              : `${it.tt} pasó de "${prev.estatus}" a "${it.estatus}" sin pasar por RSP. Las pruebas con el tester empiezan después de RSP (cuando el cliente da por bueno el caso); el día en que quedó en RSP se anota con ese código.` });
         }
         // LDP es solo del dueño del caso: quien lo probó como tester cierra con FINPRU
         if (b === bHoy && it.codigo === 'LDP' && historial(it.tt).some(e => RX_COMO_TESTER.test(e)))

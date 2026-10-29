@@ -44,7 +44,7 @@ La skill obtiene los procesos por su cuenta; **no pidas una grabación**. Una fo
 & "$SK\scripts\vigilar-procesos.ps1" -Minutos 10 -Salida "$INC\vigilancia.txt"
 ```
 
-Con administrador usa el evento `Win32_ProcessStartTrace` y atrapa incluso los procesos de milisegundos, con su línea de comandos y su padre; sin administrador sondea cada segundo. Marca con `<<<` los intérpretes de scripts, las rutas raras y lo que lanza el Programador de tareas. Como dura varios minutos, ejecútalo en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`) mientras haces la auditoría. Si los síntomas son esporádicos (ventanas que parpadean, ventiladores a ratos), alarga a 30–60 minutos.
+Con administrador usa el evento `Win32_ProcessStartTrace` y atrapa incluso los procesos de milisegundos, con su línea de comandos y su padre; sin administrador sondea cada segundo. Marca con `<<<` los intérpretes de scripts, las rutas raras y lo que lanza el Programador de tareas. Como dura varios minutos, ejecútalo con `en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`)` mientras haces la auditoría. Si los síntomas son esporádicos (ventanas que parpadean, ventiladores a ratos), alarga a 30–60 minutos.
 
 **Si el usuario ya trae una grabación o captura** del Administrador de tareas, úsala como pista adicional:
 
@@ -69,7 +69,7 @@ La auditoría cubre:
 - Programas sin fabricante, extensiones y políticas de los navegadores.
 - Archivo hosts, proxy, DNS, certificados raíz y cuentas de administrador.
 
-Tarda unos 7 minutos (lo más lento es buscar ejecutables sin firma en el disco), así que lánzala con `run_in_background: true`, en paralelo con `vigilar-procesos.ps1`. Con permisos de usuario normal sale incompleta, y el script lo avisa. Lee el reporte por secciones (`Grep` de `^====` y luego `Read` con offset) en vez de leerlo entero.
+Tarda unos 7 minutos (lo más lento es buscar ejecutables sin firma en el disco), así que lánzala con `en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`)`, en paralelo con `vigilar-procesos.ps1`. Con permisos de usuario normal sale incompleta, y el script lo avisa. Lee el reporte por secciones (`Grep` de `^====` y luego `Read` con offset) en vez de leerlo entero.
 
 Clasifica cada hallazgo con `references/indicadores.md`, que distingue lo malicioso de los falsos positivos habituales.
 
@@ -103,7 +103,7 @@ Pequeños fallos de un paso no detienen el resto: reporta y sigue.
 powershell -ExecutionPolicy Bypass -File "$SK\scripts\analisis-completo.ps1" -Log "$INC\analisis.txt" [-Apagar]
 ```
 
-Lánzalo con `run_in_background: true`; tarda de 1 a 4 horas. El script:
+Lánzalo con `en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`)`; tarda de 1 a 4 horas. El script:
 - Evita la suspensión **solo con el equipo en corriente alterna**.
 - Actualiza las firmas.
 - Recopila las detecciones con su ruta y la acción que tomó Defender.

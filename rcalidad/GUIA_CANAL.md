@@ -24,6 +24,7 @@ Sin títulos de día ("Ayer", "Viernes", "Hoy"): directo con las secciones **sta
 - Actualicen el estatus de cada caso todos los días. Si se repite la misma acción, usen el contador (x2, x3…).
 - Un caso solo sale del standup después de aparecer **una última vez con su estatus de cierre**: RSP, LDP, CEC o Cancelado. Si deja de aparecer sin ese estatus, no sabemos qué pasó con él.
 - **RSP** (Revisión SCRUM Pendiente): el cliente dio por bueno el cambio o la corrección del fallo; falta integrarlo a MAIN y las pruebas previas a liberar la versión. El caso puede salir del standup y regresa a seguimiento cuando entra a integración y pruebas con el tester; indíquenlo en el estatus (p. ej. `TT#####: SDP enviada`, `TT#####: En pruebas con el tester`).
+- **REVPR** (Revisión de PR): corrección de código por las observaciones al PR de un caso que ya pasó por RSP. Se anota con el mismo TT (`TT##### - F - REVPR: observaciones del PR`); no es reapertura y no lleva REABIERTO. Al atender las observaciones, el caso aparece una última vez como RSP o sigue a pruebas.
 - **Una vez iniciadas las pruebas no hay retroceso ni reapertura:** lo que encuentre el tester se corrige en el mismo TT hasta la LDP.
 - **LDP**: el tester terminó sus pruebas y mandó el correo de liberación de pruebas (cambios, mejoras y fallos). Ese día el caso aparece como `TT#####: LDP` y además se publica el evento LDP (abajo).
 - Los casos que llegan y se resuelven el mismo día también se anotan, con su estatus final.
@@ -63,6 +64,7 @@ Ejemplo: `ORIGEN TT100003 <- TT100001 | la factura de contado falla desde que se
 | El caso estaba Entregado (en espera de respuesta) y regresa a revisión | No: va en el standup con su estatus nuevo |
 | Después de la LDP aparece un error provocado por ese cambio | Sí: ORIGEN nuevo <- cambio |
 | Caso nuevo con la misma causa raíz de uno ya corregido | Sí: ORIGEN nuevo <- anterior |
+| El caso estaba en RSP y se corrige el código por observaciones al PR | No: va en el standup como REVPR, con el mismo TT |
 | El tester encuentra algo una vez iniciadas las pruebas (antes de la LDP) | No: no hay retroceso ni reapertura; se corrige en el mismo TT |
 | Un caso con LDP vuelve a fallar | No se reabre: TT nuevo con ORIGEN nuevo <- anterior |
 | El cliente pide algo nuevo o distinto a lo acordado | No: es solicitud nueva |

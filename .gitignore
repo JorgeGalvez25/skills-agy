@@ -1,4 +1,15 @@
-# Dependencias
+# Skills externas (anatomy y las que se instalen después) no se versionan:
+# se ignora toda carpeta de primer nivel y solo se permiten las skills propias.
+# Al crear una skill propia con otro prefijo, agrégala aquí con "!/<nombre>/".
+/*/
+!/comisiones-*/
+!/mtto-*/
+!/limpieza-equipo/
+!/rcalidad/
+!/rfallos/
+!/rpdf/
+
+# Dependencias (se reinstalan con npm install)
 node_modules/
 
 # Temporales y caches
@@ -6,10 +17,6 @@ node_modules/
 ~$*
 .DS_Store
 Thumbs.db
-
-# Caches y sincronizaciones externas de Claude/Anthropic
 synced/
 .bucket-*
-
-# Skills externas de terceros
-anatomy/
+.trash/
