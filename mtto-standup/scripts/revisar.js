@@ -38,7 +38,9 @@ function feriados(a) {
   if ((a - 2024) % 6 === 0) l.push(utc(a, 10, 1));
   return new Set(l.map(f => f.getTime()));
 }
-const esHabil = d => d.getUTCDay() % 6 !== 0 && !feriados(d.getUTCFullYear()).has(d.getTime());
+// Días entre semana en que nadie publicó standup: probable día festivo, no cuentan como hábiles
+const sinRegistro = new Set();
+const esHabil = d => d.getUTCDay() % 6 !== 0 && !feriados(d.getUTCFullYear()).has(d.getTime()) && !sinRegistro.has(d.getTime());
 function habilesEntre(a, b) { // hábiles en (a, b]
   let n = 0;
   for (let t = a.getTime() + 864e5; t <= b.getTime(); t += 864e5) if (esHabil(new Date(t))) n++;
@@ -216,9 +218,6 @@ try {
   const crudos = JSON.parse(fs.readFileSync(arch, 'utf8'));
   const hoyN = new Date();
   const diaActual = utc(hoyN.getFullYear(), hoyN.getMonth() + 1, hoyN.getDate());
-  let dia = diaActual;
-  if (!fechaArg || /^ayer$/i.test(fechaArg)) do dia = new Date(dia.getTime() - 864e5); while (!esHabil(dia));
-  else if (!/^hoy$/i.test(fechaArg)) dia = leerFecha(fechaArg).dia;
   const aclaraciones = fs.existsSync(ARCH_ACLARACIONES) ? JSON.parse(fs.readFileSync(ARCH_ACLARACIONES, 'utf8')) : [];
 
   // Standups y eventos
@@ -234,8 +233,17 @@ try {
     if (!bloques.length) continue;
     (standups[m.autor] = standups[m.autor] || []).push({ dia: f.dia, hora: f.hora, bloques, texto });
   }
+  const conRegistro = new Set(Object.values(standups).flat().map(s => s.dia.getTime()));
+  const diasReg = [...conRegistro].sort((a, b) => a - b);
+  for (let t = diasReg[0]; t < diasReg[diasReg.length - 1]; t += 864e5) if (esHabil(new Date(t)) && !conRegistro.has(t)) sinRegistro.add(t);
+  // Por defecto: el último día con standups antes de hoy (el lunes, el viernes; si ese día fue festivo, el anterior)
+  let dia = diaActual;
+  if (!fechaArg || /^ayer$/i.test(fechaArg)) {
+    const ult = diasReg.filter(t => t < diaActual.getTime()).pop();
+    if (ult) dia = new Date(ult); else do dia = new Date(dia.getTime() - 864e5); while (!esHabil(dia));
+  } else if (!/^hoy$/i.test(fechaArg)) dia = leerFecha(fechaArg).dia;
 
-  const resultado = { fecha: dmy(dia), colaboradores: {} };
+  const resultado = { fecha: dmy(dia), diasSinRegistro: [...sinRegistro].sort((a, b) => a - b).map(t => dmy(new Date(t))), colaboradores: {} };
   for (const [autor, lista] of Object.entries(standups)) {
     // Uno por día: el último publicado
     const porDia = {};
@@ -294,7 +302,7 @@ try {
       const nuevos = [...mHoy.values()].filter(i => !RX_COMO_TESTER.test(i.estatus) &&!previos.some(p => p.bloques.some(b => b.items.some(x => x.tt === i.tt))));
       for (const [tt, it] of salen) {
         const par = parecido(it, nuevos, salen.length === 1);
-        if (par) h.push({ regla: 'cambio-id', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece; hoy aparece ${par.tt} ("${par.estatus}"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con "(antes ${tt})".` });
+        if (par) h.push({ regla: 'cambio-id', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece; el ${dmy(dia)} aparece ${par.tt} ("${par.estatus}"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con "(antes ${tt})".` });
         else h.push({ regla: 'desaparece', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado).` });
       }
 
@@ -305,7 +313,7 @@ try {
         if (prev.contador && it.contador && (it.contador < prev.contador || it.contador > prev.contador + 1 + faltan))
           h.push({ regla: 'contador', tt, detalle: `${tt}: el contador pasó de x${prev.contador} a x${it.contador}.` });
         if (prev.contador && !it.contador && llave(prev.estatus) === llave(it.estatus))
-          h.push({ regla: 'contador', tt, detalle: `${tt}: tenía x${prev.contador} y hoy no trae contador con el mismo estatus.` });
+          h.push({ regla: 'contador', tt, detalle: `${tt}: tenía x${prev.contador} y el ${dmy(dia)} no trae contador con el mismo estatus.` });
       }
       // Reapertura: de RSP regresa a revisión/codificación (de Entregado no: es parte del ciclo antes de que el cliente
       // lo dé por bueno). Se compara con la última vez que apareció, porque un caso en RSP puede salir del standup y volver días después.
@@ -326,12 +334,12 @@ try {
         const hoyEst = mHoy.get(it.tt).estatus;
         let detalle = null;
         if (esLdp(it.estatus)) {
-          if (!esLdp(hoyEst)) detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer hoy ("${hoyEst}"). Después de la LDP el caso no se reabre: el problema nuevo va en otro TT (con ORIGEN si lo causó este).`;
+          if (!esLdp(hoyEst)) detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}"). Después de la LDP el caso no se reabre: el problema nuevo va en otro TT (con ORIGEN si lo causó este).`;
         } else if (rango(hoyEst) < 5) {
           if (!eventos.some(e => e.tt === it.tt && e.tipo === 'REABIERTO' && e.dia >= p.dia))
-            detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer hoy ("${hoyEst}") sin mensaje REABIERTO en el canal.`;
+            detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}") sin mensaje REABIERTO en el canal.`;
         } else
-          detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y hoy vuelve a aparecer ("${hoyEst}"). El cierre con CEC aparece solo el día en que se envía; en el siguiente standup el caso ya no va.`;
+          detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}"). El cierre con CEC aparece solo el día en que se envía; en el siguiente standup el caso ya no va.`;
         if (detalle) { avisados.add(it.tt); h.push({ regla: 'retroceso', tt: it.tt, detalle }); }
       }
     }
@@ -363,7 +371,7 @@ try {
         const tuvoRsp = it.tt && previos.some(p => bloqueHoy(p).items.some(x => x.tt === it.tt && !esCierre(x.estatus) && esRsp(x.estatus)));
         if (tuvoRsp && !esRevpr(it.estatus) && !iniciaronPruebas(historial(it.tt)) && !h.some(x => x.regla === 'retroceso' && x.tt === it.tt) &&
           /reabr|regres[oó]|volvi[oó] a|otra vez|de nuevo/i.test(it.estatus) && !eventos.some(e => e.tt === it.tt && /REABIERTO|ORIGEN/.test(e.tipo)))
-          h.push({ regla: 'evento', tt: it.tt, detalle: `${it.tt} estuvo en RSP, hoy dice "${it.estatus}" y no hay mensaje REABIERTO u ORIGEN en el canal.` });
+          h.push({ regla: 'evento', tt: it.tt, detalle: `${it.tt} estuvo en RSP, el ${dmy(dia)} dice "${it.estatus}" y no hay mensaje REABIERTO u ORIGEN en el canal.` });
         // Las pruebas y la LDP de un caso propio van después de RSP: de ENT, EST o trabajo no se pasa directo a pruebas
         // (de RSP a LDP directo sí, si la SCRUM, las pruebas y la liberación son el mismo día). Solo si el TT ya aparecía antes en la ventana.
         // REVPR (corrección por revisión del PR) también va después de RSP; si el caso ya venía en REVPR, su RSP fue antes.
@@ -408,7 +416,7 @@ try {
     // Hueco de standups: solo se señala si al comparar con el anterior algo no cuadra
     const CONTINUIDAD = ['desaparece', 'cambio-id', 'copiado', 'contador', 'retroceso', 'sin-rsp', 'evento'];
     if (faltan > 0 && h.some(x => CONTINUIDAD.includes(x.regla)))
-      h.unshift({ regla: 'sin-standup', detalle: `No hay standup en ${faltan} día(s) hábil(es) entre el ${dmy(ant.dia)} y hoy, y al comparar con el del ${dmy(ant.dia)} hay cambios sin explicar.` });
+      h.unshift({ regla: 'sin-standup', detalle: `No hay standup en ${faltan} día(s) hábil(es) entre el ${dmy(ant.dia)} y el ${dmy(dia)}, y al comparar con el del ${dmy(ant.dia)} hay cambios sin explicar.` });
 
     // Lo que el colaborador ya aclaró (y Jorge aceptó) no se vuelve a señalar
     const estatusHoy = tt => { const i = bHoy.items.find(x => x.tt === tt); return i ? i.estatus : null; };

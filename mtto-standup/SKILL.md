@@ -10,10 +10,14 @@ Jorge Gálvez (jefe de Mantenimiento) invoca esta skill normalmente a primera ho
 luego revisas el standup de la **fecha revisada** (ver abajo) de cada colaborador contra sus standups anteriores, le presentas a Jorge un borrador
 de mensaje directo por colaborador y **solo dejas en Slack, como borrador, los que autorice**: Jorge los envía.
 
-- `/mtto-standup` (sin argumento): flujo completo sobre **ayer**; si ayer no fue día hábil (fin de semana o feriado), sobre el último día hábil (el lunes revisa el viernes).
+- `/mtto-standup` (sin argumento): flujo completo sobre el **último día con standups antes de hoy**: normalmente ayer; el lunes, el viernes; si ese día nadie registró (fin de semana, feriado o probable día festivo), el anterior.
 - `/mtto-standup hoy`: flujo completo sobre el día actual (cuando se revisa al cierre del día).
 - `/mtto-standup dd/mm/aaaa`: flujo completo sobre esa fecha.
 - La **fecha revisada** es la que resulta de lo anterior; en el resto de la skill, "hoy" / "standup de hoy" se refiere a ella. Dila en la primera línea del Paso 4.
+- **Los borradores nunca dicen "hoy"**: el equipo registra por la tarde y Jorge envía la retro a la mañana siguiente (o el lunes, si registraron el viernes).
+  Si la fecha revisada es ayer, dilo así ("tu standup de ayer", "ayer TT##### decía…"); si no, nómbrala con día y fecha ("tu standup del viernes 30/10").
+  Los standups anteriores van siempre con día y fecha ("el miércoles 28/10 TT##### decía…").
+- **Día sin registros de nadie** (entre semana): probablemente fue festivo. El script no lo cuenta como hábil (huecos, contadores, estancados) y lo lista en `diasSinRegistro`.
 - `/mtto-standup respuestas`: solo el Paso 0 y su parte de los Pasos 4 y 5 (útil por la mañana, cuando ya contestaron la retro de la tarde anterior).
 
 **Script:** `C:\Users\jorge\.gemini\config\skills\mtto-standup\scripts\revisar.js` (Node, sin dependencias). JSON de trabajo en el scratchpad.
@@ -166,11 +170,11 @@ Si no hay retros previas en el DM, sigue al Paso 1.
 node "C:\Users\jorge\.gemini\config\skills\mtto-standup\scripts\revisar.js" "<scratchpad>/standups.json" [hoy | dd/mm/aaaa]
 ```
 
-Sin fecha, el script toma el día hábil anterior (igual que la skill). Pasa siempre la fecha revisada explícita para que coincida con la del Paso 1.
+Sin fecha, el script toma el último día con standups antes de hoy (igual que la skill). Pasa siempre la fecha revisada explícita para que coincida con la del Paso 1.
 
 Devuelve por colaborador `standupDeHoy`, `hora`, `hallazgos[]` (`regla`, `tt`, `detalle`), `estancados[]`, `faltantes[]` (días hábiles sin standup: `dia`, `ultimoStandup`; solo informativo), `aclarados[]`
 (hallazgos que cubre una aclaración vigente, con su `nota` y `fuente`; no se le vuelven a señalar al colaborador) y `cambiosId[]` (`antes`, `nuevo`, `fuente`: IDs unidos por la marca
-`(antes TT#####)` o por una aclaración), además de `ttCompartidos` (con `tester` cuando alguien lo trae como `PRU`, `ESPBUG` o `FINPRU`).
+`(antes TT#####)` o por una aclaración), además de `diasSinRegistro` (días entre semana sin standup de nadie; no cuentan como hábiles) y `ttCompartidos` (con `tester` cuando alguien lo trae como `PRU`, `ESPBUG` o `FINPRU`).
 
 | Regla | Qué detecta |
 |---|---|
@@ -210,7 +214,7 @@ El script es estricto a propósito. Antes de redactar, descarta o matiza:
 - `BUGPRU` que pasa a `R`, `AN` o `D`: no es retroceso (las pruebas ya iniciaron); sugiere mantener `BUGPRU` hasta que lo devuelva al tester.
 - `ttCompartidos`: puede ser trabajo en conjunto; solo infórmalo a Jorge. Si trae `tester`, es el caso que ese colaborador prueba (`PRU`, `ESPBUG` o `FINPRU`): es normal y no se menciona.
 - `faltantes`: no se redacta nada por ellos. Si hubo hueco y hay hallazgos de continuidad, redacta el punto mencionando el hueco como contexto
-  ("entre el 08/10 y el 12/10 no hay standup; el 08/10 TT##### estaba… y hoy ya no aparece"), no como falta aparte.
+  ("entre el 08/10 y el 12/10 no hay standup; el 08/10 TT##### estaba… y el 12/10 ya no aparece"), no como falta aparte.
 - Cruza con el Paso 0: si un hallazgo ya se le envió en una retro anterior y sigue igual, no lo redactes como nuevo: "Te lo comenté el dd/mm y sigue igual…".
   Si respondió que lo corregiría y no lo hizo, igual. Si lo aclaró y Jorge aceptó la aclaración, el script ya lo excluye.
 - Si un punto de la retro anterior ya está corregido en el standup, puedes agregar al borrador un "Gracias por corregir X" (una línea, no una viñeta por punto).
@@ -223,19 +227,19 @@ El script es estricto a propósito. Antes de redactar, descarta o matiza:
    - Para cada `aclarado`: la entrada propuesta para `aclaraciones.json` (en bloque de código) y, si la retro original estaba mal, el borrador de
      **corrección**, que se envía como respuesta en el hilo de esa retro: "Tienes razón, <qué estaba mal>. Lo quito de la revisión. Gracias por aclararlo."
    - Para cada `desacuerdo`: las opciones para que Jorge decida (mantener la regla, excepción con `hasta`, cambiar la regla de la skill).
-3. **Para ti (no se envía):** estancados (TT, estatus, desde, días hábiles), `cambiosId` aplicados, TT compartidos, `faltantes` (quién no publicó y qué días), `aclarados` que aplicó el script, hallazgos descartados y por qué.
+3. **Para ti (no se envía):** estancados (TT, estatus, desde, días hábiles), `cambiosId` aplicados, TT compartidos, `faltantes` (quién no publicó y qué días), `diasSinRegistro` (probables días festivos), `aclarados` que aplicó el script, hallazgos descartados y por qué.
 4. **Borradores**, uno por colaborador con hallazgos, cada uno en un bloque de código para que se lea exacto:
 
 ```
 Hola <nombre>, revisé tu standup del dd/mm contra los de días anteriores y encontré algunos detalles en el registro:
 
-• <TT o punto>: <qué dice hoy vs. qué dijo antes, con fecha>. <cómo corregirlo>.
+• <TT o punto>: <qué dice ese standup vs. qué dijo antes, con fecha>. <cómo corregirlo>.
 • ...
 
 ¿Me ayudas a corregirlo editando el mensaje del standup? Gracias.
 ```
 
-   Tono cordial y directo, tuteo, sin regaños ni adjetivos. Máximo 5 viñetas por persona (prioriza: IDs, desaparece/cambio-id, retrocesos/sin-rsp/eventos, copiado/estructura/formato, ortografía).
+   Tono cordial y directo, tuteo, sin "hoy" para referirse al standup revisado ("ayer", o su día y fecha), sin regaños ni adjetivos. Máximo 5 viñetas por persona (prioriza: IDs, desaparece/cambio-id, retrocesos/sin-rsp/eventos, copiado/estructura/formato, ortografía).
    El mensaje sale de la cuenta de Jorge, así que no se firma. Un standup faltante no lleva borrador (regla 6); solo si Jorge lo pide:
    "Hola <nombre>, no encontré tu standup del dd/mm en #mtto. ¿Me ayudas a publicarlo?".
 5. Termina preguntando a quién se le deja el borrador, qué correcciones se dejan y qué aclaraciones se guardan.
