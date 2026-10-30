@@ -1,6 +1,6 @@
 ---
 name: comisiones-colaboradores
-description: Genera el Excel de comisiones de cada colaborador (Mantenimiento_Comisiones_<Mes>_<año>_<Nombre_Apellido>.xlsx en PorBeneficiario), con importes fijos en lugar de las fórmulas de porcentaje y solo las filas que le tocan a cada quien. Se ejecuta desde la carpeta del mes (C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Comisiones\<año>\YYYYMM-Mes) y toma los valores del concentrado del mes. Usar cuando digan "/comisiones-colaboradores", "genera los archivos por beneficiario", "el excel de cada colaborador", "reportes por beneficiario" o "comisiones sin fórmulas de cada uno".
+description: Genera el Excel de comisiones de cada colaborador (Mantenimiento_Comisiones_<Mes>_<año>_<Nombre_Apellido>.xlsx en PorBeneficiario), con importes fijos en lugar de las fórmulas de porcentaje y solo las filas que le tocan a cada quien. Se ejecuta desde la carpeta del mes (C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Comisiones\<año>\YYYYMM-Mes) y toma los valores del concentrado del mes. Si los Excel ya existen, deja en Outlook un borrador por colaborador con su archivo adjunto. Usar cuando digan "/comisiones-colaboradores", "genera los archivos por beneficiario", "el excel de cada colaborador", "reportes por beneficiario", "comisiones sin fórmulas de cada uno" o "manda el reporte de comisiones a cada colaborador".
 ---
 
 # Comisiones por colaborador (/comisiones-colaboradores)
@@ -29,6 +29,8 @@ Los archivos los crea **siempre** `scripts/colaboradores.ps1` a partir de la pla
 
 ## Paso 1 — Generar
 
+Primero revisa `$MES\PorBeneficiario`. Si ya hay archivos `Mantenimiento_Comisiones_<Mes>_<año>_*.xlsx`, omite este paso y el Paso 2, y ve directo al Paso 3. Solo regenéralos si el usuario lo pide.
+
 ```powershell
 & 'C:\Users\jorge\.gemini\config\skills\comisiones-colaboradores\scripts\colaboradores.ps1'
 ```
@@ -41,3 +43,29 @@ Si falla porque el archivo está abierto, pide al usuario que lo cierre y vuelve
 
 1. Una tabla: beneficiario, total y archivo.
 2. La suma de los archivos contra el total del concentrado sin la parte de Jorge. Si no cuadran, dilo.
+
+Si en esta ejecución generaste los Excel, aquí terminas: **no hagas borradores**. Los borradores se hacen en una ejecución posterior de la skill, cuando los Excel ya existan.
+
+## Paso 3 — Borradores en Outlook (solo si los Excel ya estaban generados)
+
+```powershell
+& 'C:\Users\jorge\.gemini\config\skills\comisiones-colaboradores\scripts\correos.ps1'
+```
+
+Usa la herramienta PowerShell con un timeout de unos 120000 ms. Por cada Excel de `PorBeneficiario`, el script deja un borrador en Outlook con ese archivo adjunto, tal como esté guardado. **No lo envía.** Si ya había un borrador con el mismo asunto para esa persona, lo borra y crea uno nuevo. Si un Excel está abierto, se detiene; pide al usuario que lo cierre y vuelve a correrlo.
+
+Redacción fija, tomada de los que Jorge envió en agosto 2026 (`<mes>` en minúscula; el de pago es el mes siguiente, con su año):
+
+- **Para:** `<nombre><apellido>@igas.com.mx`, en minúsculas y sin acentos (p. ej. `saulolopez@igas.com.mx`).
+- **Asunto:** `Reporte de comisiones <mes> <año>`
+- **Cuerpo:**
+
+```
+Comisiones de <mes> pagadas en <mes de pago> <año de pago>.
+
+
+Jorge Armando Gálvez Martínez
+Analista - Desarrollador
+```
+
+En el chat, entrega la lista de borradores (persona, correo y fecha de guardado del Excel) y cuáles reemplazaron a uno anterior.
