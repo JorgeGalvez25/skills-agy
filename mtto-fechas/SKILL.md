@@ -40,12 +40,13 @@ Instrucciones para el subagente:
 Cada desarrollador publica su standup diario (~17:00) mencionando a Jorge, sin títulos de día:
 directamente las secciones **standby** y **seguimiento**, con líneas `TT#####: estatus` (cómo queda cada caso al cierre del día).
 Los standups anteriores al 08/10/2026 traen bloques **Ayer** (o "Viernes") y **Hoy**; de esos usa solo el bloque "Hoy".
-Un caso que deja de aparecer en el standup sin estatus de cierre (RSP, LDP, CEC, cancelado) se trata como "dejó de aparecer".
+Un caso que deja de aparecer en el standup sin estatus de cierre (RSP, LDP, CEC, cancelado) ni en `REVPR` se trata como "dejó de aparecer".
+Un caso sin ID aparece como `TTsinidN`; el día que recibe su TT, la línea nueva lleva `(antes sin ID)`.
 Equipo: Martín Reyes, Miguel Armenta, Susana Gámez, Saulo López.
 
 Vocabulario de estatus:
 - **RSP** (Revisión SCRUM Pendiente): el cliente dio por bueno el cambio o la corrección del fallo; falta integrarlo a MAIN y las pruebas previas a liberar la versión. Vuelve a seguimiento cuando entra a integración y pruebas con el tester.
-- **REVPR** (Revisión de PR): después de RSP, el desarrollador corrige el código por las observaciones al PR, con el mismo TT. Sigue abierto (no es cierre ni reapertura).
+- **REVPR** (Revisión de PR): después de RSP, el desarrollador corrige el código por las observaciones al PR, con el mismo TT. No es cierre ni reapertura; al atender las observaciones sale del standup sin repetir RSP y vuelve en pruebas (ESPLDP).
 - **LDP**: el tester terminó sus pruebas y mandó el correo de liberación de pruebas (cambios, mejoras y fallos). "En espera de LDP" sigue abierto.
 - **CEC**: se manda a cerrar.
 - **Cancelado** (`TT#####: Cancelado` o la línea `CANCELADO TT##### | ...`): ya no se le da seguimiento. "Probablemente se cancele" no cuenta.

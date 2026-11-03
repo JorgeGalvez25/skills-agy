@@ -1,8 +1,8 @@
-Mensaje fijado en #mtto (publicado el 07/10/2026, actualizado el 08/10/2026; texto del 09/10/2026 pendiente de publicar en el mensaje fijado): https://igasmx.slack.com/archives/C02CGD1D9NX/p1791397394905699
+Mensaje fijado en #mtto (publicado el 07/10/2026, actualizado el 08/10/2026; texto del 02/11/2026 en borrador en #mtto): https://igasmx.slack.com/archives/C02CGD1D9NX/p1791397394905699
 
 Texto (los ejemplos de eventos llevan prefijo "Ejemplo:" o "Formato:" para que /rcalidad no los lea como eventos):
 
-**Standup diario y registro de eventos en #mtto** (actualizado el 09/10/2026)
+**Standup diario y registro de eventos en #mtto** (actualizado el 02/11/2026)
 
 **1. Standup diario** (~17:00, mencionándome)
 Sin títulos de día ("Ayer", "Viernes", "Hoy"): directo con las secciones **standby** y **seguimiento**, una línea por caso con cómo queda al cierre del día. La fecha del mensaje indica el día.
@@ -22,9 +22,11 @@ Sin títulos de día ("Ayer", "Viernes", "Hoy"): directo con las secciones **sta
 
 - Todo trabajo lleva su número de caso: `TT#####`, con el prefijo y 5 o más dígitos.
 - Actualicen el estatus de cada caso todos los días. Si se repite la misma acción, usen el contador (x2, x3…).
-- Un caso solo sale del standup después de aparecer **una última vez con su estatus de cierre**: RSP, LDP, CEC o Cancelado. Si deja de aparecer sin ese estatus, no sabemos qué pasó con él.
-- **RSP** (Revisión SCRUM Pendiente): el cliente dio por bueno el cambio o la corrección del fallo; falta integrarlo a MAIN y las pruebas previas a liberar la versión. El caso puede salir del standup y regresa a seguimiento cuando entra a integración y pruebas con el tester; indíquenlo en el estatus (p. ej. `TT#####: SDP enviada`, `TT#####: En pruebas con el tester`).
-- **REVPR** (Revisión de PR): corrección de código por las observaciones al PR de un caso que ya pasó por RSP. Se anota con el mismo TT (`TT##### - F - REVPR: observaciones del PR`); no es reapertura y no lleva REABIERTO. Al atender las observaciones, el caso aparece una última vez como RSP o sigue a pruebas.
+- Un caso solo sale del standup después de aparecer **una última vez con su estatus de cierre**: RSP, LDP, CEC o Cancelado (o REVPR, ver abajo). Si deja de aparecer sin ese estatus, no sabemos qué pasó con él.
+- Tipo: `C` cambio o mejora, `F` fallo, `AP` apoyo a soporte. Un `AP` solo usa P → R → ENT → EST → CEC: no pasa por RSP ni por pruebas y nunca lleva eventos.
+- Una urgencia que se atiende antes de que exista el TT va como `TTsinid1`, `TTsinid2`…; el día que recibe su TT, la línea nueva termina con `(antes sin ID)`.
+- **RSP** (Revisión SCRUM Pendiente): el cliente dio por bueno el cambio o la corrección del fallo; falta integrarlo a MAIN y las pruebas previas a liberar la versión. El motivo termina con la fecha en que lo dio por bueno (`TT##### - C - RSP: <motivo> Fecha Entrega dd/mm/aaaa`). El caso puede salir del standup y regresa a seguimiento cuando entra a integración y pruebas con el tester; indíquenlo en el estatus (p. ej. `TT#####: SDP enviada`, `TT#####: En pruebas con el tester`).
+- **REVPR** (Revisión de PR): corrección de código por las observaciones al PR de un caso que ya pasó por RSP. Se anota con el mismo TT (`TT##### - F - REVPR: observaciones del PR`); no es reapertura y no lleva REABIERTO. Al atender las observaciones, el caso sale del standup sin repetir RSP y vuelve cuando entra a pruebas (ESPLDP).
 - **Una vez iniciadas las pruebas no hay retroceso ni reapertura:** lo que encuentre el tester se corrige en el mismo TT hasta la LDP.
 - **LDP**: el tester terminó sus pruebas y mandó el correo de liberación de pruebas (cambios, mejoras y fallos). Ese día el caso aparece como `TT#####: LDP` y además se publica el evento LDP (abajo).
 - Los casos que llegan y se resuelven el mismo día también se anotan, con su estatus final.
@@ -67,6 +69,7 @@ Ejemplo: `ORIGEN TT100003 <- TT100001 | la factura de contado falla desde que se
 | El caso estaba en RSP y se corrige el código por observaciones al PR | No: va en el standup como REVPR, con el mismo TT |
 | El tester encuentra algo una vez iniciadas las pruebas (antes de la LDP) | No: no hay retroceso ni reapertura; se corrige en el mismo TT |
 | Un caso con LDP vuelve a fallar | No se reabre: TT nuevo con ORIGEN nuevo <- anterior |
+| Un apoyo a soporte (`AP`) | No: nunca lleva eventos |
 | El cliente pide algo nuevo o distinto a lo acordado | No: es solicitud nueva |
 | Problema distinto en el mismo módulo | No |
 | El TT sigue "Entregado, en espera de respuesta" o en RSP | No: va en el standup |

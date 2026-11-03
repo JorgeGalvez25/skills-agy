@@ -162,28 +162,30 @@ function parsear(texto) {
     }
     if (!bloque || RX_EVENTO.test(l)) continue;
     const item = { linea: l, seccion, tt: null, idSinPrefijo: false, estatus: l, contador: null };
-    let m = l.match(/\bTT\s*-?\s*(\d+)/i);
-    if (m) item.tt = 'TT' + m[1];
+    // Caso sin ID (urgencia): TTsinid1, TTsinid2… hasta que recibe su TT
+    let m = l.match(/\bTT\s*-?\s*(\d+)|\bTT\s*sin\s*id\s*(\d+)/i);
+    if (m) { item.tt = m[1] ? 'TT' + m[1] : 'TTsinid' + m[2]; item.sinId = !m[1]; }
     else if ((m = l.match(/^(\d{5,6})\b/))) { item.tt = 'TT' + m[1]; item.idSinPrefijo = true; }
     if (item.tt) {
       const i = l.indexOf(':');
-      item.estatus = i >= 0 ? l.slice(i + 1).trim() : l.replace(/\bTT\s*-?\s*\d+\s*/i, '').replace(/^\d{5,6}\s*/, '').trim();
-      // Formato estándar con tipo y código antes de los dos puntos: "TT##### - C - RSP: ...", "TT##### Cambio · Pausa: ...",
+      item.estatus = i >= 0 ? l.slice(i + 1).trim() : l.replace(/\bTT\s*-?\s*(?:sin\s*id\s*)?\d+\s*/i, '').replace(/^\d{5,6}\s*/, '').trim();
+      // Formato estándar con tipo y código antes de los dos puntos: "TT##### - C - RSP: ...", "TT##### - AP - R: ...", "TT##### Cambio · Pausa: ...",
       // sin tipo ("TT##### - P: ...", solo con código válido) o sin motivo ("TT##### - C - P")
-      const mT = l.match(/\bTT\s*-?\s*\d+\s*(?:[-–·]\s*)?(?:(C|F|M|Cambio|Fallo|Mejora)\s*[-–·]\s*)?([^:]{1,25}?)\s*(?::\s*(.*)|\.?$)/i);
+      const mT = l.match(/\bTT\s*-?\s*(?:sin\s*id\s*)?\d+\s*(?:[-–·]\s*)?(?:(C|F|M|Apoyo|AP|Cambio|Fallo|Mejora)\s*[-–·]\s*)?([^:]{1,25}?)\s*(?::\s*(.*)|\.?$)/i);
       if (mT && (mT[1] || esCodigo(mT[2]))) {
-        item.tipo = mT[1] ? mT[1][0].toUpperCase() : null;
+        item.tipo = mT[1] ? (/^ap/i.test(mT[1]) ? 'AP' : mT[1][0].toUpperCase()) : null;
         item.codigo = esCodigo(mT[2]) ? mT[2].toUpperCase() : null;
         item.estatus = `${CODIGOS[mT[2].toUpperCase()] || mT[2]}${mT[3] ? ': ' + mT[3] : ''}`.trim();
       }
       // Cambio de ID: "(antes TT#####)" en la línea del ID nuevo
       const mA = l.match(/\bantes:?\s+(?:era\s+)?(?:el\s+)?TT\s*-?\s*(\d+)/i);
       if (mA && 'TT' + mA[1] !== item.tt) item.antes = 'TT' + mA[1];
+      else if (/\(antes sin id\)/i.test(l)) item.antesSinId = true;
       if (/^cancelad[oa]\b/i.test(sinAcentos(l)) && !RX_CANCELADO.test(sinAcentos(item.estatus))) item.estatus = 'Cancelado · ' + item.estatus;
     }
     const c = item.estatus.match(/(?:^|[a-záéíóú\s)])x\s?(\d{1,2})\b(?!\s*[a-z])/i);
     if (c) item.contador = +c[1];
-    item.idCorto = item.tt && item.tt.length - 2 < 5;
+    item.idCorto = item.tt && !item.sinId && item.tt.length - 2 < 5;
     bloque.items.push(item);
   }
   return bloques;
@@ -253,6 +255,15 @@ try {
     // o una aclaración aceptada (regla "cambio-id" con "nuevo"). La historia del ID anterior pasa al nuevo.
     const alias = new Map();
     for (const s of serie) if (s.dia <= dia) for (const b of s.bloques) for (const it of b.items) if (it.antes) alias.set(it.antes, { nuevo: it.tt, fuente: `marca del ${dmy(s.dia)}` });
+    // "(antes sin ID)": el TTsinidN del standup anterior que ya no aparece
+    serie.forEach((s, i) => {
+      if (i === 0 || s.dia > dia) return;
+      for (const it of bloqueHoy(s).items) if (it.antesSinId) {
+        const cand = bloqueHoy(serie[i - 1]).items.filter(x => x.sinId && !alias.has(x.tt) && !bloqueHoy(s).items.some(y => y.tt === x.tt));
+        const par = cand.length === 1 ? cand[0] : parecido(it, cand, false);
+        if (par) alias.set(par.tt, { nuevo: it.tt, fuente: `marca del ${dmy(s.dia)}` });
+      }
+    });
     for (const a of aclaraciones) if (a.regla === 'cambio-id' && a.tt && a.nuevo && llave(a.colaborador) === llave(autor))
       alias.set(a.tt.toUpperCase(), { nuevo: a.nuevo.toUpperCase(), fuente: a.fuente || 'aclaración' });
     const destino = tt => { let t = tt, n = 0; while (alias.has(t) && n++ < 5) t = alias.get(t).nuevo; return t; };
@@ -298,11 +309,12 @@ try {
 
       // TT que sale del "Hoy" sin estatus final. Si hoy aparece un TT nuevo parecido (no uno que prueba como tester),
       // puede ser cambio de ID: se pregunta en lugar de marcarlo como desaparecido
-      const salen = [...mHoyAnt].filter(([tt, it]) => !mHoy.has(tt) && !esFinal(it.estatus));
+      // REVPR sale del standup sin repetir RSP (espera el envío a pruebas)
+      const salen = [...mHoyAnt].filter(([tt, it]) => !mHoy.has(tt) && !esFinal(it.estatus) && !esRevpr(it.estatus));
       const nuevos = [...mHoy.values()].filter(i => !RX_COMO_TESTER.test(i.estatus) &&!previos.some(p => p.bloques.some(b => b.items.some(x => x.tt === i.tt))));
       for (const [tt, it] of salen) {
         const par = parecido(it, nuevos, salen.length === 1);
-        if (par) h.push({ regla: 'cambio-id', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece; el ${dmy(dia)} aparece ${par.tt} ("${par.estatus}"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con "(antes ${tt})".` });
+        if (par) h.push({ regla: 'cambio-id', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece; el ${dmy(dia)} aparece ${par.tt} ("${par.estatus}"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con "(antes ${it.sinId ? 'sin ID' : tt})".` });
         else h.push({ regla: 'desaparece', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado).` });
       }
 
@@ -320,7 +332,7 @@ try {
       for (const [tt, it] of mHoy) {
         let ult = null;
         for (const p of previos) { const x = bloqueHoy(p).items.find(i => i.tt === tt); if (x) ult = { it: x, dia: p.dia }; }
-        if (!ult || esCierre(ult.it.estatus) || !esRsp(ult.it.estatus) || esRevpr(it.estatus) || iniciaronPruebas(historial(tt))) continue;
+        if (!ult || it.tipo === 'AP' || esCierre(ult.it.estatus) || !esRsp(ult.it.estatus) || esRevpr(it.estatus) || iniciaronPruebas(historial(tt))) continue;
         const r1 = rango(it.estatus);
         if (r1 < 1 || r1 > 2) continue;
         if (eventos.some(e => e.tt === tt && e.tipo === 'REABIERTO' && e.dia >= ult.dia)) continue; // ya registrada
@@ -336,7 +348,8 @@ try {
         if (esLdp(it.estatus)) {
           if (!esLdp(hoyEst)) detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}"). Después de la LDP el caso no se reabre: el problema nuevo va en otro TT (con ORIGEN si lo causó este).`;
         } else if (rango(hoyEst) < 5) {
-          if (!eventos.some(e => e.tt === it.tt && e.tipo === 'REABIERTO' && e.dia >= p.dia))
+          // Un AP (apoyo a soporte) nunca genera eventos: regresar a trabajo después de CEC no es reapertura
+          if (it.tipo !== 'AP' && mHoy.get(it.tt).tipo !== 'AP' && !eventos.some(e => e.tt === it.tt && e.tipo === 'REABIERTO' && e.dia >= p.dia))
             detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}") sin mensaje REABIERTO en el canal.`;
         } else
           detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}"). El cierre con CEC aparece solo el día en que se envía; en el siguiente standup el caso ya no va.`;
@@ -355,13 +368,24 @@ try {
         if (id && vistos.has(id)) h.push({ regla: 'id', tt: it.tt, detalle: `${id} aparece dos veces en el bloque "${b.etiqueta}".` });
         if (id) vistos.add(id);
         if (codigosObligatorios && b === bHoy && it.tt) {
-          if (!it.codigo) h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": falta el código de estatus; el formato es TT##### - C/F - Código: motivo (R, AN, D, PIL, ENT, EST, RSP, REVPR, ESPLDP, BUGPRU, PRU, ESPBUG, FINPRU, LDP, CEC, P).` });
+          if (!it.codigo) h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": falta el código de estatus; el formato es TT##### - C/F/AP - Código: motivo (R, AN, D, PIL, ENT, EST, RSP, REVPR, ESPLDP, BUGPRU, PRU, ESPBUG, FINPRU, LDP, CEC, P).` });
           else if (it.codigo === 'CAN') h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": CAN ya no se usa; un caso que se cierra sin pasar a RSP (también si se cancela) va con CEC y el motivo.` });
-          else if (!it.tipo || it.tipo === 'M') h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": ${it.tipo ? 'las mejoras van con C' : 'falta el tipo'} (C = cambio o mejora, F = fallo).` });
+          else if (!it.tipo || it.tipo === 'M') h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": ${it.tipo ? 'las mejoras van con C' : 'falta el tipo'} (C = cambio o mejora, F = fallo, AP = apoyo a soporte).` });
           if (it.codigo && it.seccion && (it.codigo === 'P') !== /stand/.test(it.seccion))
             h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": P (pausa) va en standby y los demás códigos en seguimiento.` });
         }
-        if ((/tt\s*sin\s*id/i.test(it.linea) || /^tt\s*:/i.test(it.linea)) && !sinTtPermitido(autor, it.linea)) h.push({ regla: 'id', detalle: `"${it.linea}": trabajo registrado sin número de caso.` });
+        // Estados por tipo: AN, D y PIL solo para C; AP solo usa P, R, ENT, EST y CEC
+        if (b === bHoy && it.codigo && it.tipo === 'F' && ['AN', 'D', 'PIL'].includes(it.codigo))
+          h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": un fallo (F) solo usa R como estado de trabajo; AN, D y PIL son para cambios (C).` });
+        if (b === bHoy && it.codigo && it.tipo === 'AP' && !['P', 'R', 'ENT', 'EST', 'CEC'].includes(it.codigo))
+          h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": un apoyo a soporte (AP) solo usa P, R, ENT, EST y CEC; no pasa por RSP ni por pruebas.` });
+        // RSP termina el motivo con la fecha en que el cliente lo dio por bueno
+        if (b === bHoy && it.codigo === 'RSP' && it.tipo !== 'AP' && !/fecha\s+(?:de\s+)?entrega:?\s*\d{1,2}\/\d{1,2}\/\d{2,4}/i.test(it.linea))
+          h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": el RSP termina el motivo con "Fecha Entrega dd/mm/aaaa".` });
+        // Al atender las observaciones del PR el caso sale del standup, sin otro RSP
+        if (b === bHoy && it.tt && esRsp(it.estatus) && ant && bloqueHoy(ant).items.some(x => x.tt === it.tt && esRevpr(x.estatus)))
+          h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": después de REVPR no se repite RSP; al atender las observaciones del PR el caso solo sale del standup (después puede volver en ESPLDP).` });
+        if (!it.sinId && (/tt\s*sin\s*id/i.test(it.linea) || /^tt\s*:/i.test(it.linea)) && !sinTtPermitido(autor, it.linea)) h.push({ regla: 'id', detalle: `"${it.linea}": trabajo registrado sin número de caso.` });
         // Trabajo nuevo sin TT (si ya venía de antes, lo cubre sin-caso)
         else if (!it.tt && b === bHoy && RX_TRABAJO.test(it.linea) && !RX_NO_CASO.test(it.linea) && !sinTtPermitido(autor, it.linea) &&
           !(ant && bloqueHoy(ant).items.some(x => !x.tt && llaveSinTt(x.linea) === llaveSinTt(it.linea))))

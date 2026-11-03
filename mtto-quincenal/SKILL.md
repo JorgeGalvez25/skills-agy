@@ -24,7 +24,7 @@ Columnas (desde `13-10`): **Desarrollador | Caso | Estatus | Observaciones | Fec
 3. **Bloque de Jorge**: no se genera contenido. Se dejan 5 filas vacías con "Jorge" en Desarrollador y su color (lila) para que él capture (`captura` en la spec).
 4. **Casos de la hoja anterior sin información en #mtto** (no se pueden ligar a ningún TT ni mención del periodo): se incluyen igual, con el texto de Caso y Observaciones de la hoja anterior,
    con el Estatus de la hoja anterior (si no tenía, `Proceso`), sin fecha y con una `nota` (comentario de celda) "Sin información en #mtto del dd/mm al dd/mm. Revisar." Jorge decide qué hacer con ellos.
-5. **Trabajo sin número de caso** (actividades sin TT##### en el standup: "pendiente de caso", fallos sin TT, pilotos, apoyos sueltos): **no se incluye**,
+5. **Trabajo sin número de caso y apoyos a soporte** (actividades sin TT##### en el standup: "pendiente de caso", `TTsinidN`, fallos sin TT, pilotos, apoyos sueltos, y los casos de tipo `AP`): **no se incluye**,
    pero **antes de generar** pregúntale a Jorge por cada uno con `ask_question` (incluir con el texto propuesto / dejar fuera). Cursos, reuniones, documentación para la scrum, informes y eventos internos no son trabajo de caso: ignóralos sin preguntar.
 6. Si la hoja `dd-mm` ya existe, pregunta antes de usar `--sobrescribir`. Nunca modifiques las hojas anteriores ni `CambiosProceso.xlsx`.
 

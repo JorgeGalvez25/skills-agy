@@ -103,7 +103,7 @@ Para detectar reaperturas que no se registraron con el formato, busca cada TT ev
 Márcalo como **sospechoso** solo si una mención **posterior a la fecha base** (en los cambios, cualquiera hasta 30 días después de su LDP) indica que el problema regresó o la corrección no funcionó
 ("reabre", "regresó", "otra vez", "de nuevo", "nuevamente", "persiste", "sigue fallando", "no quedó", "lo rechazaron", "volvió a").
 Que el TT siga en los standups como "Entregado, en espera de respuesta", "RSP" o "CEC" **no** es reapertura.
-Sí es reapertura que el caso pase de RSP, CEC o Cancelado a revisión o desarrollo (desde el 16/10/2026). Que pase de Entregado a revisión no lo es (antes del 16/10/2026 sí contaba), ni que pase de RSP a `REVPR` (corrección por observaciones al PR, desde el 28/10/2026; antes aparecía como "corrección para liberación"). Una vez iniciadas las pruebas (SDP, tester, integración) no hay reapertura: lo que encuentre el tester se corrige en el mismo TT hasta la LDP. No marques sospechosos en ese tramo.
+Sí es reapertura que el caso pase de RSP, CEC o Cancelado a revisión o desarrollo (desde el 16/10/2026). Que pase de Entregado a revisión no lo es (antes del 16/10/2026 sí contaba), ni que pase de RSP a `REVPR` (corrección por observaciones al PR, desde el 28/10/2026; antes aparecía como "corrección para liberación"). Una vez iniciadas las pruebas (SDP, tester, integración) no hay reapertura: lo que encuentre el tester se corrige en el mismo TT hasta la LDP. No marques sospechosos en ese tramo. Los apoyos a soporte (tipo `AP`) nunca son reapertura.
 
 ## Paso 4 — Resolver dudas con el usuario (ask_question, varias por llamada)
 

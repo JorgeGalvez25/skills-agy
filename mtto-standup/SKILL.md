@@ -1,6 +1,6 @@
 ---
 name: mtto-standup
-description: 'Revisión de cierre del día de los standups del equipo de Mantenimiento en #mtto. Compara el standup de hoy de cada colaborador con sus anteriores (Hoy vs. Hoy previo, TT que desaparecen sin cierre, cambios de ID de soporte a definitivo, formato TT - C/F - Código, seguimiento copiado, contadores x2/x3, retrocesos de estatus, IDs mal escritos, errores de dedo, trabajo sin caso, eventos LDP/REABIERTO/ORIGEN faltantes, estancamiento) y redacta un mensaje directo para cada colaborador con lo que debe corregir. Antes lee lo que cada colaborador respondió por DM a la retro anterior: propone corregir la retro cuando la respuesta la invalida y guarda las aclaraciones aceptadas para que no se repitan. Solo muestra los borradores; con autorización explícita los deja como borrador en el DM de Slack para que Jorge los envíe (nunca los envía). Usar cuando digan "/mtto-standup", "revisa los standups", "revisión de standups de hoy", "/mtto-standup respuestas", "revisa qué contestaron a la retro".'
+description: 'Revisión de cierre del día de los standups del equipo de Mantenimiento en #mtto. Compara el standup de hoy de cada colaborador con sus anteriores (Hoy vs. Hoy previo, TT que desaparecen sin cierre, cambios de ID de soporte a definitivo, formato TT - C/F/AP - Código, seguimiento copiado, contadores x2/x3, retrocesos de estatus, IDs mal escritos, errores de dedo, trabajo sin caso, eventos LDP/REABIERTO/ORIGEN faltantes, estancamiento) y redacta un mensaje directo para cada colaborador con lo que debe corregir. Antes lee lo que cada colaborador respondió por DM a la retro anterior: propone corregir la retro cuando la respuesta la invalida y guarda las aclaraciones aceptadas para que no se repitan. Solo muestra los borradores; con autorización explícita los deja como borrador en el DM de Slack para que Jorge los envíe (nunca los envía). Usar cuando digan "/mtto-standup", "revisa los standups", "revisión de standups de hoy", "/mtto-standup respuestas", "revisa qué contestaron a la retro".'
 argument-hint: "[ayer (default) | hoy | dd/mm/aaaa | respuestas]"
 ---
 
@@ -65,14 +65,15 @@ Mensaje diario (~17:00), **sin títulos de día** (mencionar a Jorge es opcional
 con una línea por caso que indica cómo queda al cierre del día (la fecha del mensaje dice de qué día es).
 
 **Formato de línea estándar** (el de la skill `reporte-daily` de Saulo): `TT##### - Tipo - Código: motivo`, p. ej. `TT104919 - C - EST: preguntar estatus x2`.
-Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejora, `F` = fallo.
+Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejora, `F` = fallo, `AP` = apoyo a soporte.
+En Slack el código `D` va pegado al guion (`TT##### - C -D: motivo`) porque ` D:` se convierte en emoji; es válido.
 
 | Código | Significado | Sección |
 |---|---|---|
 | `R` / `AN` / `D` / `PIL` | Revisando / Analizando / Desarrollo / Piloto | seguimiento |
 | `ENT` | Entregado, en espera de respuesta | seguimiento |
 | `EST` | Preguntar estatus (correo a soporte) | seguimiento |
-| `RSP` | Revisión SCRUM Pendiente (ver abajo) | seguimiento |
+| `RSP` | Revisión SCRUM Pendiente (ver abajo); el motivo termina con `Fecha Entrega dd/mm/aaaa` | seguimiento |
 | `REVPR` | Corrección de código por observaciones de Jorge al PR de un caso que ya pasó por RSP (ver abajo) | seguimiento |
 | `ESPLDP` | Caso propio en pruebas con el tester, en espera de LDP | seguimiento |
 | `BUGPRU` | El tester reportó un bug en el caso (se corrige en el mismo TT) | seguimiento |
@@ -83,12 +84,18 @@ Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejo
 | `CEC` | Correo de cierre de caso: todo caso que se cierra sin pasar a RSP (sin corrección, se atiende con otro caso o se cancela); el motivo dice por qué | seguimiento |
 | `P` | Pausa | standby |
 
+- **Estados por tipo:** un `F` solo usa `R` como estado de trabajo; `AN`, `D` y `PIL` son solo para `C`.
+- **`AP` (apoyo a soporte):** solo usa `P` → `R` → `ENT` → `EST` → `CEC`. No pasa por `RSP`, `REVPR` ni pruebas y nunca genera eventos
+  (ni `REABIERTO`, ni `ORIGEN`, ni `LDP`): que regrese a `R` después de `CEC` no es reapertura. El script marca `formato` si un `F` o un `AP` usa otro código.
+- **Caso sin ID** (urgencia que se atiende antes de que exista el TT): va como `TTsinid1`, `TTsinid2`… (el número no se reutiliza). El día que recibe su TT,
+  la línea nueva lleva `(antes sin ID)` y el script une las dos historias como en un cambio de ID. Si tiene `ORIGEN`, el evento se publica ese día con el ID real.
+
 - El script lee también el formato anterior `TT#####: estatus`. Mientras `INICIO_CODIGOS` (en `revisar.js`) sea `null`, no se marca; cuando Jorge fije la fecha
   desde la que el formato es obligatorio, se pone ahí (`'AAAA-MM-DD'`) y la regla `formato` empieza a señalarlo.
 - **Cambio de ID:** cuando un caso se atiende con el ID de soporte y luego se le asigna el definitivo, la línea del ID nuevo lleva `(antes TT#####)`
   el día del cambio. Con eso el script une las dos historias (estancamiento, contadores, RSP previo) y no marca `desaparece`.
 - Desde el **08/10/2026** ya no lleva "Ayer"/"Viernes" ni "Hoy": lo hecho el día anterior se lee en el standup anterior.
-- Un caso solo sale del standup después de aparecer una última vez con estatus de cierre (RSP, LDP, CEC, cancelado).
+- Un caso solo sale del standup después de aparecer una última vez con estatus de cierre (RSP, LDP, CEC, cancelado) o en `REVPR`.
 - Desde el **09/10/2026**: **RSP** (Revisión SCRUM Pendiente) = el cliente dio por bueno el cambio o la corrección del fallo; falta integrarlo a MAIN
   y las pruebas previas a liberar la versión. El caso puede salir del standup y vuelve a seguimiento cuando entra a integración y pruebas con el tester.
   **LDP** = el tester mandó el correo de liberación de pruebas (cambios, mejoras y fallos): ese día el caso aparece como `TT#####: LDP`
@@ -99,8 +106,8 @@ Sin motivo, termina en el código (`TT##### - C - P`). Tipo: `C` = cambio o mejo
   un problema nuevo va en otro TT, con ORIGEN si lo causó ese caso.
 - Desde el **28/10/2026**: **REVPR** (Revisión de PR) = el desarrollador corrige el código por las observaciones que Jorge hizo al PR de un caso que ya pasó
   por RSP. Se registra con el **mismo TT del caso** (`TT##### - F - REVPR: observaciones del PR`), no es retroceso ni reapertura (no lleva REABIERTO) y no es cierre:
-  al atender las observaciones, el caso aparece una última vez como `RSP` (p. ej. `RSP: observaciones del PR atendidas`) o sigue a pruebas (`ESPLDP`).
-  Si el caso nunca estuvo en RSP, el script marca `sin-rsp`. Antes del 28/10/2026 este trabajo aparecía como "corrección para liberación" (p. ej. TT98105 y
+  al atender las observaciones, el caso sale del standup **sin repetir `RSP`** y después puede volver en `ESPLDP` (el script no marca `desaparece`).
+  Si después de `REVPR` viene otra vez `RSP`, el script marca `formato`. Si el caso nunca estuvo en RSP, marca `sin-rsp`. Antes del 28/10/2026 este trabajo aparecía como "corrección para liberación" (p. ej. TT98105 y
   TT102632 de Miguel, 21–22/10/2026): no se trata como cambio de ID ni como trabajo sin cierre.
 - El script da por iniciadas las pruebas cuando el caso trae `ESPLDP`, `BUGPRU`, `PRU`, `ESPBUG` o `FINPRU`, menciona SDP, al tester o "en espera de LDP", o cuando después de RSP
   menciona pruebas, integración, MAIN o SCRUM. Desde ahí no marca `retroceso` ni sugiere REABIERTO.
@@ -180,14 +187,14 @@ Devuelve por colaborador `standupDeHoy`, `hora`, `hallazgos[]` (`regla`, `tt`, `
 |---|---|
 | `sin-standup` | Faltan días hábiles entre su standup anterior y el de hoy **y** además hay un hallazgo de continuidad (`desaparece`, `copiado`, `contador`, `retroceso`, `evento`). Sin eso, el hueco solo va en `faltantes`. Si no publicó en la fecha revisada, tampoco es hallazgo: va en `faltantes` y se revisa cuando publique |
 | `estructura` | No hay casos en standby/seguimiento o (desde el 08/10/2026) todavía incluye "Ayer"/"Viernes" |
-| `desaparece` | Un TT de su "Hoy" anterior ya no aparece y su último estatus no era de cierre (RSP, LDP, CEC, cancelado), y no hay un TT nuevo que lo continúe |
-| `cambio-id` | Un TT desaparece sin cierre y hoy aparece uno nuevo (que no es `PRU`, `ESPBUG` ni `FINPRU`) del mismo tipo con dos o más palabras en común en el motivo, o el único TT nuevo cuando solo desapareció uno, sin la marca `(antes TT#####)` |
+| `desaparece` | Un TT de su "Hoy" anterior ya no aparece y su último estatus no era de cierre (RSP, LDP, CEC, cancelado) ni `REVPR`, y no hay un TT nuevo que lo continúe |
+| `cambio-id` | Un TT (o `TTsinidN`) desaparece sin cierre y hoy aparece uno nuevo (que no es `PRU`, `ESPBUG` ni `FINPRU`) del mismo tipo con dos o más palabras en común en el motivo, o el único TT nuevo cuando solo desapareció uno, sin la marca `(antes TT#####)` o `(antes sin ID)` |
 | `sin-rsp` | Un caso propio entra a pruebas (`ESPLDP`, `BUGPRU`, SDP, "en espera de LDP"), a `REVPR` o a `LDP` desde `ENT`, `EST` o trabajo, sin haber estado en RSP. De RSP a LDP directo sí vale (SCRUM, pruebas y liberación el mismo día). Solo si el TT ya aparecía en la ventana leída: si es nuevo en la ventana, su RSP pudo ser anterior |
-| `formato` | Solo desde `INICIO_CODIGOS`: línea con TT sin código de la tabla, sin tipo o con `M` (las mejoras van con `C`), con `CAN` (va `CEC`), o `P` fuera de standby / otro código en standby. Siempre (sin esperar `INICIO_CODIGOS`): `LDP` puesto por quien probó el caso como tester (va `FINPRU`) |
+| `formato` | Solo desde `INICIO_CODIGOS`: línea con TT sin código de la tabla, sin tipo o con `M` (las mejoras van con `C`), con `CAN` (va `CEC`), o `P` fuera de standby / otro código en standby. Siempre (sin esperar `INICIO_CODIGOS`): `LDP` puesto por quien probó el caso como tester (va `FINPRU`), un `F` en `AN`, `D` o `PIL`, un `AP` con un código fuera de `P`, `R`, `ENT`, `EST`, `CEC`, `RSP` sin `Fecha Entrega dd/mm/aaaa` al final del motivo y `RSP` después de `REVPR` |
 | `copiado` | La sección de seguimiento es idéntica a la del standup anterior (ningún estatus ni contador cambió) |
 | `contador` | Un contador baja, salta más de lo que permiten los días transcurridos (uno por día hábil, contando los días sin standup) o desaparece con el mismo estatus |
-| `retroceso` | Un TT pasa de RSP (en su última aparición, aunque haya salido del standup) a revisando/codificando/piloto (`R`, `AN`, `D`, `PIL`) sin mensaje REABIERTO y sin haber iniciado pruebas; un TT con CEC o cancelado regresa a trabajo sin mensaje REABIERTO; un CEC o cancelado reaparece en el siguiente standup con un cierre (CEC va solo el día en que se envía); o un TT con LDP reaparece con otro estatus, y se indica que no se reabre: va en otro TT con ORIGEN. Entregado → revisión y RSP → `REVPR` no se marcan |
-| `id` | ID sin prefijo TT, con menos de 5 dígitos, repetido en el bloque, o trabajo nuevo sin número de caso (línea que empieza con Fallo, Cambio, Mejora o Apoyo, o que dice "pendiente de caso") |
+| `retroceso` | Un TT pasa de RSP (en su última aparición, aunque haya salido del standup) a revisando/codificando/piloto (`R`, `AN`, `D`, `PIL`) sin mensaje REABIERTO y sin haber iniciado pruebas; un TT con CEC o cancelado regresa a trabajo sin mensaje REABIERTO; un CEC o cancelado reaparece en el siguiente standup con un cierre (CEC va solo el día en que se envía); o un TT con LDP reaparece con otro estatus, y se indica que no se reabre: va en otro TT con ORIGEN. Entregado → revisión, RSP → `REVPR` y cualquier regreso de un `AP` no se marcan |
+| `id` | ID sin prefijo TT, con menos de 5 dígitos, repetido en el bloque, o trabajo nuevo sin número de caso (línea que empieza con Fallo, Cambio, Mejora o Apoyo, o que dice "pendiente de caso"). `TTsinidN` es válido y no se marca |
 | `ortografia` | Posible error de dedo en palabras del vocabulario de estatus |
 | `evento` | Un TT que estuvo en RSP dice "otra vez", "regresó"… y no existe el mensaje REABIERTO/ORIGEN, o un TT tiene estatus LDP en el standup y no existe su mensaje aparte `LDP TT##### | ...` (o un LIBERADO anterior), que es el que lee /rcalidad. No se le pide a quien lo probó como tester (`PRU`, `ESPBUG`, `FINPRU`): lo publica el desarrollador responsable |
 | `sin-caso` | Cualquier línea sin TT que lleva 5 o más días hábiles en el standup (se identifica sin lo que va entre paréntesis). No aplica a actividades que no son casos: curso, capacitación, SCRUM, informes, reuniones |
