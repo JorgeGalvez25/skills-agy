@@ -54,9 +54,9 @@ Escribe un archivo por TT en `<SALIDA>\reportes\<TT>.md`, en español con acento
 
 **Veredicto:** <✅ Aprobar | ⚠️ Aprobar con observaciones | ❌ Pedir cambios> — <una línea con la razón>
 
-| PR | Repo | Archivos | Enlace |
-|---|---|---|---|
-| <id> | <repo> | <n> | [Abrir](<URL>) |
+| PR | Repo | Archivos | Head revisado | Enlace |
+|---|---|---|---|---|
+| <id> | <repo> | <n> | `<primeros 8 caracteres de Head en pr.md>` | [Abrir](<URL>) |
 
 ## Qué cambia
 <2–5 viñetas en lenguaje claro>

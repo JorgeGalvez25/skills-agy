@@ -1,4 +1,5 @@
-﻿# /mtto-revpr paso 4: veredicto y hallazgos por severidad de cada informe TT*.md (para el índice; no contar a mano)
+﻿# /mtto-revpr paso 4: veredicto y hallazgos abiertos por severidad de cada informe TT*.md (para el índice; no contar a mano).
+# Las filas con Estado "Resuelto" no se cuentan.
 param([Parameter(Mandatory)][string]$Reportes)
 $ErrorActionPreference = 'Stop'
 $tot = @{ Alta = 0; Media = 0; Baja = 0 }; $ver = @{}
@@ -6,7 +7,7 @@ $filas = foreach ($f in Get-ChildItem $Reportes -Filter 'TT*.md' | Sort-Object N
   $t = Get-Content $f.FullName -Encoding UTF8
   $v = ($t | Where-Object { $_ -match '^\*\*Veredicto:\*\*' } | Select-Object -First 1) -replace '^\*\*Veredicto:\*\*\s*', '' -replace '\s+—.*$', ''
   $n = @{}
-  foreach ($s in 'Alta', 'Media', 'Baja') { $n[$s] = @($t | Where-Object { $_ -match "^\|\s*\d+\s*\|\s*\**$s\**\s*\|" }).Count; $tot[$s] += $n[$s] }
+  foreach ($s in 'Alta', 'Media', 'Baja') { $n[$s] = @($t | Where-Object { $_ -match "^\|\s*\d+\s*\|\s*\**$s\**\s*\|\s*(?!Resuelto)" }).Count; $tot[$s] += $n[$s] }
   $ver[$v] = 1 + [int]$ver[$v]
   [pscustomobject]@{ TT = $f.BaseName; Veredicto = $v; Alta = $n.Alta; Media = $n.Media; Baja = $n.Baja }
 }

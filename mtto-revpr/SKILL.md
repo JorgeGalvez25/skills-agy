@@ -1,7 +1,7 @@
 ---
 name: mtto-revpr
-description: Revisa todos los pull requests de Azure DevOps (igasmxproyectos) de una versión de Mantenimiento. Toma los TT del archivo de acuerdos (Acuerdos_IGAS_RSP.xlsx en C:\Users\jorge\Dropbox\MTTO\Versiones\<versión>), localiza sus PR, baja el código base/head, lo revisa con subagentes contra los acuerdos del Excel, el informe interno de /mtto-docu y la nota Atencion_Especial_<versión>.md, detecta conflictos entre PR y guarda un informe por caso más un índice en <versión>\Revision_PR. Usar cuando digan "/mtto-revpr", "revisa los PR de la versión", "revisa los pull request de la 4.3.x.y", "code review de la versión", "me mandaron un montón de PR", "qué PR puedo aprobar" o pidan revisar PR de Azure DevOps de una versión, aunque no mencionen el Excel.
-argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)]"
+description: Revisa todos los pull requests de Azure DevOps (igasmxproyectos) de una versión de Mantenimiento. Toma los TT del archivo de acuerdos (Acuerdos_IGAS_RSP.xlsx en C:\Users\jorge\Dropbox\MTTO\Versiones\<versión>), localiza sus PR, baja el código base/head, lo revisa con subagentes contra los acuerdos del Excel, el informe interno de /mtto-docu y la nota Atencion_Especial_<versión>.md, detecta conflictos entre PR y guarda un informe por caso más un índice en <versión>\Revision_PR. Usar cuando digan "/mtto-revpr", "revisa los PR de la versión", "revisa los pull request de la 4.3.x.y", "code review de la versión", "me mandaron un montón de PR", "qué PR puedo aprobar" o pidan revisar PR de Azure DevOps de una versión, aunque no mencionen el Excel. También hace el seguimiento de un caso ya revisado ("/mtto-revpr TT#####", "revisa si ya corrigió el TT", "ya subió las correcciones del PR") y prepara comentarios en los PR, que Jorge aprueba antes de publicarlos.
+argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual) | TT##### para el seguimiento de un caso]"
 ---
 
 # Revisión de PR de una versión (/mtto-revpr [versión])
@@ -13,7 +13,8 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)]"
   - Los comprimidos de los colaboradores con los informes `.md` de `/mtto-docu`.
   - Azure DevOps de la organización `igasmxproyectos`.
 - **Salida:** `<carpeta>\Revision_PR\` con un `TT#####.md` por caso y `00_Resumen_Revision_PR_<versión>.md`.
-- **Solo lectura en Azure DevOps.** No se aprueba, no se vota y no se comenta en los PR, a menos que Jorge lo pida explícitamente después de ver los informes.
+- **Solo lectura en Azure DevOps.** Nunca se aprueba ni se vota. Solo se comenta en los PR cuando Jorge lo pide y después de que aprueba los textos en el chat (ver "Comentarios en los PR").
+- **Seguimiento:** si el argumento es un TT, o Jorge pide revisar si un desarrollador ya corrigió un caso que ya tiene `Revision_PR\TT#####.md`, no se corren los pasos de abajo: seguir `references\seguimiento.md`.
 - No hay Python en el equipo: todo corre con PowerShell y los scripts de `scripts\`, que comparten `comun.ps1`. Los `.ps1` se guardan en UTF-8 con BOM.
 
 ## Token
@@ -83,7 +84,42 @@ Si Jorge pega el token en el chat, usarlo solo en esta sesión (`$env:AZURE_DEVO
    - lo más urgente, en 3 a 5 puntos: hallazgos Alta, H1/H2 que siguen abiertos, acuerdos sin cumplir y conflictos entre PR;
    - qué casos se pueden aprobar sin observaciones.
 
-   No pegar los informes completos. Al final, ofrecer en una línea publicar los hallazgos como comentarios en los PR. Eso requiere un token con **Code: Read & write** y aprobación expresa.
+   No pegar los informes completos. Al final, ofrecer en una línea preparar los comentarios de los PR.
+
+## Comentarios en los PR
+
+Solo cuando Jorge lo pide, en una revisión completa o en un seguimiento.
+
+1. **Redactar** `<scratchpad>\revpr\comentarios_PR####.md`, uno por PR:
+   ```
+   # Comentarios PR#### — TT#####
+
+   ## /Master/Master_Cup.pas 512
+   **[Obligatorio] <título>**
+
+   <mensaje para el desarrollador>
+
+   ## /Master/Master_Cup.pas 584-587
+   **[Condicionado] <título>**
+   …
+
+   ## General
+   **Revisión del dd/mm/aaaa, iteración n (`xxxxxxx`)**
+   <lo que ya quedó bien, la lista numerada de lo que falta para aprobar y lo no bloqueante>
+   ```
+   - Un comentario por cada hallazgo obligatorio o condicionado, anclado en la línea de `head\` (última iteración) donde va el cambio, con la ruta del repo tal como aparece en el PR (empieza con `/`). El texto sale del "Mensaje para…" del informe.
+   - Los no bloqueantes solo se mencionan en el comentario general.
+   - No repetir hallazgos que ya tienen un hilo activo en el PR (salen en `pr.md` o `seguimiento.md`).
+2. **Validar las anclas** sin publicar:
+   ```powershell
+   & "C:\Users\jorge\.gemini\config\skills\mtto-revpr\scripts\comentar.ps1" -Archivo "<comentarios_PR####.md>" -PR ####
+   ```
+   Imprime el código de cada línea anclada. Si no corresponde a lo que dice el comentario, corregir la línea.
+3. **Mostrar a Jorge en el chat el texto completo de cada comentario**, con su archivo y línea, y esperar su aprobación. Si pide cambios, editar el archivo y volver a mostrarlo. La aprobación vale solo para esos textos y ese PR.
+4. **Publicar** con el mismo comando y `-Publicar`. Requiere un token con **Code: Read & write**: si responde `TOKEN_SIN_ESCRITURA`, pedirle a Jorge que edite el token. Los comentarios que ya existen con el mismo texto se omiten.
+5. **Informar** los números de hilo publicados. Recordarle a Jorge que puede regresar el token a **Code: Read**.
+
+Azure DevOps no tiene borradores de comentarios: lo publicado lo ve todo el equipo del PR y le llega un correo al autor. Por eso el borrador es el `.md` que Jorge aprueba. No se borran ni se editan hilos publicados sin que Jorge lo pida.
 
 ## Criterios
 

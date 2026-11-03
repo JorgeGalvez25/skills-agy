@@ -50,14 +50,6 @@ $informes = @(if (Test-Path "$dirInf\informes") { Get-ChildItem "$dirInf\informe
 # --- 3. Pull requests de la organización (todos los estados, más recientes primero) ---
 $prs = @((Invoke-Ado "$Org/_apis/git/pullrequests?searchCriteria.status=all&`$top=1000&api-version=7.1").value)
 
-function Save-Version($proj, $repo, $path, $commit, $dest) {
-  $u = "$Org/$proj/_apis/git/repositories/$repo/items?path=$([uri]::EscapeDataString($path))&versionDescriptor.version=$commit&versionDescriptor.versionType=commit&download=true&api-version=7.1"
-  try { $r = Invoke-WebRequest -Uri $u -Headers $script:H -UseBasicParsing } catch { return $false }
-  $b = if ($r.Content -is [string]) { [Text.Encoding]::UTF8.GetBytes($r.Content) } else { $r.Content }
-  Write-Utf8 $dest ((ConvertTo-Texto $b) -replace "`r`n", "`n")
-  return $true
-}
-
 # --- 4. Por caso: PR activos (se descargan), completados y abandonados (solo se listan) ---
 $casos = @(); $archivosPorPR = @()
 foreach ($f in $filas) {

@@ -81,3 +81,12 @@ function Read-XlsxHoja([string]$Ruta, [string]$Hoja) {
     }
   } finally { $fs.Close() }
 }
+
+# Descarga un archivo del repo en un commit, como texto UTF-8 con LF; $false si no existe en ese commit
+function Save-Version($proj, $repo, $path, $commit, $dest) {
+  $u = "$Org/$proj/_apis/git/repositories/$repo/items?path=$([uri]::EscapeDataString($path))&versionDescriptor.version=$commit&versionDescriptor.versionType=commit&download=true&api-version=7.1"
+  try { $r = Invoke-WebRequest -Uri $u -Headers $script:H -UseBasicParsing } catch { return $false }
+  $b = if ($r.Content -is [string]) { [Text.Encoding]::UTF8.GetBytes($r.Content) } else { $r.Content }
+  Write-Utf8 $dest ((ConvertTo-Texto $b) -replace "`r`n", "`n")
+  return $true
+}
