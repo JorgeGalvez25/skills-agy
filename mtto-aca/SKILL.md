@@ -35,7 +35,7 @@ Usa la herramienta PowerShell con un timeout amplio (unos 120000 ms). Si el tít
 
 El script:
 
-1. **Agrega una fila al final de `Tabla1`** con: ID, Descripción (título), Desarrollador (nombre con acentos, como en la tabla), `Estatus = Proceso`, `Interno` vacío, `Autorizado = No`, `SCRUM = No`, `Cobrado = 0%`. Guarda el `.xlsm` (conserva macros).
+1. **Agrega una fila al final de `Tabla1`** con: ID, Descripción (título), Desarrollador (nombre con acentos, como en la tabla), `Estatus = Proceso`, `Interno` vacío, `Autorizado = No`, `SCRUM = No`, `Cobrado = 0%`. Reacomoda `Tabla2` (rangos de descuento) para que siempre queden dos filas vacías entre ella y `Tabla1`. Guarda el `.xlsm` (conserva macros).
 2. **Deja el borrador en Outlook** (Borradores, **no lo envía**):
    - **Para:** `<usuario>@igas.com.mx` del colaborador. **CC:** `dianagonzalez@imagensoft.com.mx`.
    - **Asunto:** `TT##### ACA`.

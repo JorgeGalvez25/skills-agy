@@ -37,6 +37,10 @@ if (-not $SoloCorreo) {
     $fila.Cells.Item(1, 6).Value2 = 'No'      # Autorizado
     $fila.Cells.Item(1, 7).Value2 = 'No'      # SCRUM
     $fila.Cells.Item(1, 8).Value2 = [double]0 # Cobrado 0%
+    # Tabla2 (rangos de descuento) siempre dos filas vacías debajo de Tabla1
+    $lo2 = $wb.Worksheets.Item(1).ListObjects.Item('Tabla2')
+    $destino = $lo.Range.Row + $lo.Range.Rows.Count + 2
+    if ($lo2.Range.Row -ne $destino) { [void]$lo2.Range.Cut($lo2.Parent.Cells.Item($destino, $lo2.Range.Column)) }
     $wb.Save()
     "$TT registrado en CambiosProceso.xlsm (fila $($fila.Row))"
   } finally {
