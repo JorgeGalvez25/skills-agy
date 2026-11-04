@@ -1,7 +1,7 @@
 ﻿param([string]$Mes = (Get-Location).Path, [string[]]$TT, [hashtable]$Desc = @{})
 $ErrorActionPreference = 'Stop'
 $para = 'jorgeorduno@imagensoft.com.mx'
-$procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsx'
+$procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm'
 
 $archivos = @(Get-ChildItem "$Mes\CambiosInternos" -Recurse -Filter 'HorasCambioTT*.xlsx' | Where-Object { -not $TT -or ($_.BaseName -replace 'HorasCambio', '') -in $TT })
 if ($archivos.Count -eq 0) { throw "No hay HorasCambioTT*.xlsx en $Mes\CambiosInternos$(if ($TT) { " para $($TT -join ', ')" })" }
@@ -27,7 +27,7 @@ $ol = New-Object -ComObject Outlook.Application
 $borradores = $ol.GetNamespace('MAPI').GetDefaultFolder(16)
 foreach ($x in $archivos) {
   $tt = $x.BaseName -replace 'HorasCambio', ''
-  if (-not $titulos[$tt]) { throw "$tt no está en CambiosProceso.xlsx" }
+  if (-not $titulos[$tt]) { throw "$tt no está en CambiosProceso.xlsm" }
   $asunto = "Autorización comisiones cambio interno $tt"
   $solicitud = "Ingeniero buen día, solicito de su autorización para el pago de comisiones del cambio interno $($titulos[$tt]), realizado por $($x.Directory.Name)$(if ($Desc[$tt]) { ', ' + $Desc[$tt].TrimEnd('.') })."
 

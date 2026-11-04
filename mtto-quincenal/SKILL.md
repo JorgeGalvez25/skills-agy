@@ -1,6 +1,6 @@
 ---
 name: mtto-quincenal
-description: 'Genera la hoja quincenal del reporte a dirección "Seguimiento de Casos por Desarrollador" (Casos_por_Desarrollador_mantenimiento.xlsx). Toma la última hoja del archivo, lee los standups de #mtto desde esa fecha y los títulos de CambiosProceso.xlsx, y agrega una hoja nueva (dd-mm) solo con el trabajo vigente de cada desarrollador. Usar cuando digan "/mtto-quincenal", "genera la hoja de la reunión", "reporte de casos por desarrollador" o "hoja para dirección".'
+description: 'Genera la hoja quincenal del reporte a dirección "Seguimiento de Casos por Desarrollador" (Casos_por_Desarrollador_mantenimiento.xlsx). Toma la última hoja del archivo, lee los standups de #mtto desde esa fecha y los títulos de CambiosProceso.xlsm, y agrega una hoja nueva (dd-mm) solo con el trabajo vigente de cada desarrollador. Usar cuando digan "/mtto-quincenal", "genera la hoja de la reunión", "reporte de casos por desarrollador" o "hoja para dirección".'
 argument-hint: "[dd/mm/aaaa (default: hoy)]"
 ---
 
@@ -26,13 +26,13 @@ Columnas (desde `13-10`): **Desarrollador | Caso | Estatus | Observaciones | Fec
    con el Estatus de la hoja anterior (si no tenía, `Proceso`), sin fecha y con una `nota` (comentario de celda) "Sin información en #mtto del dd/mm al dd/mm. Revisar." Jorge decide qué hacer con ellos.
 5. **Trabajo sin número de caso y apoyos a soporte** (actividades sin TT##### en el standup: "pendiente de caso", `TTsinidN`, fallos sin TT, pilotos, apoyos sueltos, y los casos de tipo `AP`): **no se incluye**,
    pero **antes de generar** pregúntale a Jorge por cada uno con `ask_question` (incluir con el texto propuesto / dejar fuera). Cursos, reuniones, documentación para la scrum, informes y eventos internos no son trabajo de caso: ignóralos sin preguntar.
-6. Si la hoja `dd-mm` ya existe, pregunta antes de usar `--sobrescribir`. Nunca modifiques las hojas anteriores ni `CambiosProceso.xlsx`.
+6. Si la hoja `dd-mm` ya existe, pregunta antes de usar `--sobrescribir`. Nunca modifiques las hojas anteriores ni `CambiosProceso.xlsm`.
 
 ## Paso 1 — Leer la hoja anterior y los títulos
 
 ```powershell
 node "C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js" leer "C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/Casos_por_Desarrollador_mantenimiento.xlsx"
-node "C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js" titulos "C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/CambiosProceso.xlsx"
+node "C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js" titulos "C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/CambiosProceso.xlsm"
 ```
 
 `leer` devuelve las hojas existentes y las filas de la última (`dev`, `caso`, `estatus`, `obs`, `fecha`; ubica las columnas por encabezado, así que en hojas sin Estatus viene vacío). `titulos` devuelve `{TT#####: {titulo, dev, estatus}}` de los cambios.

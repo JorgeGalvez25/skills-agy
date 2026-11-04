@@ -10,7 +10,7 @@ Los Excel los crea **siempre** `scripts/generar.ps1` a partir de la plantilla de
 
 - **Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\comisiones-internos`.
 - **Carpeta del mes** (`$MES`): la carpeta de trabajo actual, con nombre `YYYYMM-Mes`, por ejemplo `202609-Septiembre`.
-- **Títulos y estatus de los cambios:** `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsx`. Usa la columna A (ID), la B (Descripción) y la D (Estatus).
+- **Títulos y estatus de los cambios:** `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm`. Usa la columna A (ID), la B (Descripción) y la D (Estatus).
 - En este equipo no hay Python. Los scripts se corren en PowerShell 5.1, usan Excel por COM y están guardados en UTF-8 con BOM. Si los editas, consérvalos con BOM; sin él, los acentos salen corruptos.
 
 ## Entrada esperada
@@ -58,7 +58,7 @@ Cuando todos los cambios se generaron sin error, el script **elimina los `Report
 
 Al final imprime, por cambio: TT, archivo de origen, quién codificó, horas, importe, última fecha, estatus en CambiosProceso y título.
 
-Si el script falla con `no está en CambiosProceso.xlsx`, pregunta al usuario el título del caso. No lo inventes.
+Si el script falla con `no está en CambiosProceso.xlsm`, pregunta al usuario el título del caso. No lo inventes.
 
 ## Paso 2 — Entregar (en el chat, breve)
 

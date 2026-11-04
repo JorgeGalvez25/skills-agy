@@ -1,6 +1,6 @@
 ﻿param([string]$Mes = (Get-Location).Path, [string]$Externos, [switch]$Sobrescribir)
 $ErrorActionPreference = 'Stop'
-$procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsx'
+$procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm'
 # Columna de porcentaje por beneficiario
 $col = @{ Jorge = 'J'; Susana = 'K'; Martin = 'L'; Saulo = 'M'; Miguel = 'N' }
 
@@ -85,7 +85,7 @@ try {
   for ($r = 16; $r -le 28; $r++) { $ws.Range("I$r").Formula = "=G$r*H$r" }
   $r = 16
   foreach ($c in $cambios) {
-    if (-not $titulos[$c.TT]) { throw "$($c.TT) no está en CambiosProceso.xlsx" }
+    if (-not $titulos[$c.TT]) { throw "$($c.TT) no está en CambiosProceso.xlsm" }
     $fila = New-Object 'object[,]' 1, 7
     $fila[0,0] = $c.TT
     $fila[0,1] = $c.Fecha

@@ -12,7 +12,7 @@ if (-not $Ado) {
   # Valores de la primera hoja
   $leer = { param($ruta) $wb = $xl.Workbooks.Open($ruta, 0, $true); $v = $wb.Worksheets.Item(1).UsedRange.Value2; $wb.Close($false); , $v }
   try {
-    $v = & $leer 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsx'
+    $v = & $leer 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm'
     $titulos = @{}
     for ($r = 2; $r -le $v.GetLength(0); $r++) { $id = ([string]$v[$r,1]).Trim(); if ($id) { $titulos[$id] = ([string]$v[$r,2]).Trim() } }
     foreach ($x in $archivos) {

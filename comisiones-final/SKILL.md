@@ -11,7 +11,7 @@ Va después de `/comisiones-internos` (que crea los `HorasCambioTT#####.xlsx`) y
 - **Carpeta de la skill:** `C:\Users\jorge\.gemini\config\skills\comisiones-final`.
 - **Carpeta del mes** (`$MES`): la carpeta de trabajo actual, con nombre `YYYYMM-Mes` (por ejemplo `202609-Septiembre`).
 - **Base:** `Mantenimiento_Comisiones_<Mes>_<año>.xlsx` de la carpeta del mes anterior. En enero se busca en la carpeta del año anterior.
-- **Títulos de los cambios:** `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsx` (columna A = ID, columna B = Descripción).
+- **Títulos de los cambios:** `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm` (columna A = ID, columna B = Descripción).
 - El script corre en PowerShell 5.1, usa Excel por COM y está guardado en UTF-8 con BOM. Si lo editas, consérvalo con BOM.
 
 ## Reglas (fijas)
@@ -70,7 +70,7 @@ Si no hay externos, omite `-Externos`. Usa la herramienta PowerShell con un time
 
 Si falla:
 
-- `no está en CambiosProceso.xlsx`: pregunta al usuario el título del caso. No lo inventes.
+- `no está en CambiosProceso.xlsm`: pregunta al usuario el título del caso. No lo inventes.
 - `no tiene fechas en la columna D`: ese HorasCambio se generó sin fechas; pide al usuario la fecha del primer registro y escríbela en D2.
 - El archivo está abierto: pide al usuario que lo cierre y vuelve a correrlo.
 

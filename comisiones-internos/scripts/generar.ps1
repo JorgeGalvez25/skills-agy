@@ -2,7 +2,7 @@
 $ErrorActionPreference = 'Stop'
 $sk = Split-Path $PSScriptRoot
 $tplHoras = "$sk\plantillas\HorasCambio.xlsx"
-$procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsx'
+$procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm'
 
 if (-not (Test-Path "$Mes\CambiosInternos")) { throw "No existe $Mes\CambiosInternos" }
 
@@ -27,7 +27,7 @@ try {
       $n = $wr.Worksheets.Item(1).UsedRange.Rows.Count
       $wr.Close($false)
       $tt = [string]$v[2,1]
-      if (-not $titulos[$tt]) { throw "$tt ($($raw.Name)) no está en CambiosProceso.xlsx" }
+      if (-not $titulos[$tt]) { throw "$tt ($($raw.Name)) no está en CambiosProceso.xlsm" }
       $tareas = @(); $ultima = $null; $dev = $null
       for ($r = 2; $r -le $n; $r++) {
         $tarea = [string]$v[$r,2]; $desc = [string]$v[$r,3]; $hr = [double]$v[$r,9]

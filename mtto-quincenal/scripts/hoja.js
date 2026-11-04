@@ -1,6 +1,6 @@
 // Lee o agrega hojas del reporte quincenal "Casos por Desarrollador".
 //   node hoja.js leer    <xlsx> [hoja]                      -> JSON con las filas de la hoja (default: la última)
-//   node hoja.js titulos <CambiosProceso.xlsx>               -> JSON { "TT#####": "título completo" }
+//   node hoja.js titulos <CambiosProceso.xlsm>               -> JSON { "TT#####": "título completo" }
 //   node hoja.js generar <xlsx> <spec.json> [--sobrescribir] -> agrega la hoja descrita en spec.json
 //
 // spec.json:

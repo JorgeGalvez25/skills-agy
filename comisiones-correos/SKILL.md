@@ -11,7 +11,7 @@ Los `HorasCambioTT#####.xlsx` los genera `/comisiones-internos`. El usuario pued
 
 - **Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\comisiones-correos`.
 - **Carpeta del mes** (`$MES`): la carpeta de trabajo actual, con nombre `YYYYMM-Mes`.
-- **Títulos de los cambios:** `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsx` (columna A = ID, columna B = Descripción).
+- **Títulos de los cambios:** `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm` (columna A = ID, columna B = Descripción).
 - El script corre en PowerShell 5.1, usa Excel y Outlook por COM y está guardado en UTF-8 con BOM. Si lo editas, consérvalo con BOM; sin él, los acentos salen corruptos.
 
 ## Paso 1 — Redactar la descripción breve de cada cambio
@@ -55,7 +55,7 @@ Por cada `HorasCambioTT#####.xlsx`, el script:
 
 Imprime cada TT con la fecha y hora en que se guardó el Excel adjunto.
 
-Si falla con `no está en CambiosProceso.xlsx`, pregunta al usuario el título del caso. No lo inventes.
+Si falla con `no está en CambiosProceso.xlsm`, pregunta al usuario el título del caso. No lo inventes.
 
 ## Redacción fija del correo
 
