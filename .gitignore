@@ -20,3 +20,6 @@ Thumbs.db
 synced/
 .bucket-*
 .trash/
+
+# Datos de ejecución de mtto-standup
+mtto-standup/aclaraciones.json
