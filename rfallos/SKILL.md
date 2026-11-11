@@ -12,7 +12,7 @@ Tu trabajo es: validar la entrada, **asignar la criticidad de cada caso a partir
 
 **Carpeta de la skill** (en este documento, `$SK`): `C:\Users\jorge\.gemini\config\skills\rfallos`. Los scripts están en `$SK\scripts` y ya tienen sus dependencias (`node_modules` con `xlsx` y `exceljs`).
 **Carpeta raíz de indicadores** (`$RAIZ`): `C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Indicadores`.
-No hay Python en este equipo: todo se ejecuta con **Node** (`node`). Ejecuta los scripts con la herramienta Bash usando rutas absolutas.
+No hay Python en este equipo: todo se ejecuta con **Node** (`node`). Ejecuta los scripts con la herramienta `run_command` usando rutas absolutas.
 
 ## Reglas que no se negocian
 
@@ -29,7 +29,7 @@ No hay Python en este equipo: todo se ejecuta con **Node** (`node`). Ejecuta los
 | Concepto | Valor |
 |---|---|
 | Objetivos por criticidad (días hábiles) | **P1 = 2 · P2 = 4 · P3 = 8 · P4 = 12** |
-| Conteo de tiempo | `NETWORKDAYS(Asignación de caso, Fecha real de respuesta, feriados)`, inclusivo en ambos extremos, lunes a viernes |
+| Conteo de tiempo | `NETWORKDAYS(Asignación de caso, Fecha real de respuesta, feriados)`, inclusivo en ambos extremos, lunes a viernes. Feriados = descanso obligatorio de la LFT más los días no laborables de la empresa capturados en `mtto-comun\feriados-extra.json` |
 | Feriados descontados | Días de descanso obligatorio de la LFT, art. 74 (1/01, primer lunes de febrero, tercer lunes de marzo, 1/05, 16/09, tercer lunes de noviembre, 25/12 y 1/10 cada seis años desde 2024), solo los que caen entre la asignación más antigua y la respuesta más reciente. El script los calcula. |
 | Cumple | Tiempo de atención ≤ objetivo de su criticidad |
 | Fórmula del indicador | Fallos dentro del objetivo ÷ fallos evaluables × 100 |
@@ -48,8 +48,8 @@ Si el usuario cambia algún objetivo, actualiza `OBJETIVOS` en `$SK\scripts\comu
 
 ## Paso 1 — Extraer y validar los casos
 
-```bash
-node "C:/Users/jorge/.gemini/config/skills/rfallos/scripts/extraer.js" YYYYMM
+```powershell
+node "C:\Users\jorge\.gemini\config\skills\rfallos\scripts\extraer.js" YYYYMM
 ```
 
 Devuelve un JSON con `entrada`, `salida`, `salidaExiste`, `evaluables[]` (id, tipo, estatus, asignacion, respuesta, titulo), `cancelados[]` y `avisos[]`.
@@ -97,8 +97,8 @@ Escribe las criticidades en un JSON del scratchpad (no en la carpeta del mes) co
 
 ## Paso 3 — Generar el Excel
 
-```bash
-node "C:/Users/jorge/.gemini/config/skills/rfallos/scripts/generar.js" YYYYMM "<ruta>/criticidades.json"
+```powershell
+node "C:\Users\jorge\.gemini\config\skills\rfallos\scripts\generar.js" YYYYMM "<ruta>/criticidades.json"
 ```
 
 Agrega `--sobrescribir` como tercer argumento solo si el usuario lo autorizó. El script valida que todos los evaluables tengan una criticidad válida y que no sobren IDs. Si falla, corrige el JSON (no el script) y vuelve a ejecutarlo.

@@ -1,6 +1,6 @@
 # Prompt de los subagentes revisores
 
-Copiar el bloque tal cual en cada subagente (invocando `invoke_subagent` con `TypeName: "self"`, `Role: "Revisor PR <TTs>"`, `Model: "inherit"`), sustituyendo `<SALIDA>`, `<CARPETA>`, `<VERSION>`, `<FECHA>` y la sección "Tu asignación". Lanzar todos en una sola llamada a `invoke_subagent`.
+Copiar el bloque tal cual en cada subagente (invocando `invoke_subagent` con `TypeName: "self"`, `Role: "Revisor PR <TTs>"`, `Model: "pro"`), sustituyendo `<SALIDA>`, `<CARPETA>`, `<VERSION>`, `<FECHA>` y la sección "Tu asignación". Lanzar todos en una sola llamada a `invoke_subagent`.
 
 ---
 

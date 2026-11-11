@@ -1,7 +1,8 @@
 ﻿# Funciones compartidas por los scripts de /mtto-acuerdos (guardar en UTF-8 con BOM: PowerShell 5.1)
 
-# Equipo actual, en el orden en que se agrupan las filas del archivo
-$Equipo = @('Martín Reyes', 'Miguel Armenta', 'Saulo López', 'Susana Gámez')
+# Equipo actual (mtto-comun\equipo.json), en orden alfabético: así se agrupan las filas del archivo
+. (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'mtto-comun\equipo.ps1')
+$Equipo = @($MttoEquipo | ForEach-Object { $_.nombre } | Sort-Object)
 
 # Nombre canónico a partir del nombre de pila (unifica Gamez/Gómez/Gámez, acentos, espacios)
 function Normalize-Persona([string]$n) {

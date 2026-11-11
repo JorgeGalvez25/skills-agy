@@ -1,46 +1,30 @@
-// Uso: node revisar.js mensajes.json [dd/mm/aaaa]
-// mensajes.json: [{ "fecha": "2026-10-06 16:08", "autor": "Saulo Lopez", "texto": "..." }, ...] (o "ts" de Slack en lugar de "fecha").
+// Uso: node revisar.js [mensajes.json] [ayer | hoy | dd/mm/aaaa]
+// Sin archivo, lee la caché compartida de #mtto (mtto-comun/canal.js; se actualiza con mtto-comun/canal.md) y toma
+// los VENTANA_DIAS días naturales anteriores a la fecha revisada. Con archivo (pruebas o una lectura suelta):
+// [{ "fecha": "2026-10-06 16:08", "autor": "Saulo Lopez", "texto": "..." }, ...] (o "ts" de Slack en lugar de "fecha").
 // Revisa el último standup de cada colaborador del día indicado (por defecto el día hábil anterior; "hoy" para el día actual) contra sus standups anteriores
 // e imprime en JSON los hallazgos por colaborador.
 // Los hallazgos que coinciden con una aclaración vigente de ../aclaraciones.json (lo que el colaborador explicó por DM
 // y Jorge aceptó) no se reportan como hallazgo: pasan a "aclarados" con la nota.
 const fs = require('fs');
 const path = require('path');
-const ARCH_ACLARACIONES = path.join(__dirname, '..', 'aclaraciones.json');
+const COMUN = path.join(__dirname, '..', '..', 'mtto-comun');
+const { utc, dmy, leerFecha, fechaMensaje, esLaborable } = require(path.join(COMUN, 'fechas'));
+const { sinAcentos, limpiar, RX_EVENTO, CODIGOS_TESTER, parsear } = require(path.join(COMUN, 'standup'));
+const canal = require(path.join(COMUN, 'canal'));
+const ARCH_ACLARACIONES = process.env.MTTO_ACLARACIONES || path.join(__dirname, '..', 'aclaraciones.json');   // la variable es para las pruebas
 
+const VENTANA_DIAS = 10;       // días naturales de standups anteriores a la fecha revisada que se comparan
 const DIAS_ESTANCADO = 5;      // días hábiles con el mismo estatus
 const DIAS_SIN_CASO = 5;       // días hábiles con trabajo "pendiente de caso" o sin TT
-const DESFASE_SLACK_H = -7;    // Slack muestra los mensajes en MST (UTC-7)
 const INICIO_SOLO_HOY = '2026-10-08'; // desde esta fecha el standup lleva solo el bloque "Hoy"
 const INICIO_CODIGOS = null;          // 'AAAA-MM-DD' desde la que el formato "TT##### - C/F - Código: motivo" es obligatorio (null: aún no se marca)
 // Martín atiende directo al cliente JAG y registra ese tiempo en una actividad aparte: sus líneas de JAG sin TT no se marcan
 const sinTtPermitido = (autor, linea) => /^mart[ií]n reyes$/i.test(autor) && /\bJAG\b/i.test(linea);
 
-// ---------- Fechas ----------
-const utc = (a, m, d) => new Date(Date.UTC(a, m - 1, d));
-const pad = n => String(n).padStart(2, '0');
-const dmy = d => `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`;
-function leerFecha(v) {
-  let m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{1,2}):(\d{2}))?/);
-  if (m) return { dia: utc(+m[1], +m[2], +m[3]), hora: m[4] ? `${pad(m[4])}:${m[5]}` : null };
-  m = String(v).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
-  if (m) return { dia: utc(+m[3], +m[2], +m[1]), hora: m[4] ? `${pad(m[4])}:${m[5]}` : null };
-  throw new Error(`Fecha no reconocida: "${v}"`);
-}
-function fechaTs(ts) {
-  const d = new Date((parseFloat(ts) + DESFASE_SLACK_H * 3600) * 1000);
-  return { dia: utc(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()), hora: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` };
-}
-// Días de descanso obligatorio (LFT art. 74)
-function nLunes(a, mes, n) { const d = new Date(Date.UTC(a, mes, 1)); return new Date(Date.UTC(a, mes, 1 + (8 - d.getUTCDay()) % 7 + 7 * (n - 1))); }
-function feriados(a) {
-  const l = [utc(a, 1, 1), nLunes(a, 1, 1), nLunes(a, 2, 3), utc(a, 5, 1), utc(a, 9, 16), nLunes(a, 10, 3), utc(a, 12, 25)];
-  if ((a - 2024) % 6 === 0) l.push(utc(a, 10, 1));
-  return new Set(l.map(f => f.getTime()));
-}
 // Días entre semana en que nadie publicó standup: probable día festivo, no cuentan como hábiles
 const sinRegistro = new Set();
-const esHabil = d => d.getUTCDay() % 6 !== 0 && !feriados(d.getUTCFullYear()).has(d.getTime()) && !sinRegistro.has(d.getTime());
+const esHabil = d => esLaborable(d) && !sinRegistro.has(d.getTime());
 function habilesEntre(a, b) { // hábiles en (a, b]
   let n = 0;
   for (let t = a.getTime() + 864e5; t <= b.getTime(); t += 864e5) if (esHabil(new Date(t))) n++;
@@ -48,14 +32,6 @@ function habilesEntre(a, b) { // hábiles en (a, b]
 }
 
 // ---------- Texto ----------
-const sinAcentos = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
-const limpiar = l => l.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
-  .replace(/<@[A-Z0-9]+(\|[^>]*)?>/g, '').replace(/[*_~`]/g, '')
-  .replace(/^[\s•◦▪︎\-–·]+/, '').trim();
-const RX_DIA = /^(ayer|hoy|viernes|lunes|martes|miercoles|jueves|sabado|domingo)\s*:?\s*$/i;
-const RX_SECCION = /^(standby|stand by|seguimiento)\s*:?\s*$/i;
-const RX_EVENTO = /^(LDP|LIBERADO|REABIERTO|ORIGEN)\b/i; // LIBERADO: eventos anteriores al 09/10/2026
-
 // Cancelado: "TT#####: Cancelado" o la línea "CANCELADO TT##### | ..." dentro del standup.
 // No incluye "se cancele", "cancelar", etc. (posibilidades, no estatus).
 const RX_CANCELADO = /\bcancelad[oa]s?\b|\bcancelacion\b/i;
@@ -118,15 +94,7 @@ function erroresDedo(texto) {
   return r;
 }
 
-// Códigos de estatus del formato estándar "TT##### - C/F - Código: motivo" (RSP, CEC y LDP se quedan igual).
-// ESPLDP, BUGPRU, PRU, ESPBUG y FINPRU se traducen con "espera de LDP" o "tester" para que cuenten como pruebas iniciadas;
-// los de quien prueba el caso de un compañero (PRU, ESPBUG, FINPRU) llevan "como tester".
-const CODIGOS = { P: 'Pausa', R: 'Revisando', AN: 'Analizando', D: 'Desarrollo', PIL: 'Piloto', ENT: 'Entregado', EST: 'Preguntar estatus', CAN: 'Cancelado',
-  ESPLDP: 'En espera de LDP', BUGPRU: 'Bug del tester en pruebas', PRU: 'Pruebas como tester', ESPBUG: 'Espera de corrección como tester',
-  FINPRU: 'Fin de pruebas como tester', REVPR: 'Corrección por revisión de PR' };
-const CODIGOS_TESTER = ['PRU', 'ESPBUG', 'FINPRU'];
 const RX_COMO_TESTER = /como tester/i;
-const esCodigo = c => !!CODIGOS[c.toUpperCase()] || ['RSP', 'CEC', 'LDP'].includes(c.toUpperCase());
 
 // Palabras que distinguen un caso (sin estatus ni palabras comunes), para reconocer un cambio de ID
 const COMUNES = new Set([...VOCAB, ...VALIDAS, 'cliente', 'clientes', 'fallo', 'cambio', 'mejora', 'continua', 'continuando', 'sigue', 'todavia',
@@ -146,50 +114,6 @@ function parecido(it, nuevos, unoAUno) {
   return unoAUno && nuevos.length === 1 && compatibles.length === 1 ? compatibles[0] : null;
 }
 
-// Convierte el texto de un standup en bloques { etiqueta, items[] }.
-// Sin título de día, la primera sección standby/seguimiento abre el bloque "hoy".
-function parsear(texto) {
-  const bloques = [];
-  let bloque = null, seccion = null;
-  for (const bruta of texto.split(/\r?\n/)) {
-    const l = limpiar(bruta);
-    if (!l) continue;
-    const mDia = sinAcentos(l).match(RX_DIA);
-    if (mDia) { bloque = { etiqueta: mDia[1].toLowerCase(), items: [] }; bloques.push(bloque); seccion = null; continue; }
-    if (RX_SECCION.test(l)) {
-      if (!bloque) { bloque = { etiqueta: 'hoy', items: [] }; bloques.push(bloque); }
-      seccion = l.replace(/:$/, '').trim().toLowerCase(); continue;
-    }
-    if (!bloque || RX_EVENTO.test(l)) continue;
-    const item = { linea: l, seccion, tt: null, idSinPrefijo: false, estatus: l, contador: null };
-    // Caso sin ID (urgencia): TTsinid1, TTsinid2… hasta que recibe su TT
-    let m = l.match(/\bTT\s*-?\s*(\d+)|\bTT\s*sin\s*id\s*(\d+)/i);
-    if (m) { item.tt = m[1] ? 'TT' + m[1] : 'TTsinid' + m[2]; item.sinId = !m[1]; }
-    else if ((m = l.match(/^(\d{5,6})\b/))) { item.tt = 'TT' + m[1]; item.idSinPrefijo = true; }
-    if (item.tt) {
-      const i = l.indexOf(':');
-      item.estatus = i >= 0 ? l.slice(i + 1).trim() : l.replace(/\bTT\s*-?\s*(?:sin\s*id\s*)?\d+\s*/i, '').replace(/^\d{5,6}\s*/, '').trim();
-      // Formato estándar con tipo y código antes de los dos puntos: "TT##### - C - RSP: ...", "TT##### - AP - R: ...", "TT##### Cambio · Pausa: ...",
-      // sin tipo ("TT##### - P: ...", solo con código válido) o sin motivo ("TT##### - C - P")
-      const mT = l.match(/\bTT\s*-?\s*(?:sin\s*id\s*)?\d+\s*(?:[-–·]\s*)?(?:(C|F|M|Apoyo|AP|Cambio|Fallo|Mejora)\s*[-–·]\s*)?([^:]{1,25}?)\s*(?::\s*(.*)|\.?$)/i);
-      if (mT && (mT[1] || esCodigo(mT[2]))) {
-        item.tipo = mT[1] ? (/^ap/i.test(mT[1]) ? 'AP' : mT[1][0].toUpperCase()) : null;
-        item.codigo = esCodigo(mT[2]) ? mT[2].toUpperCase() : null;
-        item.estatus = `${CODIGOS[mT[2].toUpperCase()] || mT[2]}${mT[3] ? ': ' + mT[3] : ''}`.trim();
-      }
-      // Cambio de ID: "(antes TT#####)" en la línea del ID nuevo
-      const mA = l.match(/\bantes:?\s+(?:era\s+)?(?:el\s+)?TT\s*-?\s*(\d+)/i);
-      if (mA && 'TT' + mA[1] !== item.tt) item.antes = 'TT' + mA[1];
-      else if (/\(antes sin id\)/i.test(l)) item.antesSinId = true;
-      if (/^cancelad[oa]\b/i.test(sinAcentos(l)) && !RX_CANCELADO.test(sinAcentos(item.estatus))) item.estatus = 'Cancelado · ' + item.estatus;
-    }
-    const c = item.estatus.match(/(?:^|[a-záéíóú\s)])x\s?(\d{1,2})\b(?!\s*[a-z])/i);
-    if (c) item.contador = +c[1];
-    item.idCorto = item.tt && !item.sinId && item.tt.length - 2 < 5;
-    bloque.items.push(item);
-  }
-  return bloques;
-}
 // Bloque "Hoy" de un standup (con el formato anterior, el último bloque)
 const bloqueHoy = s => s.bloques.find(b => b.etiqueta === 'hoy') || s.bloques[s.bloques.length - 1];
 const llave = s => sinAcentos(s.toLowerCase()).replace(/x\s?\d+\b/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
@@ -215,35 +139,48 @@ function aclaracion(aclaraciones, autor, x, estatusHoy, dia) {
 }
 
 try {
-  const [arch, fechaArg] = process.argv.slice(2);
-  if (!arch || !fs.existsSync(arch)) throw new Error('Falta el archivo JSON de mensajes.');
-  const crudos = JSON.parse(fs.readFileSync(arch, 'utf8'));
+  const args = process.argv.slice(2);
+  const arch = args[0] && /\.json$/i.test(args[0]) ? args.shift() : null;
+  const fechaArg = args[0];
+  if (arch && !fs.existsSync(arch)) throw new Error(`No existe el archivo de mensajes ${arch}.`);
+  let crudos = arch ? JSON.parse(fs.readFileSync(arch, 'utf8')) : canal.leer().mensajes;
+  if (!crudos.length) throw new Error(arch ? 'El archivo no tiene mensajes.' : `La caché de #mtto (${canal.RUTA}) está vacía. Actualízala primero (mtto-comun/canal.md).`);
   const hoyN = new Date();
   const diaActual = utc(hoyN.getFullYear(), hoyN.getMonth() + 1, hoyN.getDate());
   const aclaraciones = fs.existsSync(ARCH_ACLARACIONES) ? JSON.parse(fs.readFileSync(ARCH_ACLARACIONES, 'utf8')) : [];
 
   // Standups y eventos
-  const standups = {}, eventos = [];
-  for (const m of crudos) {
-    const f = m.ts ? fechaTs(m.ts) : leerFecha(m.fecha);
-    const texto = String(m.texto || '');
-    for (const l of texto.split(/\r?\n/).map(limpiar)) if (RX_EVENTO.test(l)) {
-      const tt = (l.match(/TT\s*-?\s*(\d+)/i) || [])[1];
-      eventos.push({ tipo: l.split(/\s/)[0].toUpperCase(), tt: tt ? 'TT' + tt : null, linea: l, dia: f.dia });
+  let standups, eventos;
+  const cargar = () => {
+    standups = {}; eventos = [];
+    for (const m of crudos) {
+      const f = fechaMensaje(m);
+      const texto = String(m.texto || '');
+      for (const l of texto.split(/\r?\n/).map(limpiar)) if (RX_EVENTO.test(l)) {
+        const tt = (l.match(/TT\s*-?\s*(\d+)/i) || [])[1];
+        eventos.push({ tipo: l.split(/\s/)[0].toUpperCase(), tt: tt ? 'TT' + tt : null, linea: l, dia: f.dia });
+      }
+      const bloques = parsear(texto);
+      if (!bloques.length) continue;
+      (standups[m.autor] = standups[m.autor] || []).push({ dia: f.dia, hora: f.hora, bloques, texto });
     }
-    const bloques = parsear(texto);
-    if (!bloques.length) continue;
-    (standups[m.autor] = standups[m.autor] || []).push({ dia: f.dia, hora: f.hora, bloques, texto });
-  }
-  const conRegistro = new Set(Object.values(standups).flat().map(s => s.dia.getTime()));
-  const diasReg = [...conRegistro].sort((a, b) => a - b);
-  for (let t = diasReg[0]; t < diasReg[diasReg.length - 1]; t += 864e5) if (esHabil(new Date(t)) && !conRegistro.has(t)) sinRegistro.add(t);
+    return [...new Set(Object.values(standups).flat().map(s => s.dia.getTime()))].sort((a, b) => a - b);
+  };
+  let diasReg = cargar();
   // Por defecto: el último día con standups antes de hoy (el lunes, el viernes; si ese día fue festivo, el anterior)
   let dia = diaActual;
   if (!fechaArg || /^ayer$/i.test(fechaArg)) {
     const ult = diasReg.filter(t => t < diaActual.getTime()).pop();
     if (ult) dia = new Date(ult); else do dia = new Date(dia.getTime() - 864e5); while (!esHabil(dia));
   } else if (!/^hoy$/i.test(fechaArg)) dia = leerFecha(fechaArg).dia;
+  // De la caché solo se compara la ventana anterior a la fecha revisada
+  if (!arch) {
+    const desde = dia.getTime() - VENTANA_DIAS * 864e5;
+    crudos = crudos.filter(m => fechaMensaje(m).dia.getTime() >= desde);
+    diasReg = cargar();
+  }
+  const conRegistro = new Set(diasReg);
+  for (let t = diasReg[0]; t < diasReg[diasReg.length - 1]; t += 864e5) if (esHabil(new Date(t)) && !conRegistro.has(t)) sinRegistro.add(t);
 
   const resultado = { fecha: dmy(dia), diasSinRegistro: [...sinRegistro].sort((a, b) => a - b).map(t => dmy(new Date(t))), colaboradores: {} };
   for (const [autor, lista] of Object.entries(standups)) {

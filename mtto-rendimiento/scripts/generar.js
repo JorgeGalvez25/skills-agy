@@ -139,7 +139,7 @@ async function main() {
   });
   we.getColumn(17).numFmt = '0%';
   const fN = 4 + C.EQUIPO.length + 1;
-  we.getCell(fN, 1).value = 'Días hábiles (lunes a viernes sin feriados LFT), contados como NETWORKDAYS. Entrega de fallos = fecha real de respuesta de VTiger; de cambios = primer standup en Entregado o posterior. Carga activa = casos propios en seguimiento por standup (sin pausa, RSP ni cierre).';
+  we.getCell(fN, 1).value = 'Días hábiles (lunes a viernes sin feriados LFT ni días no laborables de la empresa), contados como NETWORKDAYS. Entrega de fallos = fecha real de respuesta de VTiger; de cambios = primer standup en Entregado o posterior. Carga activa = casos propios en seguimiento por standup (sin pausa, RSP ni cierre).';
   we.getCell(fN, 1).font = { italic: true, size: 9, color: { argb: 'FF595959' } };
 
   // Hoja por colaborador

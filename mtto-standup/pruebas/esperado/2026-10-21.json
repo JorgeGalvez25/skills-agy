@@ -1,0 +1,121 @@
+{
+  "fecha": "21/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:00",
+      "hallazgos": [
+        {
+          "regla": "desaparece",
+          "tt": "TT106700",
+          "detalle": "TT106700 estaba en su standup del 20/10/2026 (\"Revisando: regresó el fallo\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT104919",
+          "detalle": "TT104919 estaba en su standup del 20/10/2026 (\"Desarrollo: ajustes\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "formato",
+          "tt": "TT107050",
+          "detalle": "\"TT107050 - F - AN: analizando\": un fallo (F) solo usa R como estado de trabajo; AN, D y PIL son para cambios (C)."
+        },
+        {
+          "regla": "formato",
+          "tt": "TT107060",
+          "detalle": "\"TT107060 - AP - RSP: apoyo\": un apoyo a soporte (AP) solo usa P, R, ENT, EST y CEC; no pasa por RSP ni por pruebas."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT104547",
+          "estatus": "Pausa: En espera de logs",
+          "desde": "05/10/2026",
+          "diasHabiles": 12
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TTsinid1",
+          "nuevo": "TT107001",
+          "fuente": "marca del 20/10/2026"
+        },
+        {
+          "antes": "TT107001",
+          "nuevo": "TT107002",
+          "fuente": "DM Saulo 26/10/2026 09:10"
+        }
+      ]
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [
+        {
+          "regla": "evento",
+          "tt": "TT102632",
+          "detalle": "TT102632 dice \"LDP\" y no hay mensaje LDP en el canal."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT98105",
+          "estatus": "Pausa: en pausa por prioridad",
+          "desde": "13/10/2026",
+          "diasHabiles": 6
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [
+        {
+          "regla": "copiado",
+          "detalle": "La sección de seguimiento es idéntica a la del standup del 20/10/2026: ningún caso cambió de estatus ni de contador."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "21/10/2026",
+          "ultimoStandup": "20/10/2026"
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [
+    {
+      "tt": "TT107070",
+      "colaboradores": [
+        "Saulo Lopez",
+        "Miguel Armenta"
+      ],
+      "tester": [
+        "Saulo Lopez"
+      ]
+    }
+  ],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

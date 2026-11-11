@@ -1,0 +1,86 @@
+{
+  "fecha": "28/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "28/10/2026",
+          "ultimoStandup": "26/10/2026"
+        }
+      ],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [
+        {
+          "regla": "estructura",
+          "detalle": "Incluye el bloque \"ayer\"; desde el 08/10/2026 el standup lleva solo las secciones standby y seguimiento."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "27/10/2026",
+          "ultimoStandup": "26/10/2026"
+        }
+      ],
+      "cambiosId": [
+        {
+          "antes": "TT107090",
+          "nuevo": "TT107095",
+          "fuente": "marca del 22/10/2026"
+        }
+      ]
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [
+        {
+          "regla": "copiado",
+          "detalle": "La sección de seguimiento es idéntica a la del standup del 27/10/2026: ningún caso cambió de estatus ni de contador."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT105500",
+          "estatus": "Desarrollo: multi-estación JAG",
+          "desde": "19/10/2026",
+          "diasHabiles": 7
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "28/10/2026",
+          "ultimoStandup": "27/10/2026"
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "fecha": "20/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:00",
+      "hallazgos": [
+        {
+          "regla": "retroceso",
+          "tt": "TT104919",
+          "detalle": "TT104919 pasó de \"RSP: cliente dio visto bueno. Fecha Entrega 16/10/2026\" (19/10/2026) a \"Desarrollo: ajustes\" y no hay mensaje REABIERTO en el canal."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT104547",
+          "estatus": "Pausa: En espera de logs",
+          "desde": "05/10/2026",
+          "diasHabiles": 11
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TTsinid1",
+          "nuevo": "TT107001",
+          "fuente": "marca del 20/10/2026"
+        },
+        {
+          "antes": "TT107001",
+          "nuevo": "TT107002",
+          "fuente": "DM Saulo 26/10/2026 09:10"
+        }
+      ]
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [],
+      "estancados": [
+        {
+          "tt": "TT98105",
+          "estatus": "Pausa: en pausa por prioridad",
+          "desde": "13/10/2026",
+          "diasHabiles": 5
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [
+        {
+          "regla": "copiado",
+          "detalle": "La sección de seguimiento es idéntica a la del standup del 19/10/2026: ningún caso cambió de estatus ni de contador."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": true,
+      "hora": "16:08",
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

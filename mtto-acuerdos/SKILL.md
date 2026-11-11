@@ -9,7 +9,7 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)] [fecha reu
 - **Carpeta:** `C:\Users\jorge\Dropbox\MTTO\Versiones\<versión>`. Sin argumento, el directorio de trabajo actual si su nombre es una versión (`4.3.x.y`).
 - **Fecha de reunión (col. L):** el argumento o, sin él, hoy.
 - **Entrada:** los comprimidos de cada colaborador (`martin.zip`, `saulo.rar`…), cada uno con el `.docx` para distribuidor y el `.md` de revisión interna de `/mtto-docu`; y, si ya existe, `Acuerdos_IGAS_RSP.xlsx` (hoja `RSP`, tabla `Table2`, columnas A–L: ID, ID Soporte, Descripción, Tipo, Responsable, Tester, Complejidad, Acuerdos, Modulos, Repositorios, Versión, FechaReunion).
-- **Salida:** el archivo completo. No hay Python en el equipo: todo va por PowerShell + Excel COM con los scripts de `scripts\` (comparten `comun.ps1`: equipo, normalización de nombres y módulos; guardar los `.ps1` en UTF-8 con BOM).
+- **Salida:** el archivo completo. No hay Python en el equipo: todo va por PowerShell + Excel COM con los scripts de `scripts\` (comparten `comun.ps1`: normalización de nombres y módulos; el equipo sale de `mtto-comun\equipo.json`; guardar los `.ps1` en UTF-8 con BOM).
 - **Si el Excel no existe** se crea copiando `references\plantilla.xlsx` (formato oficial tomado de la 4.3.11.0: tabla `Table2`, `TableStyleMedium2`, anchos 8 / 11.5 / 62.88 / 6.5 / 19.63 / 18 / 14 / 51.75 / 30.25 / 77.38 / 9.5 / 15.38, texto ajustado en C y H–J, alineación superior, K como texto, L `dd/mm/aaaa`). Los casos salen **solo de los informes** (decisión de Jorge); los TT sin informe no aparecen y se avisan. A–E salen de la ficha del informe:
   - **ID** = TT del nombre; **Descripción** = nombre del archivo tras `_IC_`, normalizado a `TT##### - …`.
   - **Tipo** = `Cambio` si la ficha dice Cambio, si no `Fallo` (Corrección).
@@ -23,9 +23,9 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)] [fecha reu
    ```powershell
    & "C:\Users\jorge\.gemini\config\skills\mtto-acuerdos\scripts\extraer.ps1" -Carpeta "<carpeta>" -Salida "<scratchpad>"
    ```
-   Genera `<scratchpad>\casos.json` (A–F por caso) y `<scratchpad>\digest.md`. Leer el digest completo con Read y `allow_large: true` (una sola lectura; sin esa opción se corta en versiones con muchos casos): trae la tabla de casos (qué TT no tiene informe, tester ya asignado, filas con G/H llenos) y, por informe, las secciones 1 (Ficha), 2 (Resumen técnico), 3.1/3.3 (archivos modificados, BD y configuración) y 4 (hallazgos).
+   Genera `<scratchpad>\casos.json` (A–F por caso) y `<scratchpad>\digest.md`. Leer el digest completo con la herramienta `read_file` (usar `ByteOffset` si el archivo supera el límite por lectura): trae la tabla de casos (qué TT no tiene informe, tester ya asignado, filas con G/H llenos) y, por informe, las secciones 1 (Ficha), 2 (Resumen técnico), 3.1/3.3 (archivos modificados, BD y configuración) y 4 (hallazgos).
    - Si alguna fila ya tiene G/H llenos, preguntar antes de sobrescribirla.
-2. **Redactar** `<scratchpad>\acuerdos.json` con Write: arreglo `[{ "id", "G", "H", "I", "J" }]`, solo para los TT con informe. Saltos de línea dentro de I y J con `\n`. Seguir los criterios de abajo y el ejemplo `references\ejemplo-4.3.12.0.json`.
+2. **Redactar** `<scratchpad>\acuerdos.json` con `write_file`: arreglo `[{ "id", "G", "H", "I", "J" }]`, solo para los TT con informe. Saltos de línea dentro de I y J con `\n`. Seguir los criterios de abajo y el ejemplo `references\ejemplo-4.3.12.0.json`.
 3. **Asignar testers** (solo a los casos sin tester; usa G e I del paso 2):
    ```powershell
    & "C:\Users\jorge\.gemini\config\skills\mtto-acuerdos\scripts\asignar.ps1" -Carpeta "<carpeta>" -Casos "<scratchpad>\casos.json" -Acuerdos "<scratchpad>\acuerdos.json"
@@ -37,7 +37,7 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)] [fecha reu
    ```
    Su salida (fila | ID | responsable | tester | complejidad | versión | fecha) es la verificación; no volver a abrir el archivo.
 5. **Resumen al usuario** con este formato: qué se llenó o creó y de dónde salió; tabla de carga por tester (casos, Alta, Media, Baja, puntos) y la asignación caso → tester; reparto de complejidad en una tabla (Alta / Media / Baja con sus TT); tabla de los casos donde la complejidad difiere de la que trae el informe; acuerdos con pendientes agrupados por tipo; y la lista "Revisa esto antes de la reunión" (TT sin informe, Fallos sin ID Soporte, fecha usada si fue la de hoy, URLs de repositorio que quedaron en la base del repo).
-6. **Casos de atención especial** (mensaje aparte, después del resumen): guardar el análisis en `<carpeta>\Atencion_Especial_<versión>.md` con Write (título "Casos que requieren atención especial — versión <versión>", fecha de reunión y número de casos analizados) y luego mandarlo como el último mensaje. Se analiza con el digest del paso 1 y lo decidido en los pasos 2–4; no se lee nada más. Ver criterios en "Criticidad".
+6. **Casos de atención especial** (mensaje aparte, después del resumen): guardar el análisis en `<carpeta>\Atencion_Especial_<versión>.md` con `write_file` (título "Casos que requieren atención especial — versión <versión>", fecha de reunión y número de casos analizados) y luego mandarlo como el último mensaje. Se analiza con el digest del paso 1 y lo decidido en los pasos 2–4; no se lee nada más. Ver criterios en "Criticidad".
 
 ## Criterios de llenado
 
@@ -119,11 +119,11 @@ Formato del mensaje:
 No se inventan: G–J quedan vacías (como TT91675 en 4.3.11.0) y solo reciben K y L. Avisarlo en el resumen.
 
 ### F · Tester (lo asigna `asignar.ps1`)
-Desde la 4.3.7.0 no hay testers dedicados: el equipo de Mantenimiento (Martín Reyes, Miguel Armenta, Saulo López, Susana Gámez; lista en `comun.ps1`) se prueba de forma cruzada. Reglas, en orden de prioridad (acordadas con Jorge):
+Desde la 4.3.7.0 no hay testers dedicados: el equipo de Mantenimiento (Martín Reyes, Miguel Armenta, Saulo López, Susana Gámez; lista en `mtto-comun\equipo.json`) se prueba de forma cruzada. Reglas, en orden de prioridad (acordadas con Jorge):
 1. **Nadie prueba sus propios casos.**
 2. **Cantidad equitativa:** diferencia máxima de 1 caso entre testers (contando los que ya traían tester).
 3. **Complejidad repartida:** los Alta y Media se asignan primero, al tester con menos puntos pesados acumulados (Alta=3, Media=2), para que nadie concentre los casos difíciles.
 4. **Afinidad por historial de módulos:** entre los que tienen cupo, se prefiere a quien más ha probado esos módulos en versiones anteriores (Tablet→Susana, Contabilidad/IVA→Miguel, Liquidaciones→Martín/Miguel…), con una penalización si ya recibió casos del mismo desarrollador en esta versión, para que cada desarrollador reparta sus casos entre los otros tres.
 - El historial vive en `references\historial.csv` (caché); el script agrega solo las versiones nuevas (≥ 4.3.7.0 y anteriores a la actual) leyendo su Excel.
 - Los nombres se normalizan (Gamez/Gómez → **Susana Gámez**). `llenar.ps1` también corrige el Responsable y el Tester que ya estaban escritos en el Excel. Los casos sin informe cuentan con peso 1 y sin afinidad.
-- Si el equipo cambia, actualizar `$Equipo` en `comun.ps1`.
+- Si el equipo cambia, actualizar `C:\Users\jorge\.gemini\config\skills\mtto-comun\equipo.json` (los scripts lo leen de ahí).

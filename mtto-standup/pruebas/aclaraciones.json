@@ -1,0 +1,6 @@
+[
+  { "colaborador": "Saulo Lopez", "regla": "sin-caso", "texto": "piloto transmisor", "hasta": "16/10/2026",
+    "nota": "Mejora propia sin actividad; Jorge acepta hasta el piloto", "fecha": "12/10/2026", "fuente": "DM Saulo 12/10/2026 08:49" },
+  { "colaborador": "Saulo Lopez", "regla": "cambio-id", "tt": "TT107001", "nuevo": "TT107002",
+    "nota": "Soporte cambió el ID del caso", "fecha": "26/10/2026", "fuente": "DM Saulo 26/10/2026 09:10" }
+]

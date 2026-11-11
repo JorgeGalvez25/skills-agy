@@ -51,7 +51,7 @@ Si Jorge pega el token en el chat, usarlo solo en esta sesión (`$env:AZURE_DEVO
 
 2. **Mostrar el plan y arrancar sin esperar confirmación:** número de PR y casos, los avisos del digest y el reparto de agentes en una tabla. Jorge ya pidió la revisión al invocar el skill.
 
-3. **Revisar con subagentes** en paralelo: todos los subagentes en una sola llamada a `invoke_subagent` (`TypeName: "self"`, `Role: "Revisor PR <TTs>"`, `Model: "inherit"`), con el prompt de `references\revisor.md`.
+3. **Revisar con subagentes** en paralelo: todos los subagentes en una sola llamada a `invoke_subagent` (`TypeName: "self"`, `Role: "Revisor PR <TTs>"`, `Model: "pro"`), con el prompt de `references\revisor.md`.
    - **Reparto:** de 4 a 6 agentes, con un máximo de unas 4 000 líneas de diff y 4 TT por agente.
    - Los casos que comparten archivos según `cruces` van con el mismo agente siempre que se pueda. Si no, cada agente recibe el cruce en su asignación.
    - Los Crítico grandes, como TT101184 con 3 PR, van solos.

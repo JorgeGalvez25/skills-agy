@@ -1,0 +1,69 @@
+{
+  "fecha": "09/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:12",
+      "hallazgos": [
+        {
+          "regla": "desaparece",
+          "tt": "TT1067",
+          "detalle": "TT1067 estaba en su standup del 08/10/2026 (\"Revisando\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "09/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "09/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "09/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

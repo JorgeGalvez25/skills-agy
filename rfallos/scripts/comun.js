@@ -57,27 +57,8 @@ function leerCasos(archivo) {
   }));
 }
 
-// Días de descanso obligatorio en México (LFT art. 74)
-function nLunes(anio, mes, n) {
-  const d = new Date(Date.UTC(anio, mes, 1));
-  const desfase = (8 - d.getUTCDay()) % 7;
-  return new Date(Date.UTC(anio, mes, 1 + desfase + 7 * (n - 1)));
-}
-function feriados(anio) {
-  const l = [
-    new Date(Date.UTC(anio, 0, 1)), nLunes(anio, 1, 1), nLunes(anio, 2, 3),
-    new Date(Date.UTC(anio, 4, 1)), new Date(Date.UTC(anio, 8, 16)),
-    nLunes(anio, 10, 3), new Date(Date.UTC(anio, 11, 25))
-  ];
-  if ((anio - 2024) % 6 === 0) l.push(new Date(Date.UTC(anio, 9, 1)));
-  return l;
-}
-function feriadosEntre(ini, fin) {
-  const r = [];
-  for (let a = ini.getUTCFullYear(); a <= fin.getUTCFullYear(); a++)
-    for (const f of feriados(a)) if (f >= ini && f <= fin && f.getUTCDay() % 6 !== 0) r.push(f);
-  return r.sort((a, b) => a - b);
-}
+// Días de descanso obligatorio en México (LFT art. 74): los mismos para todas las skills (mtto-comun/fechas.js)
+const { feriadosEntre } = require(path.join(__dirname, '..', '..', 'mtto-comun', 'fechas'));
 
 // Equivalente a NETWORKDAYS (inclusivo en ambos extremos)
 function diasHabiles(a, b, fer) {

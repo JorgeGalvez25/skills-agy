@@ -37,7 +37,7 @@
 - **Cientos de ejecutables "NotSigned" en `C:\Program Files\WindowsApps\`** (apps de la Store) y en `Windows Kits`. Se firman por catálogo, no con Authenticode.
 - DLL de depuración de DirectX en `SysWOW64` (`d3d11sdklayers.dll`, `DXGIDebug.dll`): vienen del SDK de Windows.
 - `SHA1:0x…` en el Administrador de tareas: es una agrupación interna de servicios de Windows.
-- `tail.exe`, `grep.exe`, `sleep.exe` de `C:\Program Files\Git\usr\bin` lanzados por `claude.exe`: son las sesiones de Claude Code.
+- `tail.exe`, `grep.exe`, `sleep.exe` de `C:\Program Files\Git\usr\bin` lanzados por `agy.exe` o `claude.exe`: son las sesiones del asistente (Antigravity / Claude Code).
 - `mscorsvw.exe` y "Microsoft .NET Framework optimization service" consumiendo CPU después de actualizar: es normal y pasa solo.
 - En Windows de 64 bits, `HKLM\SOFTWARE\Policies\…` y `HKLM\SOFTWARE\WOW6432Node\Policies\…` son la **misma clave**. Al borrar una desaparece la otra, y los errores de "no existe" al borrar la segunda son inofensivos.
 - Carpetas de Visual Studio en `Temp`: `MetadataAsSource`, `NuGetScratch`, `VSGitHubCopilotLogs`.

@@ -1,0 +1,227 @@
+[
+ {
+  "fecha": "2026-10-05 17:02",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n*Viernes*\n• TT104919: Revisando\n*Hoy*\n• standby\n    ◦ TT104547: En espera de logs\n• seguimiento\n    ◦ TT104919: Entregado, en espera de respuesta\n    ◦ TT106586 - C - Codificando\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-06 17:05",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\nAyer\n• TT104919: Entregado\nHoy\n• standby\n    ◦ TT104547: En espera de logs\n• seguimiento\n    ◦ TT104919: preguntar estatus x2\n    ◦ TT106586 - C - pruebas\n    ◦ Pendiente de caso: piloto transmisor (ya le dije a Jorge)"
+ },
+ {
+  "fecha": "2026-10-07 17:01",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\nHoy\n• standby\n    ◦ TT104547: En espera de logs\n• seguimiento\n    ◦ TT104919: preguntar estatus x3\n    ◦ TT106586: Entregado, en espera de respuesta\n    ◦ 106700: Revisando\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-08 17:10",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547: En espera de logs\n• seguimiento\n    ◦ TT104919: preguntar estatus x5\n    ◦ TT106586: RSP\n    ◦ TT106700: Revisando\n    ◦ TT1067: Revisando\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-09 17:10",
+  "autor": "Saulo Lopez",
+  "texto": "LDP TT106586 | CAMBIO | Petroservicios | 09/10/2026"
+ },
+ {
+  "fecha": "2026-10-09 17:12",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547: En espera de logs\n• seguimiento\n    ◦ TT104919: preguntar estatus x5\n    ◦ TT106586: LDP\n    ◦ TT106700: Revisando\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-12 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547: En espera de logs\n• seguimiento\n    ◦ TT104919: preguntar estatus x5\n    ◦ TT106586: Revisando otra vez\n    ◦ TT106700: Revisando\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-13 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa por prioridad\n• seguimiento\n◦ TT102632 - C - RSP: Fecha Entrega 12/10/2026\n◦ TT107070 - C - D: codificando reporte"
+ },
+ {
+  "fecha": "2026-10-13 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT104919 - C - EST: preguntar estatus x6\n    ◦ TT106700 - F - R: revisando bitacora\n    ◦ TT106800 - C -D: desarrollo de pantalla\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-14 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa por prioridad\n• seguimiento\n◦ TT107070 - C - D: codificando reporte\n◦ Fallo sin caso en liquidaciones"
+ },
+ {
+  "fecha": "2026-10-14 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT104919 - C - EST: preguntar estatus x7\n    ◦ TT106700 - F - R: revisando bitacora\n    ◦ TT106800 - C -D: desarrollo de pantalla\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-15 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT104919 - C - EST: preguntar estatus x8\n    ◦ TT106700 - F - R: revisando bitacora\n    ◦ TT106800 - C -D: desarrollo de pantalla\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-16 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa por prioridad\n• seguimiento\n◦ TT107070 - C - ENT: entregado\n◦ TT102632 - C - REVPR: observaciones del PR"
+ },
+ {
+  "fecha": "2026-10-16 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT104919 - C - EST: preguntar estatus x9\n    ◦ TT106700 - F - R: revisando bitacora\n    ◦ TT106800 - C -D: desarrollo de pantalla\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-19 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa por prioridad\n• seguimiento\n◦ TT107070 - C - RSP: Fecha Entrega 19/10/2026\n◦ TT102632 - C - RSP: otra vez"
+ },
+ {
+  "fecha": "2026-10-19 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT104919 - C - RSP: cliente dio visto bueno. Fecha Entrega 16/10/2026\n    ◦ TT106700 - F - CEC: se cancela porque no se reproduce\n    ◦ TT106800 - C - PIL: piloto en sitio\n    ◦ TTsinid1 - F - R: urgencia kiosco no imprime ticket"
+ },
+ {
+  "fecha": "2026-10-19 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Curso udemy"
+ },
+ {
+  "fecha": "2026-10-20 16:08",
+  "autor": "susana",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104000: En espera de logs\n• seguimiento\n    ◦ TT105000: Entregado, en espera de respuesta\n    ◦ TT105001 Fallo: revisando"
+ },
+ {
+  "fecha": "2026-10-20 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa por prioridad\n• seguimiento\n◦ TT107070 - C - ESPLDP: en pruebas con Saulo\n◦ TT102632 - C - ESPLDP"
+ },
+ {
+  "fecha": "2026-10-20 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT106700 - F - R: regresó el fallo\n    ◦ TT106800 - C - ENT\n    ◦ TT107001 - F - R: urgencia kiosco no imprime ticket (antes sin ID)\n    ◦ TT104919 - C - D: ajustes"
+ },
+ {
+  "fecha": "2026-10-20 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Curso udemy"
+ },
+ {
+  "fecha": "2026-10-21 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa por prioridad\n• seguimiento\n◦ TT107070 - C - BUGPRU: bug del tester\n◦ TT102632 - C - LDP\n◦ TT107090 - M - R: mejora\n◦ TT107091 - C - CAN: cancelado\n◦ TT107092 - F - ESPLDP: sin rsp"
+ },
+ {
+  "fecha": "2026-10-21 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT106800 - C - EST: preguntar estatus x2\n    ◦ TT107001 - F - ENT: kiosco no imprime ticket\n    ◦ TT107050 - F - AN: analizando\n    ◦ TT107060 - AP - RSP: apoyo\n    ◦ TT107070 - C - PRU: caso de Miguel"
+ },
+ {
+  "fecha": "2026-10-21 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Curso udemy"
+ },
+ {
+  "fecha": "2026-10-22 09:00",
+  "autor": "Jorge Gálvez",
+  "texto": "Recuerden registrar su standup.\nseguimiento del formato: usen TT#####"
+ },
+ {
+  "fecha": "2026-10-22 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - R: revisando\n• seguimiento\n◦ TT107070 - C - R: corrigiendo\n◦ TT107095 - C - R: nuevo (antes TT107090)\n◦ TT107092 - F - ESPLDP: sin rsp"
+ },
+ {
+  "fecha": "2026-10-22 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT106800 - C - EST: preguntar estatus x2\n    ◦ TT107001 - F - ENT: kiosco no imprime ticket\n    ◦ TT107050 - F - AN: analizando\n    ◦ TT107060 - AP - RSP: apoyo\n    ◦ TT107070 - C - PRU: caso de Miguel"
+ },
+ {
+  "fecha": "2026-10-22 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Curso udemy\n◦ Apoyo a soporte sin caso instalacion"
+ },
+ {
+  "fecha": "2026-10-23 16:08",
+  "autor": "susana",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104000: En espera de logs\n• seguimiento\n    ◦ TT105001 Fallo: revisando\n    ◦ TT105002 - AP - R: apoyo a soporte tablet"
+ },
+ {
+  "fecha": "2026-10-23 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa\n• seguimiento\n◦ TT107070 - C - LDP\n◦ TT107095 - C - D: entrgado parcial\n◦ CANCELADO TT107092 | no aplica"
+ },
+ {
+  "fecha": "2026-10-23 16:55",
+  "autor": "Miguel Armenta",
+  "texto": "LDP TT107070 | CAMBIO | JAG | 23/10/2026\nREABIERTO TT106700 | regresó"
+ },
+ {
+  "fecha": "2026-10-23 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT106800 - C - EST: preguntar estatus x1\n    ◦ TT107002 - F - R: kiosco no imprime ticket en isla dos\n    ◦ TT107070 - C - LDP: liberado\n    ◦ TT 107080 Cambio · Pausa: pendiente definicion"
+ },
+ {
+  "fecha": "2026-10-23 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Curso udemy\n◦ Apoyo a soporte sin caso instalacion"
+ },
+ {
+  "fecha": "2026-10-26 16:08",
+  "autor": "susana",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104000: En espera de logs\n• seguimiento\n    ◦ TT105001 - F - R: revisando\n    ◦ TT105002 - AP - CEC: se cierra"
+ },
+ {
+  "fecha": "2026-10-26 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa\n• seguimiento\n◦ TT107095 - C - D: avance"
+ },
+ {
+  "fecha": "2026-10-26 17:00",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT106800 - C - EST: preguntar estatus x2\n    ◦ TT107002 - F - ENT: entregado\n    ◦ TT107080 - C - AN: definicion"
+ },
+ {
+  "fecha": "2026-10-26 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Apoyo a soporte sin caso instalacion"
+ },
+ {
+  "fecha": "2026-10-27 16:08",
+  "autor": "susana",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104000: En espera de logs\n• seguimiento\n    ◦ TT105001 - F - R: revisando\n    ◦ TT105002 - AP - R: regreso soporte"
+ },
+ {
+  "fecha": "2026-10-27 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Apoyo a soporte sin caso instalacion"
+ },
+ {
+  "fecha": "2026-10-28 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "Ayer\n◦ TT107095 - C - D: avance\nHoy\n• standby\n◦ TT98105 - C - P: en pausa\n• seguimiento\n◦ TT107095 - C - ENT: entregado"
+ },
+ {
+  "fecha": "2026-10-28 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Apoyo a soporte sin caso instalacion"
+ },
+ {
+  "fecha": "2026-10-29 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n• seguimiento"
+ },
+ {
+  "fecha": "2026-10-29 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Apoyo a soporte sin caso instalacion"
+ },
+ {
+  "fecha": "2026-10-30 16:50",
+  "autor": "Miguel Armenta",
+  "texto": "• standby\n◦ TT98105 - C - P: en pausa\n• seguimiento\n◦ TT107095 - C - ESPLDP: en pruebas con Susana"
+ },
+ {
+  "fecha": "2026-10-30 17:20",
+  "autor": "Martin Reyes",
+  "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Apoyo a soporte sin caso instalacion"
+ }
+]

@@ -1,6 +1,6 @@
 # Seguimiento de un caso ya revisado (/mtto-revpr TT#####)
 
-Sirve para revisar si el desarrollador ya corrigió las observaciones de un TT que tiene informe en `<carpeta>\Revision_PR\TT#####.md`. Lo hace Claude directamente, sin subagentes, porque el material es un solo caso.
+Sirve para revisar si el desarrollador ya corrigió las observaciones de un TT que tiene informe en `<carpeta>\Revision_PR\TT#####.md`. Lo haces tú directamente, sin subagentes, porque el material es un solo caso.
 
 ## 1. Preparar
 ```powershell

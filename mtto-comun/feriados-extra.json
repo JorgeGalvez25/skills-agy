@@ -1,0 +1,4 @@
+{
+  "nota": "Días no laborables de la empresa que no son feriado de la LFT (los de la LFT ya los calcula fechas.js). Fecha dd/mm/aaaa. Ejemplo: { \"fecha\": \"02/04/2026\", \"motivo\": \"Jueves Santo\" }",
+  "dias": []
+}

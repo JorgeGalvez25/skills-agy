@@ -8,8 +8,11 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm'
-$cc = 'dianagonzalez@imagensoft.com.mx'
-$colaboradores = [ordered]@{ 'Saulo López' = 'saulolopez'; 'Susana Gámez' = 'susanagamez'; 'Miguel Armenta' = 'miguelarmenta'; 'Martín Reyes' = 'martinreyes' }
+# Colaboradores (nombre -> correo) y copia del correo: mtto-comun\equipo.json
+. (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'mtto-comun\equipo.ps1')
+$cc = $MttoDatos.ccAsignacion
+$colaboradores = [ordered]@{}
+foreach ($p in $MttoEquipo) { $colaboradores[$p.nombre] = $p.correo }
 
 # VTiger escribe los nombres sin acentos; se comparan sin acentos ni mayúsculas
 function SinAcentos([string]$s) { (($s.Normalize('FormD').ToCharArray() | Where-Object { [Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne 'NonSpacingMark' }) -join '').Trim().ToLower() }
@@ -78,7 +81,7 @@ $png = Join-Path $env:TEMP "$cid.png"
 $bmp.Save($png, [Drawing.Imaging.ImageFormat]::Png); $bmp.Dispose()
 $ancho = $ancho + $d + $blur * 2; $alto = $alto + $d + $blur * 2
 $m = $ol.CreateItem(0)
-$m.To = "$($colaboradores[$dev])@igas.com.mx"; $m.CC = $cc; $m.Subject = $asunto
+$m.To = $colaboradores[$dev]; $m.CC = $cc; $m.Subject = $asunto
 $adj = $m.Attachments.Add($png, 1, 0)
 $adj.PropertyAccessor.SetProperty('http://schemas.microsoft.com/mapi/proptag/0x3712001F', $cid)
 $m.HTMLBody = @"

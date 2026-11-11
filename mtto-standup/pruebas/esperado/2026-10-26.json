@@ -1,0 +1,85 @@
+{
+  "fecha": "26/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:00",
+      "hallazgos": [],
+      "estancados": [
+        {
+          "tt": "TT104547",
+          "estatus": "Pausa: En espera de logs",
+          "desde": "05/10/2026",
+          "diasHabiles": 15
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TTsinid1",
+          "nuevo": "TT107001",
+          "fuente": "marca del 20/10/2026"
+        },
+        {
+          "antes": "TT107001",
+          "nuevo": "TT107002",
+          "fuente": "DM Saulo 26/10/2026 09:10"
+        }
+      ]
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TT107090",
+          "nuevo": "TT107095",
+          "fuente": "marca del 22/10/2026"
+        }
+      ]
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [],
+      "estancados": [
+        {
+          "tt": "TT105500",
+          "estatus": "Desarrollo: multi-estación JAG",
+          "desde": "19/10/2026",
+          "diasHabiles": 5
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": true,
+      "hora": "16:08",
+      "hallazgos": [
+        {
+          "regla": "ortografia",
+          "tt": "TT105002",
+          "detalle": "Posible error de dedo \"cierra\" → \"cierre\" en \"TT105002 - AP - CEC: se cierra\"."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

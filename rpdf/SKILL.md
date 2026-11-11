@@ -37,7 +37,7 @@ Requiere Excel y Word instalados (se usan por COM). No hay Python en el equipo.
    - no haya columnas ni filas fuera de la página;
    - y anotar caracteres raros (□□) que vengan del original.
 
-   Pídele que responda solo con `imagen | OK` o `imagen | problema concreto (hoja, celda o zona)`. Abre tú con `view_file` únicamente las imágenes que marque con problema, para confirmarlo.
+   Pídele que responda solo con `imagen | OK` o `imagen | problema concreto (hoja, celda o zona)`. Abre tú con `read_file` únicamente las imágenes que marque con problema, para confirmarlo.
    Si todo está bien, no hagas nada más.
 3. **Reporta** en una tabla breve: cada PDF con su papel, orientación y escala. Agrega, en una línea cada uno:
    - los ajustes de `ensancha` y `reduce fuente`;

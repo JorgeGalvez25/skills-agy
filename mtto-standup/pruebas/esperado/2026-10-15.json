@@ -1,0 +1,89 @@
+{
+  "fecha": "15/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:00",
+      "hallazgos": [],
+      "estancados": [
+        {
+          "tt": "TT104547",
+          "estatus": "Pausa: En espera de logs",
+          "desde": "05/10/2026",
+          "diasHabiles": 8
+        },
+        {
+          "tt": "TT104919",
+          "estatus": "Preguntar estatus: preguntar estatus x8",
+          "desde": "06/10/2026",
+          "diasHabiles": 7
+        },
+        {
+          "tt": "TT106700",
+          "estatus": "Revisando: revisando bitacora",
+          "desde": "07/10/2026",
+          "diasHabiles": 6
+        }
+      ],
+      "aclarados": [
+        {
+          "regla": "sin-caso",
+          "detalle": "\"Pendiente de caso: piloto transmisor\" lleva al menos 8 días hábiles sin número de caso (desde el 05/10/2026).",
+          "nota": "Mejora propia sin actividad; Jorge acepta hasta el piloto",
+          "fuente": "DM Saulo 12/10/2026 08:49"
+        }
+      ],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "15/10/2026",
+          "ultimoStandup": "14/10/2026"
+        }
+      ],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "15/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "15/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

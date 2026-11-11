@@ -1,0 +1,76 @@
+{
+  "fecha": "19/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:00",
+      "hallazgos": [],
+      "estancados": [
+        {
+          "tt": "TT104547",
+          "estatus": "Pausa: En espera de logs",
+          "desde": "05/10/2026",
+          "diasHabiles": 10
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [
+        {
+          "regla": "formato",
+          "tt": "TT102632",
+          "detalle": "\"TT102632 - C - RSP: otra vez\": el RSP termina el motivo con \"Fecha Entrega dd/mm/aaaa\"."
+        },
+        {
+          "regla": "formato",
+          "tt": "TT102632",
+          "detalle": "\"TT102632 - C - RSP: otra vez\": después de REVPR no se repite RSP; al atender las observaciones del PR el caso solo sale del standup (después puede volver en ESPLDP)."
+        },
+        {
+          "regla": "evento",
+          "tt": "TT102632",
+          "detalle": "TT102632 estuvo en RSP, el 19/10/2026 dice \"RSP: otra vez\" y no hay mensaje REABIERTO u ORIGEN en el canal."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "19/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

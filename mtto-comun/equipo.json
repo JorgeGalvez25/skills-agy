@@ -1,0 +1,11 @@
+{
+  "canal": { "nombre": "#mtto", "id": "C02CGD1D9NX" },
+  "jefe": { "nombre": "Jorge Gálvez", "corto": "Jorge", "slackId": "U02FVR9D2TS", "colorHoja": "FFE4DFEC" },
+  "ccAsignacion": "dianagonzalez@imagensoft.com.mx",
+  "equipo": [
+    { "nombre": "Saulo López", "corto": "Saulo", "slack": "Saulo Lopez", "slackId": "U058Z1DJ75G", "correo": "saulolopez@igas.com.mx", "colorHoja": "FFD9E1F2" },
+    { "nombre": "Miguel Armenta", "corto": "Miguel", "slack": "Miguel Armenta", "slackId": "U07V14HD45S", "correo": "miguelarmenta@igas.com.mx", "colorHoja": "FFE2EFDA" },
+    { "nombre": "Martín Reyes", "corto": "Martín", "slack": "Martin Reyes", "slackId": "U05FCR2LSN7", "correo": "martinreyes@igas.com.mx", "colorHoja": "FFFFF2CC" },
+    { "nombre": "Susana Gámez", "corto": "Susana", "slack": "susana", "slackId": "U0959RX4B6W", "correo": "susanagamez@igas.com.mx", "colorHoja": "FFFCE4EC" }
+  ]
+}

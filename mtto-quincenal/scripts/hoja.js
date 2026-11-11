@@ -14,13 +14,8 @@ const path = require('path');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 
-const COLORES = {
-  Saulo: 'FFD9E1F2',
-  Miguel: 'FFE2EFDA',
-  'Martín': 'FFFFF2CC',
-  Susana: 'FFFCE4EC',
-  Jorge: 'FFE4DFEC',
-};
+// Color de cada desarrollador (por nombre corto): mtto-comun/equipo.json
+const COLORES = require(path.join(__dirname, '..', '..', 'mtto-comun', 'equipo')).COLORES_HOJA;
 const COLOR_OTRO = 'FFEDEDED';
 const BORDE = { style: 'thin', color: { argb: 'FFB0B0B0' } };
 const BORDES = { left: BORDE, right: BORDE, top: BORDE, bottom: BORDE };

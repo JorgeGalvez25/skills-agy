@@ -1,0 +1,89 @@
+{
+  "fecha": "29/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "29/10/2026",
+          "ultimoStandup": "26/10/2026"
+        }
+      ],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [
+        {
+          "regla": "estructura",
+          "detalle": "El standup no tiene casos en standby ni en seguimiento."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT98105",
+          "detalle": "TT98105 estaba en su standup del 28/10/2026 (\"Pausa: en pausa\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT107095",
+          "detalle": "TT107095 estaba en su standup del 28/10/2026 (\"Entregado: entregado\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [
+        {
+          "regla": "copiado",
+          "detalle": "La sección de seguimiento es idéntica a la del standup del 28/10/2026: ningún caso cambió de estatus ni de contador."
+        },
+        {
+          "regla": "sin-caso",
+          "detalle": "\"Apoyo a soporte sin caso instalacion\" lleva al menos 5 días hábiles sin número de caso (desde el 22/10/2026)."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT105500",
+          "estatus": "Desarrollo: multi-estación JAG",
+          "desde": "19/10/2026",
+          "diasHabiles": 8
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "29/10/2026",
+          "ultimoStandup": "27/10/2026"
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

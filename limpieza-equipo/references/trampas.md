@@ -1,7 +1,7 @@
 # Trampas técnicas ya resueltas
 
 ## PowerShell 5.1 (el predeterminado de Windows)
-- **Acentos rotos y errores raros de sintaxis** ("Falta la cadena en el terminador"): el `.ps1` debe guardarse en **UTF-8 con BOM**. La herramienta Write guarda sin BOM; después de escribir, conviértelo:
+- **Acentos rotos y errores raros de sintaxis** ("Falta la cadena en el terminador"): el `.ps1` debe guardarse en **UTF-8 con BOM**. La herramienta `write_file` guarda sin BOM; después de escribir, conviértelo:
   `$t=[IO.File]::ReadAllText($f,[Text.Encoding]::UTF8); [IO.File]::WriteAllText($f,$t,[Text.UTF8Encoding]::new($true))`
   Valida la sintaxis con `[System.Management.Automation.Language.Parser]::ParseFile(...)`.
 - **Funciones de una letra:** `h` es alias de `Get-History` y `r` de `Invoke-History`, y los alias ganan a las funciones. El script falla en silencio y puede dar un resultado "limpio" falso. Usa nombres descriptivos y compruébalos con `Get-Alias <nombre>`.
@@ -9,10 +9,10 @@
 - En PowerShell 5.1 las colecciones WinRT no exponen `.Add()`: hay que usar `[ICollection[T]].GetMethod('Add').Invoke(...)`.
 - No existen `&&`, `||`, `?:` ni `??`.
 
-## Arnés de Claude Code
+## Arnés de Antigravity
 - `reg export ... /y` queda bloqueado porque interpreta `/y` como una ruta de sistema. Exporta a un archivo nuevo, sin `/y`.
-- `Start-Sleep` largo seguido de otro comando se bloquea. Usa `run_in_background` y espera la notificación.
-- Los comandos de más de 2 minutos pasan solos a segundo plano. Para el análisis completo usa `run_in_background: true` desde el principio.
+- `Start-Sleep` largo o comandos duraderos: nunca uses `Start-Sleep` como temporizador (usa la herramienta `schedule`). Para comandos de soporte o procesos largos usa `run_command` con `WaitMsBeforeAsync: 500` para pasarlo a segundo plano.
+- Comandos que no terminan en el tiempo de espera continúan como tareas en segundo plano. Para procesos largos como el análisis completo usa `WaitMsBeforeAsync: 500` desde el principio.
 - Cuando el usuario pega texto de su consola, no ejecuta nada por ti: pídele los comandos exactos.
 
 ## Permisos
@@ -41,4 +41,4 @@
 
 ## Windows Update
 - Un reinicio no siempre instala lo "descargado". Instálalo primero con el COM `Microsoft.Update.Session` (`CreateUpdateInstaller().Install()`) y luego reinicia.
-- Al reiniciar se cierra la sesión de Claude Code. Guarda antes el estado en memoria para poder retomar.
+- Al reiniciar se cierra la sesión de Antigravity. Guarda antes el estado en memoria para poder retomar.

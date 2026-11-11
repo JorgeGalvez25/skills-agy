@@ -2,6 +2,7 @@
 // Imprime en JSON el periodo evaluado, la ventana de búsqueda en Slack, el universo de fallos y las rutas de salida.
 const fs = require('fs');
 const { periodo, leerRelacionFallos, sumarDias, dmy, iso, hoy } = require('./comun');
+const { CANAL } = require('../../mtto-comun/equipo');
 
 try {
   const p = periodo(process.argv[2]);
@@ -29,7 +30,7 @@ try {
     seguimientoCompleto: corte >= p.finSeguimiento,
     // Filtros after/before de Slack son exclusivos
     // REABIERTO y ORIGEN de un cambio pueden ser anteriores al mes de su LDP: se buscan desde que existen los eventos
-    slack: { canal: 'C02CGD1D9NX', after: iso(sumarDias(p.inicio, -1)), afterIncidencias: '2026-10-06', before: iso(sumarDias(corte, 1)) },
+    slack: { canal: CANAL.id, after: iso(sumarDias(p.inicio, -1)), afterIncidencias: '2026-10-06', before: iso(sumarDias(corte, 1)) },
     carpetaExiste: fs.existsSync(p.carpeta),
     salidas: {
       cambios: p.salidaCambios, cambiosExiste: fs.existsSync(p.salidaCambios),

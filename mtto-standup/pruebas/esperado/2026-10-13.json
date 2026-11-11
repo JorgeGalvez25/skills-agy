@@ -1,0 +1,84 @@
+{
+  "fecha": "13/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:00",
+      "hallazgos": [
+        {
+          "regla": "cambio-id",
+          "tt": "TT106586",
+          "detalle": "TT106586 estaba en su standup del 12/10/2026 (\"Revisando otra vez\") y ya no aparece; el 13/10/2026 aparece TT106800 (\"Desarrollo: desarrollo de pantalla\"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con \"(antes TT106586)\"."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT104547",
+          "estatus": "Pausa: En espera de logs",
+          "desde": "05/10/2026",
+          "diasHabiles": 6
+        },
+        {
+          "tt": "TT104919",
+          "estatus": "Preguntar estatus: preguntar estatus x6",
+          "desde": "06/10/2026",
+          "diasHabiles": 5
+        }
+      ],
+      "aclarados": [
+        {
+          "regla": "sin-caso",
+          "detalle": "\"Pendiente de caso: piloto transmisor\" lleva al menos 6 días hábiles sin número de caso (desde el 05/10/2026).",
+          "nota": "Mejora propia sin actividad; Jorge acepta hasta el piloto",
+          "fuente": "DM Saulo 12/10/2026 08:49"
+        }
+      ],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "13/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "13/10/2026",
+          "ultimoStandup": null
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

@@ -18,7 +18,7 @@ resolver dudas con el usuario, ejecutar el generador, verificar y reportar.
 
 **Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\rcalidad`. Scripts en `$SK\scripts` con sus dependencias (`xlsx`, `exceljs`).
 **Carpeta raíz** (`$RAIZ`): `C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Indicadores`.
-No hay Python: todo se ejecuta con `node` desde la herramienta Bash con rutas absolutas. Los JSON de trabajo van en el scratchpad, nunca en la carpeta del mes.
+No hay Python: todo se ejecuta con `node` desde la herramienta `run_command` con rutas absolutas. Los JSON de trabajo van en el scratchpad, nunca en la carpeta del mes.
 
 ## Reglas que no se negocian
 
@@ -43,8 +43,8 @@ No hay Python: todo se ejecuta con `node` desde la herramienta Bash con rutas ab
 
 ## Paso 1 — Preparar
 
-```bash
-node "C:/Users/jorge/.gemini/config/skills/rcalidad/scripts/preparar.js" YYYYMM
+```powershell
+node "C:\Users\jorge\.gemini\config\skills\rcalidad\scripts\preparar.js" YYYYMM
 ```
 
 Devuelve `mes`, `periodo`, `finSeguimiento`, `corte`, `seguimientoCompleto`, `slack` (canal y fechas `after`/`before` para buscar),
@@ -118,8 +118,8 @@ Los comentarios generales (transición, eventos confirmados, baja muestra) se in
 
 ## Paso 5 — Generar
 
-```bash
-node "C:/Users/jorge/.gemini/config/skills/rcalidad/scripts/generar.js" YYYYMM "<scratchpad>/datos.json"
+```powershell
+node "C:\Users\jorge\.gemini\config\skills\rcalidad\scripts\generar.js" YYYYMM "<scratchpad>/datos.json"
 ```
 
 (`--sobrescribir` como tercer argumento solo con autorización.) Crea en `$RAIZ\YYYYMM`:

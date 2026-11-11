@@ -53,8 +53,8 @@ $pidSchedule = (Get-CimInstance Win32_Service -Filter "Name='Schedule'").Process
 # Árbol de procesos con los de la instantánea inicial y los nuevos, para resolver padres de vida corta.
 $padres = @{}; $inicial | ForEach-Object { $padres[[int]$_.ProcessId] = [int]$_.ParentProcessId }
 foreach ($r in $global:VigNuevos) { $nombres[$r.PID] = $r.Nombre; $padres[$r.PID] = $r.PadrePID }
-# Se omite lo que desciende de Claude Code o de esta vigilancia: son los comandos de la propia sesión.
-function EsPropio($id) { $n = 0; while ($id -and $n++ -lt 15) { if ($id -eq $PID -or $nombres[$id] -match '^(claude|gk)\.exe$') { return $true }; $id = $padres[$id] }; $false }
+# Se omite lo que desciende del asistente (Claude Code, Antigravity) o de esta vigilancia: son los comandos de la propia sesión.
+function EsPropio($id) { $n = 0; while ($id -and $n++ -lt 15) { if ($id -eq $PID -or $nombres[$id] -match '^(claude|gk|agy|antigravity|GeminiAppLauncher)\.exe$') { return $true }; $id = $padres[$id] }; $false }
 $propios = @($global:VigNuevos | Where-Object { EsPropio $_.PadrePID })
 $lineas = foreach ($r in $global:VigNuevos | Where-Object { $propios -notcontains $_ }) {
   if ($r.Nombre -eq 'conhost.exe' -and -not $Todos) { continue }
@@ -63,7 +63,7 @@ $lineas = foreach ($r in $global:VigNuevos | Where-Object { $propios -notcontain
   $sosp = $r.Nombre -match $patron -or (RutaRara $r.Ruta) -or $padre -match 'Programador|wscript|cscript|mshta|forfiles'
   if ($sosp -or $Todos) { "{0} {1} PID {2,-6} {3,-22} <- {4} ({5})`n    {6}" -f $r.Hora.ToString('HH:mm:ss'), $(if ($sosp) { '<<<' } else { '   ' }), $r.PID, $r.Nombre, $padre, $r.PadrePID, (Corto $(if ($r.Comando) { $r.Comando } else { $r.Ruta })) }
 }
-$res = @($cab, "`nProcesos nuevos: $($global:VigNuevos.Count) (de la propia sesión de Claude Code, omitidos: $($propios.Count)) | marcados (<<<): $(@($lineas | Where-Object { $_ -match '<<<' }).Count)") + $lineas +
-  "`nResumen por nombre (sin la sesión de Claude Code):" + ($global:VigNuevos | Where-Object { $propios -notcontains $_ } | Group-Object Nombre | Sort-Object Count -Descending | ForEach-Object { "  {0,4} x {1}" -f $_.Count, $_.Name })
+$res = @($cab, "`nProcesos nuevos: $($global:VigNuevos.Count) (de la propia sesión del asistente, omitidos: $($propios.Count)) | marcados (<<<): $(@($lineas | Where-Object { $_ -match '<<<' }).Count)") + $lineas +
+  "`nResumen por nombre (sin la sesión del asistente):" + ($global:VigNuevos | Where-Object { $propios -notcontains $_ } | Group-Object Nombre | Sort-Object Count -Descending | ForEach-Object { "  {0,4} x {1}" -f $_.Count, $_.Name })
 $res | Select-Object -Skip 1
 if ($Salida) { $res | Out-File -FilePath $Salida -Encoding utf8; "Guardado en $Salida" }

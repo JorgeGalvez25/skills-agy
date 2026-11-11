@@ -42,7 +42,7 @@ El script:
    - **Cuerpo:** `<Nombre> buen día, favor de darle seguimiento a la siguiente solicitud de cambio.` (`buenas tardes` desde las 12:00), la captura incrustada y la firma de Jorge.
    - Si ya había un borrador con ese asunto, lo reemplaza.
 
-Colaboradores conocidos: Saulo López, Susana Gámez, Miguel Armenta, Martín Reyes (correo `nombreapellido@igas.com.mx`). Si el script dice que el desarrollador no está en la lista, pregunta su correo y agrégalo a `$colaboradores` en el script.
+Los colaboradores, sus correos y la copia salen de `C:\Users\jorge\.gemini\config\skills\mtto-comun\equipo.json`. Si el script dice que el desarrollador no está en la lista, pregunta sus datos y agrégalo a ese archivo (no al script).
 
 ## Errores
 

@@ -21,8 +21,9 @@ la ruta. Tu trabajo es entregar **dos documentos** a partir de lo que realmente 
 Todos los desarrolladores deben obtener documentos con la misma estructura, el mismo tono y el mismo nivel de detalle. Sigue los pasos **en orden** y no te saltes ninguno.
 
 **Carpeta del estándar** (en este documento, `$STD`): `$env:USERPROFILE\.gemini\config\skills\mtto-docu`.
-Es un vínculo que crea `Instalar.ps1` hacia la carpeta versionada en SVN. Si no existe, usa la
-carpeta donde está este archivo. Contiene `scripts\`, `plantillas\` y `referencias\`.
+La fuente oficial es la carpeta `mtto-docu` del repositorio de Git de las skills de Mantenimiento (`JorgeGalvez25/skills`):
+el estándar se edita solo ahí y cada desarrollador actualiza su copia desde ese repositorio (ya no desde SVN ni con `Instalar.ps1`).
+Si la carpeta no existe en esa ruta, usa la carpeta donde está este archivo. Contiene `scripts\`, `plantillas\` y `referencias\`.
 
 ## Reglas que no se negocian
 
@@ -218,4 +219,4 @@ Responde con este formato:
 - **Word se queda colgado o hay procesos `WINWORD` sin ventana**: ciérralos solo si no tienen ventana (`Get-Process WINWORD | ? { -not $_.MainWindowTitle }`); nunca cierres el Word del usuario.
 - **Ruta de más de 255 caracteres**: el generador ya guarda en temporal y mueve el archivo; si falla la carpeta destino, acorta el título en el nombre del archivo.
 - **La plantilla cambió y el script no encuentra un campo**: avisa al jefe de mantenimiento; no ajustes la plantilla.
-- **Ejecutar los scripts desde Bash**: usa `powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& '<ruta del .ps1>' -Datos '<ruta>'"`. Si `-File` da `Split-Path ... cadena vacía`, es una versión anterior a la 1.3 del generador.
+- **Ejecutar los scripts**: usa `& '<ruta del .ps1>' -Datos '<ruta>'`. Si `-File` da `Split-Path ... cadena vacía`, es una versión anterior a la 1.3 del generador.

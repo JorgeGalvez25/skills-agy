@@ -1,0 +1,126 @@
+{
+  "fecha": "23/10/2026",
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "17:00",
+      "hallazgos": [
+        {
+          "regla": "desaparece",
+          "tt": "TT107050",
+          "detalle": "TT107050 estaba en su standup del 22/10/2026 (\"Analizando: analizando\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "contador",
+          "tt": "TT106800",
+          "detalle": "TT106800: el contador pasó de x2 a x1."
+        },
+        {
+          "regla": "formato",
+          "tt": "TT107070",
+          "detalle": "\"TT107070 - C - LDP: liberado\": LDP es solo del dueño del caso; quien lo probó como tester cierra con FINPRU (sin evento)."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT104547",
+          "estatus": "Pausa: En espera de logs",
+          "desde": "05/10/2026",
+          "diasHabiles": 14
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TTsinid1",
+          "nuevo": "TT107001",
+          "fuente": "marca del 20/10/2026"
+        },
+        {
+          "antes": "TT107001",
+          "nuevo": "TT107002",
+          "fuente": "DM Saulo 26/10/2026 09:10"
+        }
+      ]
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:50",
+      "hallazgos": [
+        {
+          "regla": "ortografia",
+          "tt": "TT107095",
+          "detalle": "Posible error de dedo \"entrgado\" → \"entregado\" en \"TT107095 - C - D: entrgado parcial\"."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TT107090",
+          "nuevo": "TT107095",
+          "fuente": "marca del 22/10/2026"
+        }
+      ]
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [
+        {
+          "regla": "copiado",
+          "detalle": "La sección de seguimiento es idéntica a la del standup del 22/10/2026: ningún caso cambió de estatus ni de contador."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": true,
+      "hora": "16:08",
+      "hallazgos": [
+        {
+          "regla": "sin-standup",
+          "detalle": "No hay standup en 2 día(s) hábil(es) entre el 20/10/2026 y el 23/10/2026, y al comparar con el del 20/10/2026 hay cambios sin explicar."
+        },
+        {
+          "regla": "cambio-id",
+          "tt": "TT105000",
+          "detalle": "TT105000 estaba en su standup del 20/10/2026 (\"Entregado, en espera de respuesta\") y ya no aparece; el 23/10/2026 aparece TT105002 (\"Revisando: apoyo a soporte tablet\"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con \"(antes TT105000)\"."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "21/10/2026",
+          "ultimoStandup": "20/10/2026"
+        },
+        {
+          "dia": "22/10/2026",
+          "ultimoStandup": "20/10/2026"
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [
+    {
+      "tt": "TT107070",
+      "colaboradores": [
+        "Saulo Lopez",
+        "Miguel Armenta"
+      ]
+    }
+  ],
+  "ventana": {
+    "standups": 42,
+    "eventos": 3,
+    "aclaraciones": 2
+  }
+}

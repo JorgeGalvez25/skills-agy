@@ -25,7 +25,7 @@ Pídelo solo cuando lo necesites, no todo al principio:
 
 1. **Síntoma (opcional):** qué notó y desde cuándo. No pidas grabaciones: los procesos los obtienes tú con `vigilar-procesos.ps1`. Si el usuario ya tiene una, aprovéchala.
 2. **Permisos de administrador:** son necesarios para la auditoría completa y la remediación. Ofrece dos caminos:
-   - Opción recomendada: cerrar Claude Code, abrir **Terminal (Administrador)** con `Win + X` y ejecutar `claude --continue`.
+   - Opción recomendada: cerrar Antigravity, abrir **Terminal (Administrador)** con `Win + X` y ejecutar `agy --continue`.
    - Alternativa: que el usuario ejecute él mismo los scripts en una terminal de administrador y te avise.
 
    Comprueba si ya tienes los permisos con `([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole('Administrators')`.
@@ -44,7 +44,7 @@ La skill obtiene los procesos por su cuenta; **no pidas una grabación**. Una fo
 & "$SK\scripts\vigilar-procesos.ps1" -Minutos 10 -Salida "$INC\vigilancia.txt"
 ```
 
-Con administrador usa el evento `Win32_ProcessStartTrace` y atrapa incluso los procesos de milisegundos, con su línea de comandos y su padre; sin administrador sondea cada segundo. Marca con `<<<` los intérpretes de scripts, las rutas raras y lo que lanza el Programador de tareas. Como dura varios minutos, ejecútalo con `en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`)` mientras haces la auditoría. Si los síntomas son esporádicos (ventanas que parpadean, ventiladores a ratos), alarga a 30–60 minutos.
+Con administrador usa el evento `Win32_ProcessStartTrace` y atrapa incluso los procesos de milisegundos, con su línea de comandos y su padre; sin administrador sondea cada segundo. Marca con `<<<` los intérpretes de scripts, las rutas raras y lo que lanza el Programador de tareas. Como dura varios minutos, ejecútalo en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`) mientras haces la auditoría. Si los síntomas son esporádicos (ventanas que parpadean, ventiladores a ratos), alarga a 30–60 minutos.
 
 **Si el usuario ya trae una grabación o captura** del Administrador de tareas, úsala como pista adicional:
 
@@ -69,14 +69,14 @@ La auditoría cubre:
 - Programas sin fabricante, extensiones y políticas de los navegadores.
 - Archivo hosts, proxy, DNS, certificados raíz y cuentas de administrador.
 
-Tarda unos 7 minutos (lo más lento es buscar ejecutables sin firma en el disco), así que lánzala con `en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`)`, en paralelo con `vigilar-procesos.ps1`. Con permisos de usuario normal sale incompleta, y el script lo avisa. Lee el reporte por secciones (`Grep` de `^====` y luego `Read` con offset) en vez de leerlo entero.
+Tarda unos 7 minutos (lo más lento es buscar ejecutables sin firma en el disco), así que lánzala en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`), en paralelo con `vigilar-procesos.ps1`. Con permisos de usuario normal sale incompleta, y el script lo avisa. Lee el reporte por secciones (buscando con `Select-String` las líneas `^====` y leyendo luego los rangos con `read_file` indicando `StartLine` o `ByteOffset`) en vez de leerlo entero.
 
 Clasifica cada hallazgo con `references/indicadores.md`, que distingue lo malicioso de los falsos positivos habituales.
 
 ### Fase 2 · Análisis de lo sospechoso
 
 - **Scripts:** `& "$SK\scripts\inspeccionar-script.ps1" -Ruta <archivo>` saca el hash, los URL y los textos ofuscados con XOR, decodificados de forma estática. Así sabes a qué servidores se conecta y qué descarga.
-- **Procesos:** revisa los marcados con `<<<` en `vigilancia.txt` (búscalos con `Grep`, no leas el archivo entero); ya traen su línea de comandos y su padre. Si el padre es «svchost (Programador de tareas)», lo lanzó una tarea programada: búscala en la auditoría. Si es `WmiPrvSE.exe`, revisa las suscripciones WMI. Para un proceso concreto, sigue la cadena con `Win32_Process` (ParentProcessId).
+- **Procesos:** revisa los marcados con `<<<` en `vigilancia.txt` (búscalos con `Select-String`, no leas el archivo entero); ya traen su línea de comandos y su padre. Si el padre es «svchost (Programador de tareas)», lo lanzó una tarea programada: búscala en la auditoría. Si es `WmiPrvSE.exe`, revisa las suscripciones WMI. Para un proceso concreto, sigue la cadena con `Win32_Process` (ParentProcessId).
 - **Fechas:** cruza las fechas de creación de carpetas, archivos, tareas y eventos 5007 de Defender. Todas las piezas de una instalación suelen nacer en el mismo minuto. **Busca todo lo creado en esa ventana**, sin importar el nombre; así encontramos DLL que el patrón de nombres no detectaba.
 - **Historial:** las carpetas vacías de `VirtualStore` y los eventos 5007 revelan cuánto tiempo lleva la infección. Fecha el inicio.
 - **Origen:** las exclusiones del tipo `E:\Programa.exe`, `C:\` o `.exe/.dll/.wsf` suelen delatar el activador o crack que pidió desactivar el antivirus.
@@ -103,7 +103,7 @@ Pequeños fallos de un paso no detienen el resto: reporta y sigue.
 powershell -ExecutionPolicy Bypass -File "$SK\scripts\analisis-completo.ps1" -Log "$INC\analisis.txt" [-Apagar]
 ```
 
-Lánzalo con `en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`)`; tarda de 1 a 4 horas. El script:
+Lánzalo en segundo plano (usando `run_command` con `WaitMsBeforeAsync: 500`); tarda de 1 a 4 horas. El script:
 - Evita la suspensión **solo con el equipo en corriente alterna**.
 - Actualiza las firmas.
 - Recopila las detecciones con su ruta y la acción que tomó Defender.
@@ -142,7 +142,7 @@ Escribe `$INC\informe.md` y entrega en el chat un resumen con esta estructura:
 ## Nivel de confianza y recomendación (¿reinstalar?)
 ```
 
-Al terminar, si se usaron permisos de administrador, recuérdale al usuario que vuelva a abrir Claude Code sin ellos.
+Al terminar, si se usaron permisos de administrador, recuérdale al usuario que vuelva a abrir Antigravity sin ellos.
 
 ## Referencias
 

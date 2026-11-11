@@ -1,28 +1,26 @@
-// Uso: node datos.js YYYYMM [mensajes_nuevos.json] > datos.json
-// Une los mensajes nuevos de #mtto a la caché, cruza standups, eventos, CambiosProceso, relaciones de fallos,
+// Uso: node datos.js YYYYMM > datos.json
+// Lee la caché compartida de #mtto (mtto-comun/canal.js; se actualiza con mtto-comun/canal.md), cruza standups, eventos, CambiosProceso, relaciones de fallos,
 // acuerdos de versión y revisiones de PR, y devuelve un registro por caso con sus fechas por etapa.
 const { spawnSync } = require('child_process');
 const C = require('./comun');
 const { fs, path } = C;
 
-const EVENTOS_JS = 'C:/Users/jorge/.gemini/config/skills/rcalidad/scripts/eventos.js';
+const EVENTOS_JS = path.join(__dirname, '..', '..', 'rcalidad', 'scripts', 'eventos.js');
 const POST_ENTREGA = ['entregado', 'rsp', 'piloto', 'revpr', 'pruebas', 'ldp'];
 
-function cache(nuevos) {
-  fs.mkdirSync(C.RUTAS.datos, { recursive: true });
-  const msgs = C.leerJson(C.RUTAS.standups, []);
-  const porTs = new Map(msgs.map(m => [m.ts, m]));
-  let agregados = 0;
-  if (nuevos) for (const m of C.leerJson(nuevos, [])) { if (!porTs.has(m.ts)) agregados++; porTs.set(m.ts, m); }
-  const todos = [...porTs.values()].sort((a, b) => parseFloat(a.ts) - parseFloat(b.ts));
-  if (nuevos) fs.writeFileSync(C.RUTAS.standups, JSON.stringify(todos, null, 1));
-  return { todos, agregados };
+// Mensajes de #mtto de la caché compartida. Con <mensajes_nuevos.json> <desde> los une antes (igual que "canal.js unir")
+function cache(nuevos, desde) {
+  const union = nuevos ? C.canal.unir(nuevos, desde) : null;
+  const c = C.canal.leer();
+  if (c.mensajes.length && (!c.cubreDesde || c.cubreDesde > C.INICIO_DATOS))
+    throw new Error(`La caché de #mtto cubre desde ${c.cubreDesde || 'una fecha desconocida'} y este reporte necesita desde ${C.INICIO_DATOS}. Actualízala con "canal.js oldest ${C.dmy(C.deIso(C.INICIO_DATOS))}" (mtto-comun/canal.md).`);
+  return { todos: c.mensajes, agregados: union ? union.agregados : 0 };
 }
 
 function eventos(msgs) {
   const tmp = path.join(require('os').tmpdir(), `rend_eventos_${process.pid}.json`);
   fs.writeFileSync(tmp, JSON.stringify(msgs.filter(m => C.EQUIPO.includes(C.colaborador(m.autor)) && /\b(LDP|LIBERADO|REABIERTO|ORIGEN)\b/.test(m.texto || ''))
-    .map(m => ({ ts: m.ts, autor: m.autor, texto: m.texto }))));
+    .map(m => ({ ...(m.ts ? { ts: m.ts } : { fecha: C.dmy(C.fechaMensaje(m)) }), autor: m.autor, texto: m.texto }))));
   const r = spawnSync(process.execPath, [EVENTOS_JS, tmp], { encoding: 'utf8', maxBuffer: 64 << 20 });
   fs.unlinkSync(tmp);
   if (r.status !== 0) throw new Error('eventos.js: ' + (r.stderr || r.stdout));
@@ -108,10 +106,10 @@ function revisionesPR() {
 }
 
 try {
-  const [clave, nuevos] = process.argv.slice(2);
+  const [clave, nuevos, desde] = process.argv.slice(2);
   const per = C.periodo(clave);
-  const { todos, agregados } = cache(nuevos);
-  if (!todos.length) throw new Error(`No hay mensajes en ${C.RUTAS.standups}. Lee #mtto desde ${C.INICIO_DATOS} (paso 1).`);
+  const { todos, agregados } = cache(nuevos, desde);
+  if (!todos.length) throw new Error(`No hay mensajes en ${C.RUTAS.standups}. Actualízala desde ${C.INICIO_DATOS} (paso 1).`);
 
   // Historial por TT a partir de los standups del equipo
   const hist = {}, wip = {}, tester = {}, renombres = {};
