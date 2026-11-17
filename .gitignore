@@ -2,6 +2,7 @@
 # se ignora toda carpeta de primer nivel y solo se permiten las skills propias.
 # Al crear una skill propia con otro prefijo, agrégala aquí con "!/<nombre>/".
 /*/
+!/actualizar-backlog/
 !/comisiones-*/
 !/mtto-*/
 !/limpieza-equipo/
@@ -20,6 +21,7 @@ Thumbs.db
 synced/
 .bucket-*
 .trash/
+__pycache__/
 
 # Datos de ejecución de mtto-standup
 mtto-standup/aclaraciones.json
