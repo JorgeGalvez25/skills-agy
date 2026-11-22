@@ -45,10 +45,23 @@ try {
     [pscustomobject]@{ TT = $tt; Num = [int]($tt -replace 'TT', ''); Carpeta = $x.Directory.Name; Importe = $imp; Fecha = $fecha }
   }
   $cambios = @($cambios | Sort-Object Num)
-  if ($cambios.Count -gt 13) { throw 'Hay más de 13 cambios internos; no caben en la tabla' }
 
   $wb = $xl.Workbooks.Open($base, 0, $true)
   $ws = $wb.Worksheets.Item(1)
+
+  # Pagos pendientes del mes anterior: "(Pago k de N)" con k < N pasa a este mes como "(Pago k+1 de N)"
+  $pend = @()
+  for ($r = 16; $r -le 28; $r++) {
+    if (([string]$ws.Range("F$r").Value2) -match '^(.*)\(Pago (\d+) de (\d+)\)\s*$' -and [int]$Matches[2] -lt [int]$Matches[3]) {
+      $pre = $Matches[1]; $k = [int]$Matches[2] + 1; $np = [int]$Matches[3]
+      $tt = ([string]$ws.Range("B$r").Value2).Trim()
+      if ($cambios.TT -contains $tt) { throw "$tt tiene pagos pendientes del mes anterior y también un HorasCambio en este mes" }
+      $pend += [pscustomobject]@{ TT = $tt; Num = [int]($tt -replace 'TT', ''); Carpeta = "Pago $k/$np"; Fecha = $ws.Range("C$r").Value2; Importe = [double]$ws.Range("G$r").Value2
+        Pct = [double]$ws.Range("H$r").Value2; Titulo = "$pre(Pago $k de $np)"; Partes = $np; Reparto = $ws.Range("J$($r):P$r").Value2 }
+    }
+  }
+  $cambios = @($cambios + $pend | Sort-Object Num)
+  if ($cambios.Count -gt 13) { throw 'Hay más de 13 cambios internos (con los pagos pendientes); no caben en la tabla' }
   $ws.Name = "$nombre $anio"
   $ws.Range('A2').Value2 = "Cálculo de comisiones del mes de $($nombre.ToLower()) de $anio"
 
@@ -85,18 +98,23 @@ try {
   for ($r = 16; $r -le 28; $r++) { $ws.Range("I$r").Formula = "=G$r*H$r" }
   $r = 16
   foreach ($c in $cambios) {
-    if (-not $titulos[$c.TT]) { throw "$($c.TT) no está en CambiosProceso.xlsm" }
+    if (-not $c.Partes -and -not $titulos[$c.TT]) { throw "$($c.TT) no está en CambiosProceso.xlsm" }
     $fila = New-Object 'object[,]' 1, 7
     $fila[0,0] = $c.TT
     $fila[0,1] = $c.Fecha
     $fila[0,2] = 'Ing. Jorge Orduño'
     $fila[0,3] = 'IMAGENSOFT'
-    $fila[0,4] = $titulos[$c.TT]
+    $fila[0,4] = $(if ($c.Partes) { $c.Titulo } else { $titulos[$c.TT] })
     $fila[0,5] = $c.Importe
-    $fila[0,6] = 0.15
+    $fila[0,6] = $(if ($c.Partes) { $c.Pct } else { 0.15 })
     $ws.Range("B$($r):H$r").Value2 = $fila
-    $ws.Range("J$r").Value2 = 0.25
-    $ws.Range("$($col[$c.Carpeta])$r").Value2 = 0.75
+    if ($c.Partes) {
+      $ws.Range("J$($r):P$r").Value2 = $c.Reparto
+      $ws.Range("I$r").Formula = "=(G$r*H$r)/$($c.Partes)"
+    } else {
+      $ws.Range("J$r").Value2 = 0.25
+      $ws.Range("$($col[$c.Carpeta])$r").Value2 = 0.75
+    }
     $r++
   }
   # Solo quedan visibles las filas con cambio

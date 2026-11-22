@@ -38,13 +38,21 @@ Va después de `/comisiones-internos` (que crea los `HorasCambioTT#####.xlsx`) y
 | Comisión | 15 % del importe |
 | Reparto | 25 % Jorge y 75 % el colaborador (la carpeta). Columnas: J Jorge, K Susana, L Martin, M Saulo, N Miguel |
 
+**Pagos en partes** (filas 16 a 28): cuando el usuario reparte la comisión de un TT en varios meses, lo deja en el concentrado con `(Pago k de N)` al final del concepto (columna F) y el importe como `=(G*H)/N`. Antes de generar, el script revisa el concentrado del mes anterior y arrastra a este mes cada TT con k < N: mismo concepto con `(Pago k+1 de N)`, misma fecha, importe, porcentaje y reparto, y la fórmula `/N`. Al llegar al último pago (k = N) ya no se arrastra. Se mezclan con los TT nuevos y quedan ordenados por número de TT. Solo aplica a cambios internos.
+
 **Mejoras:** la hoja Mejoras y la fila 15 ("Mejora a productos i-Gas", con su reparto) se conservan exactas del mes anterior.
 
 Solo quedan visibles las filas con datos; las demás de cada tabla se ocultan.
 
 ## Paso 1 — Leer los cambios externos
 
-Lee `$MES\externos.PDF` con la herramienta `read_file`. De cada factura toma: factura (`FI-######`), fecha, recibo (`RI-######`), cliente, importe pagado y porcentaje de comisión.
+Extrae el texto de `$MES\externos.PDF` con pdfplumber, que da los importes exactos y gasta menos que leer las páginas como imagen:
+
+```powershell
+python -c "import pdfplumber,sys; [print(p.extract_text()) for p in pdfplumber.open(sys.argv[1]).pages]" "<$MES>\externos.PDF"
+```
+
+Si el texto sale vacío o desordenado (PDF escaneado), léelo con la herramienta `read_file`. De cada factura toma: factura (`FI-######`), fecha, recibo (`RI-######`), cliente, importe pagado y porcentaje de comisión.
 
 - Si un cliente no es JAG, pregunta al usuario a quién le corresponde (Jorge, Susana, Martin, Saulo o Miguel). No lo supongas.
 - Si no hay PDF, pregunta al usuario si el mes no tuvo cambios externos.
@@ -79,4 +87,5 @@ Si falla:
 1. El concentrado base que se usó.
 2. La tabla de internos (TT, colaborador, fecha, importe, comisión) y la de externos.
 3. El total de externos, internos y general, y el resumen por beneficiario.
-4. Si algo no cuadra (un TT sin título o un externo sin beneficiario), dilo.
+4. Los TT arrastrados con pago pendiente (se listan como `Pago k/N` en la columna Colab.) y los que terminaron su último pago.
+5. Si algo no cuadra (un TT sin título o un externo sin beneficiario), dilo.
