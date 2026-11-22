@@ -74,7 +74,7 @@ Escribe un archivo por TT en `<SALIDA>\reportes\<TT>.md`, en español con acento
 - **Cuándo falla:** el escenario concreto y su efecto.
 - **Qué cambiar:** la corrección precisa; si es corta, el fragmento de código esperado.
 - **Mensaje para <autor del PR según pr.md>:**
-  > <mensaje listo para enviar, en segunda persona, cordial y directo: qué falla y en qué escenario, en qué unidad y líneas, y qué debe cambiar. Debe entenderse sin leer el resto del informe.>
+  > <mensaje listo para enviar, en segunda persona, tono casual y directo, de compañero a compañero, en prosa corta sin etiquetas: qué falla y en qué escenario, en qué unidad y líneas, y qué debe cambiar. Debe entenderse sin leer el resto del informe.>
 
 (Un bloque por cada fila de la tabla, con el mismo número.)
 

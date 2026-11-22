@@ -15,11 +15,11 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual) | TT##### p
 - **Salida:** `<carpeta>\Revision_PR\` con un `TT#####.md` por caso y `00_Resumen_Revision_PR_<versión>.md`.
 - **Solo lectura en Azure DevOps.** Nunca se aprueba ni se vota. Solo se comenta en los PR cuando Jorge lo pide y después de que aprueba los textos en el chat (ver "Comentarios en los PR").
 - **Seguimiento:** si el argumento es un TT, o Jorge pide revisar si un desarrollador ya corrigió un caso que ya tiene `Revision_PR\TT#####.md`, no se corren los pasos de abajo: seguir `references\seguimiento.md`.
-- No hay Python en el equipo: todo corre con PowerShell y los scripts de `scripts\`, que comparten `comun.ps1`. Los `.ps1` se guardan en UTF-8 con BOM.
+- Los scripts de `scripts\` corren en PowerShell y comparten `comun.ps1`. Los `.ps1` se guardan en UTF-8 con BOM. Para consultas sueltas fuera de los scripts usar `az repos pr show --id <PR> --detect false` o `az repos pr list --project <proyecto> --detect false` (organización predeterminada: igasmxproyectos) y Python (`openpyxl`, `pandas`) para leer Excel.
 
 ## Token
 
-Los scripts leen `AZURE_DEVOPS_EXT_PAT`, primero de la sesión y luego de la variable de usuario de Windows. Si `preparar.ps1` termina con `SIN_TOKEN` o `TOKEN_INVALIDO`, explicarle a Jorge cómo resolverlo:
+Los scripts leen `AZURE_DEVOPS_EXT_PAT`, primero de la sesión y luego de la variable de usuario de Windows (`az devops` usa la misma variable; la organización no acepta tokens de `az login`). Si `preparar.ps1` termina con `SIN_TOKEN` o `TOKEN_INVALIDO`, explicarle a Jorge cómo resolverlo:
 
 1. En Azure DevOps, ir al engrane con persona (arriba a la derecha) → **Personal access tokens** → **+ New Token**.
    - Organización: `igasmxproyectos`.
@@ -95,19 +95,16 @@ Solo cuando Jorge lo pide, en una revisión completa o en un seguimiento.
    # Comentarios PR#### — TT#####
 
    ## /Master/Master_Cup.pas 512
-   **[Obligatorio] <título>**
-
-   <mensaje para el desarrollador>
+   <Nombre>, <mensaje en prosa casual: qué pasa, en qué caso falla y cómo arreglarlo>
 
    ## /Master/Master_Cup.pas 584-587
-   **[Condicionado] <título>**
-   …
+   <Nombre>, …
 
    ## General
-   **Revisión del dd/mm/aaaa, iteración n (`xxxxxxx`)**
-   <lo que ya quedó bien, la lista numerada de lo que falta para aprobar y lo no bloqueante>
+   <prosa breve: qué ya quedó bien, qué falta para aprobar y lo no bloqueante>
    ```
-   - Un comentario por cada hallazgo obligatorio o condicionado, anclado en la línea de `head\` (última iteración) donde va el cambio, con la ruta del repo tal como aparece en el PR (empieza con `/`). El texto sale del "Mensaje para…" del informe.
+   - Un comentario por cada hallazgo obligatorio o condicionado, anclado en la línea de `head\` (última iteración) donde va el cambio, con la ruta del repo tal como aparece en el PR (empieza con `/`). El texto se toma del "Mensaje para…" del informe, reescrito en el tono de abajo.
+   - Tono casual y directo, de compañero a compañero: párrafos cortos en prosa, sin encabezados ni etiquetas ("Escenario:", "Cambio requerido:") y sin marcar [Obligatorio]/[Condicionado] en el texto. Decir qué pasa, en qué caso falla y cómo arreglarlo; el fragmento de código solo si ayuda.
    - Los no bloqueantes solo se mencionan en el comentario general.
    - No repetir hallazgos que ya tienen un hilo activo en el PR (salen en `pr.md` o `seguimiento.md`).
 2. **Validar las anclas** sin publicar:
