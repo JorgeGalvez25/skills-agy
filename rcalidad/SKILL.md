@@ -18,7 +18,7 @@ resolver dudas con el usuario, ejecutar el generador, verificar y reportar.
 
 **Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\rcalidad`. Scripts en `$SK\scripts` con sus dependencias (`xlsx`, `exceljs`).
 **Carpeta raíz** (`$RAIZ`): `C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Indicadores`.
-No hay Python: todo se ejecuta con `node` desde la herramienta `run_command` con rutas absolutas. Los JSON de trabajo van en el scratchpad, nunca en la carpeta del mes.
+Los scripts se ejecutan con `node` desde la herramienta `run_command` con rutas absolutas. Los JSON de trabajo van en el scratchpad, nunca en la carpeta del mes.
 
 ## Reglas que no se negocian
 

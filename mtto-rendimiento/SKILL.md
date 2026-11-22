@@ -13,7 +13,7 @@ Reporte **solo para Jorge Gálvez**, para coaching: no se comparte con los colab
 
 El Excel lo crea **siempre** `scripts/generar.js`. Tu trabajo: actualizar la caché de #mtto, consolidar, resolver dudas con Jorge, generar y entregar la lectura.
 
-- **Skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\mtto-rendimiento`. Scripts Node en `$SK\scripts` (con `xlsx` y `exceljs`). No hay Python.
+- **Skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\mtto-rendimiento`. Scripts Node en `$SK\scripts` (con `xlsx` y `exceljs`).
 - **Carpeta** (`$R`): `C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Rendimiento`. `generar.js` crea `$R\YYYYMM`.
   - Los mensajes de #mtto salen de la caché compartida (`C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\datos\canal_mtto.json`, desde el 01/09/2026), la misma de `/mtto-standup`, `/mtto-fechas` y `/mtto-quincenal`. La anterior `$R\datos\standups.json` se copió ahí la primera vez y ya no se usa.
   - `$R\datos\atribuciones.json`: decisiones de Jorge sobre quién atendió un caso (`{"TT106583": "Miguel Armenta"}`). Persistente.

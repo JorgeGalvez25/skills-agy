@@ -11,7 +11,7 @@ Los Excel los crea **siempre** `scripts/generar.ps1` a partir de la plantilla de
 - **Carpeta de la skill** (`$SK`): `C:\Users\jorge\.gemini\config\skills\comisiones-internos`.
 - **Carpeta del mes** (`$MES`): la carpeta de trabajo actual, con nombre `YYYYMM-Mes`, por ejemplo `202609-Septiembre`.
 - **Títulos y estatus de los cambios:** `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm`. Usa la columna A (ID), la B (Descripción) y la D (Estatus).
-- En este equipo no hay Python. Los scripts se corren en PowerShell 5.1, usan Excel por COM y están guardados en UTF-8 con BOM. Si los editas, consérvalos con BOM; sin él, los acentos salen corruptos.
+- Los scripts se corren en PowerShell 5.1 y usan Excel por COM para conservar el formato de las plantillas (no pasarlos a Python). Para revisar datos sueltos, Python con `openpyxl`/`xlrd` lee los .xlsx/.xls sin abrir Excel. Los `.ps1` están guardados en UTF-8 con BOM. Si los editas, consérvalos con BOM; sin él, los acentos salen corruptos.
 
 ## Entrada esperada
 

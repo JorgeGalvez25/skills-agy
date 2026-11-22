@@ -12,7 +12,7 @@ Tu trabajo es: validar la entrada, **asignar la criticidad de cada caso a partir
 
 **Carpeta de la skill** (en este documento, `$SK`): `C:\Users\jorge\.gemini\config\skills\rfallos`. Los scripts están en `$SK\scripts` y ya tienen sus dependencias (`node_modules` con `xlsx` y `exceljs`).
 **Carpeta raíz de indicadores** (`$RAIZ`): `C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Indicadores`.
-No hay Python en este equipo: todo se ejecuta con **Node** (`node`). Ejecuta los scripts con la herramienta `run_command` usando rutas absolutas.
+Los scripts son de **Node** (`node`); no pasarlos a Python. Ejecuta los scripts con la herramienta `run_command` usando rutas absolutas.
 
 ## Reglas que no se negocian
 

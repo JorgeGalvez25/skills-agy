@@ -13,7 +13,7 @@ Conviertes a PDF los reportes del mes (normalmente 6: 4 Excel + 2 Word) y verifi
 - Entrada: `.\*.xlsx` y `.\*.docx`.
 - Salida: `.\PDF\<mismo nombre>.pdf`. El script crea la carpeta `PDF` si no existe. Si ya hay un PDF con el mismo nombre, se sobrescribe.
 
-Requiere Excel y Word instalados (se usan por COM). No hay Python en el equipo.
+Requiere Excel y Word instalados (se usan por COM): son los que dan el PDF fiel al formato, así que la exportación no se hace con Python.
 
 ## Pasos
 
