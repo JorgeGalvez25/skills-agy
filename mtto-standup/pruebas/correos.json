@@ -1,0 +1,386 @@
+{
+ "actualizado": "2026-11-19 10:00",
+ "desde": "2026-07-01",
+ "correos": [
+  {
+   "id": "t2026-10-19 09:12TT107056asignacion",
+   "fecha": "2026-10-19 09:12",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [
+    "susanagamez@igas.com.mx"
+   ],
+   "asunto": "REVISIÓN DE FALLO: TT107056",
+   "respuesta": false,
+   "tipo": "asignacion",
+   "tt": "TT107056",
+   "relaciones": [
+    {
+     "tt": "TT107050",
+     "tipo": "soporte",
+     "evidencia": "CASO SOPORTE: TT107050"
+    }
+   ],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:30TT108001entrega",
+   "fecha": "2026-11-02 17:30",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "ENTREGA TT108001",
+   "respuesta": false,
+   "tipo": "entrega",
+   "tt": "TT108001",
+   "relaciones": [
+    {
+     "tt": "TT108099",
+     "tipo": "anomalia",
+     "evidencia": "\\192.168.0.2EntregasTT108099"
+    }
+   ],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:31TT108002entrega",
+   "fecha": "2026-11-02 17:31",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "ENTREGA TT108002",
+   "respuesta": false,
+   "tipo": "entrega",
+   "tt": "TT108002",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 09:00TT108014entrega",
+   "fecha": "2026-11-02 09:00",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "ENTREGA TT108014",
+   "respuesta": false,
+   "tipo": "entrega",
+   "tt": "TT108014",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:32TT108003rsp",
+   "fecha": "2026-11-02 17:32",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "RSP TT108003",
+   "respuesta": false,
+   "tipo": "rsp",
+   "tt": "TT108003",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:33TT108004rsp",
+   "fecha": "2026-11-02 17:33",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "RSP TT108004",
+   "respuesta": false,
+   "tipo": "rsp",
+   "tt": "TT108004",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:34TT108012rsp",
+   "fecha": "2026-11-02 17:34",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "RSP TT108012",
+   "respuesta": false,
+   "tipo": "rsp",
+   "tt": "TT108012",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:40TT108005cec",
+   "fecha": "2026-11-02 17:40",
+   "carpeta": "enviados",
+   "de": "saulolopez@igas.com.mx",
+   "deNombre": "saulolopez@igas.com.mx",
+   "para": [],
+   "asunto": "TT108005 CEC",
+   "respuesta": false,
+   "tipo": "cec",
+   "tt": "TT108005",
+   "relaciones": [
+    {
+     "tt": "TT108099",
+     "tipo": "atiende-con",
+     "evidencia": "se atiende con TT108099"
+    }
+   ],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:41TT108006cec",
+   "fecha": "2026-11-02 17:41",
+   "carpeta": "enviados",
+   "de": "saulolopez@igas.com.mx",
+   "deNombre": "saulolopez@igas.com.mx",
+   "para": [],
+   "asunto": "TT108006 CEC",
+   "respuesta": false,
+   "tipo": "cec",
+   "tt": "TT108006",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:42TT108009cec",
+   "fecha": "2026-11-02 17:42",
+   "carpeta": "enviados",
+   "de": "saulolopez@igas.com.mx",
+   "deNombre": "saulolopez@igas.com.mx",
+   "para": [],
+   "asunto": "TT108009 CEC",
+   "respuesta": false,
+   "tipo": "cec",
+   "tt": "TT108009",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:43TT108007cec",
+   "fecha": "2026-11-02 17:43",
+   "carpeta": "enviados",
+   "de": "saulolopez@igas.com.mx",
+   "deNombre": "saulolopez@igas.com.mx",
+   "para": [],
+   "asunto": "TT108007 CEC",
+   "respuesta": false,
+   "tipo": "cec",
+   "tt": "TT108007",
+   "relaciones": [
+    {
+     "tt": "TT108008",
+     "tipo": "atiende-con",
+     "evidencia": "se atiende con TT108008"
+    }
+   ],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:44TT108010ldp",
+   "fecha": "2026-11-02 17:44",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [],
+   "asunto": "LDP TT108010",
+   "respuesta": false,
+   "tipo": "ldp",
+   "tt": "TT108010",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-02 17:45TT108011ldp",
+   "fecha": "2026-11-02 17:45",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [],
+   "asunto": "LDP TT108011",
+   "respuesta": false,
+   "tipo": "ldp",
+   "tt": "TT108011",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-03 10:00TT108003entrega",
+   "fecha": "2026-11-03 10:00",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "RE: ENTREGA TT108003",
+   "respuesta": true,
+   "tipo": "entrega",
+   "tt": "TT108003",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-03 09:00TT108020asignacion",
+   "fecha": "2026-11-03 09:00",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [],
+   "asunto": "REVISIÓN DE FALLO: TT108020",
+   "respuesta": false,
+   "tipo": "asignacion",
+   "tt": "TT108020",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-03 09:10TT108031asignacion",
+   "fecha": "2026-11-03 09:10",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [
+    "martinreyes@igas.com.mx"
+   ],
+   "asunto": "REVISIÓN DE FALLO: TT108031",
+   "respuesta": false,
+   "tipo": "asignacion",
+   "tt": "TT108031",
+   "relaciones": [
+    {
+     "tt": "TT108030",
+     "tipo": "soporte",
+     "evidencia": "CASO SOPORTE: TT108030"
+    }
+   ],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-03 09:20TT108041asignacion",
+   "fecha": "2026-11-03 09:20",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [
+    "martinreyes@igas.com.mx"
+   ],
+   "asunto": "REVISIÓN DE FALLO: TT108041",
+   "respuesta": false,
+   "tipo": "asignacion",
+   "tt": "TT108041",
+   "relaciones": [
+    {
+     "tt": "TT108040",
+     "tipo": "soporte",
+     "evidencia": "CASO SOPORTE: TT108040"
+    }
+   ],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-04 09:00TT108050cec",
+   "fecha": "2026-11-04 09:00",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "TT108050 CEC",
+   "respuesta": false,
+   "tipo": "cec",
+   "tt": "TT108050",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-04 09:05TT108051cec",
+   "fecha": "2026-11-04 09:05",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "TT108051 CEC",
+   "respuesta": false,
+   "tipo": "cec",
+   "tt": "TT108051",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-04 17:30TT108053entrega",
+   "fecha": "2026-11-04 17:30",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "ENTREGA TT108053",
+   "respuesta": false,
+   "tipo": "entrega",
+   "tt": "TT108053",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-04 08:00TT108081asignacion",
+   "fecha": "2026-11-04 08:00",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [
+    "miguelarmenta@igas.com.mx"
+   ],
+   "asunto": "REVISIÓN DE FALLO: TT108081",
+   "respuesta": false,
+   "tipo": "asignacion",
+   "tt": "TT108081",
+   "relaciones": [
+    {
+     "tt": "TT108080",
+     "tipo": "soporte",
+     "evidencia": "CASO SOPORTE: TT108080"
+    }
+   ],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-04 10:00TT108081rsp",
+   "fecha": "2026-11-04 10:00",
+   "carpeta": "enviados",
+   "de": "miguelarmenta@igas.com.mx",
+   "deNombre": "miguelarmenta@igas.com.mx",
+   "para": [],
+   "asunto": "RSP TT108081",
+   "respuesta": false,
+   "tipo": "rsp",
+   "tt": "TT108081",
+   "relaciones": [],
+   "extracto": ""
+  },
+  {
+   "id": "t2026-11-05 09:00TT108061asignacion",
+   "fecha": "2026-11-05 09:00",
+   "carpeta": "entrada",
+   "de": "jorgegalvez@igas.com.mx",
+   "deNombre": "jorgegalvez@igas.com.mx",
+   "para": [
+    "martinreyes@igas.com.mx"
+   ],
+   "asunto": "REVISIÓN DE FALLO: TT108061",
+   "respuesta": false,
+   "tipo": "asignacion",
+   "tt": "TT108061",
+   "relaciones": [
+    {
+     "tt": "TT108060",
+     "tipo": "soporte",
+     "evidencia": "CASO SOPORTE: TT108060"
+    }
+   ],
+   "extracto": ""
+  }
+ ]
+}

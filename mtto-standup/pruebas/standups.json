@@ -60,6 +60,11 @@
   "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT104919 - C - EST: preguntar estatus x8\n    ◦ TT106700 - F - R: revisando bitacora\n    ◦ TT106800 - C -D: desarrollo de pantalla\n    ◦ Pendiente de caso: piloto transmisor"
  },
  {
+  "fecha": "2026-10-16 16:12",
+  "autor": "susana",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n_*Standby*_\n• Petroservicios reporte liq (pendiente de caso, ya le dije a Martín para que lo diera de alta).\n• `TT103813` Cambio · Pausa: pruebas.\n• `TT105878` Cambio · Pausa: pruebas.\n• `TT106574` Cambio · Pausa: se entregó el cambio del avituallamiento, en espera de respuesta.\n_*Seguimiento*_\n• `TT88853` Cambio · Revisando: se revisó el cambio de la provisión de comisiones.\n• `TT107050` Fallo · Revisando: se está revisando."
+ },
+ {
   "fecha": "2026-10-16 16:50",
   "autor": "Miguel Armenta",
   "texto": "• standby\n◦ TT98105 - C - P: en pausa por prioridad\n• seguimiento\n◦ TT107070 - C - ENT: entregado\n◦ TT102632 - C - REVPR: observaciones del PR"
@@ -68,6 +73,11 @@
   "fecha": "2026-10-16 17:00",
   "autor": "Saulo Lopez",
   "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n    ◦ TT104547 - F - P: En espera de logs\n• seguimiento\n    ◦ TT104919 - C - EST: preguntar estatus x9\n    ◦ TT106700 - F - R: revisando bitacora\n    ◦ TT106800 - C -D: desarrollo de pantalla\n    ◦ Pendiente de caso: piloto transmisor"
+ },
+ {
+  "fecha": "2026-10-19 16:06",
+  "autor": "susana",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n_*Standby*_\n• `TT103813` Cambio · Pausa: pruebas.\n• `TT105878` Cambio · Pausa: pruebas.\n• `TT106574` Cambio · Pausa: se entregó el cambio del avituallamiento, en espera de respuesta.\n• `TT88853` Cambio · Pausa: se revisó el cambio de la provisión de comisiones.\n_*Seguimiento*_\n• `TT107056` Fallo · Entregado: se revisó y se entregó.\n• `TT107155` Fallo · Entregado: se revisó el fallo de El Trébol y se entregó (ID provisional de soporte)."
  },
  {
   "fecha": "2026-10-19 16:50",
@@ -223,5 +233,55 @@
   "fecha": "2026-10-30 17:20",
   "autor": "Martin Reyes",
   "texto": "• standby\n• seguimiento\n◦ Apoyo servidores JAG\n◦ TT105500 - C - D: multi-estación JAG\n◦ Apoyo a soporte sin caso instalacion"
+ },
+ {
+  "fecha": "2026-11-02 16:00",
+  "autor": "Miguel Armenta",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108001 - F - R: error de timbrado\n    ◦ TT108002 - F - R: error de cierre\n    ◦ TT108003 - C - D: reporte de ventas\n    ◦ TT108004 - C - D: reporte de compras\n    ◦ TT108014 - F - R: error de saldos\n    ◦ TT108012 - C - R: ajuste de nomina\n    ◦ TT108013 - C - R: ajuste de inventario"
+ },
+ {
+  "fecha": "2026-11-02 16:10",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108005 - F - R: error de pagos\n    ◦ TT108006 - F - R: error de bancos\n    ◦ TT108009 - F - R: error de cheques\n    ◦ TT108007 - F - R: error de anticipos\n    ◦ TT108008 - F - R: nuevo error de anticipos\n    ◦ TT108010 - C - ESPLDP: nuevo reporte\n    ◦ TT108011 - C - ESPLDP: nueva pantalla"
+ },
+ {
+  "fecha": "2026-11-02 16:20",
+  "autor": "Martin Reyes",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TTsinid1 - F - R: error de poliza de nomina\n    ◦ TT108030 - F - R: error de recibos\n    ◦ TT108040 - F - R: error de kardex"
+ },
+ {
+  "fecha": "2026-11-03 16:00",
+  "autor": "Miguel Armenta",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108001 - F - R: error de timbrado\n    ◦ TT108002 - F - ENT: error de cierre\n    ◦ TT108003 - C - D: reporte de ventas\n    ◦ TT108004 - C - RSP: reporte de compras, Fecha Entrega 03/11/2026\n    ◦ TT108014 - F - R: error de saldos\n    ◦ TT108012 - C - ESPLDP: ajuste de nomina\n    ◦ TT108013 - C - ESPLDP: ajuste de inventario"
+ },
+ {
+  "fecha": "2026-11-03 16:10",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108006 - F - CEC: no se reproduce\n    ◦ TT108009 - F - R: error de cheques\n    ◦ TT108007 - F - CEC: se atiende con TT108008\n    ◦ TT108008 - F - R: error de anticipos\n    ◦ TT108010 - C - ESPLDP: nuevo reporte\n    ◦ TT108011 - C - LDP: nueva pantalla"
+ },
+ {
+  "fecha": "2026-11-03 16:20",
+  "autor": "Martin Reyes",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108020 - F - R: error de poliza de nomina\n    ◦ TT108031 - F - R: error de recibos (antes TT108030)\n    ◦ TT108041 - F - R: error de kardex"
+ },
+ {
+  "fecha": "2026-11-03 16:30",
+  "autor": "Saulo Lopez",
+  "texto": "LDP TT108011 | CAMBIO | Petroservicios | 03/11/2026"
+ },
+ {
+  "fecha": "2026-11-04 16:00",
+  "autor": "Miguel Armenta",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108001 - F - R: error de timbrado\n    ◦ TT108002 - F - ENT: error de cierre\n    ◦ TT108003 - C - D: reporte de ventas\n    ◦ TT108014 - F - R: error de saldos\n    ◦ TT108012 - C - ESPLDP: ajuste de nomina\n    ◦ TT108013 - C - ESPLDP: ajuste de inventario\n    ◦ TT108050 - C - RSP: reporte de pagos, Fecha Entrega 04/11/2026\n    ◦ TT108051 - C - CEC: no aplica\n    ◦ TT108053 - F - R: error de facturas\n    ◦ TT108080 - F - R: error de ordenes"
+ },
+ {
+  "fecha": "2026-11-04 16:10",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108009 - F - R: error de cheques\n    ◦ TT108008 - F - R: error de anticipos\n    ◦ TT108010 - C - ESPLDP: nuevo reporte\n    ◦ TT108060 - F - R: error de conciliacion"
+ },
+ {
+  "fecha": "2026-11-05 16:10",
+  "autor": "Saulo Lopez",
+  "texto": "<@U02FVR9D2TS|Jorge Gálvez>\n• standby\n• seguimiento\n    ◦ TT108009 - F - R: error de cheques x2\n    ◦ TT108008 - F - R: error de anticipos x2\n    ◦ TT108010 - C - ESPLDP: nuevo reporte x2\n    ◦ TT108061 - F - R: error de conciliacion"
  }
 ]

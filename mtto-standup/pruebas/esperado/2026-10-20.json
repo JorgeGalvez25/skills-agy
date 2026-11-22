@@ -1,5 +1,6 @@
 {
   "fecha": "20/10/2026",
+  "anomaliasCorreo": [],
   "diasSinRegistro": [],
   "colaboradores": {
     "Saulo Lopez": {
@@ -51,6 +52,46 @@
       "faltantes": [],
       "cambiosId": []
     },
+    "susana": {
+      "standupDeHoy": true,
+      "hora": "16:08",
+      "hallazgos": [
+        {
+          "regla": "desaparece",
+          "tt": "TT103813",
+          "detalle": "TT103813 estaba en su standup del 19/10/2026 (\"Pausa: pruebas.\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT105878",
+          "detalle": "TT105878 estaba en su standup del 19/10/2026 (\"Pausa: pruebas.\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT106574",
+          "detalle": "TT106574 estaba en su standup del 19/10/2026 (\"Pausa: se entregó el cambio del avituallamiento, en espera de respuesta.\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT88853",
+          "detalle": "TT88853 estaba en su standup del 19/10/2026 (\"Pausa: se revisó el cambio de la provisión de comisiones.\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT107056",
+          "detalle": "TT107056 estaba en su standup del 19/10/2026 (\"Entregado: se revisó y se entregó.\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        },
+        {
+          "regla": "desaparece",
+          "tt": "TT107155",
+          "detalle": "TT107155 estaba en su standup del 19/10/2026 (\"Entregado: se revisó el fallo de El Trébol y se entregó (ID provisional de soporte).\") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado)."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
     "Martin Reyes": {
       "standupDeHoy": true,
       "hora": "17:20",
@@ -64,21 +105,12 @@
       "aclarados": [],
       "faltantes": [],
       "cambiosId": []
-    },
-    "susana": {
-      "standupDeHoy": true,
-      "hora": "16:08",
-      "hallazgos": [],
-      "estancados": [],
-      "aclarados": [],
-      "faltantes": [],
-      "cambiosId": []
     }
   },
   "ttCompartidos": [],
   "ventana": {
-    "standups": 42,
-    "eventos": 3,
+    "standups": 53,
+    "eventos": 4,
     "aclaraciones": 2
   }
 }

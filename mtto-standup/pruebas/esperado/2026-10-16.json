@@ -1,5 +1,6 @@
 {
   "fecha": "16/10/2026",
+  "anomaliasCorreo": [],
   "diasSinRegistro": [],
   "colaboradores": {
     "Saulo Lopez": {
@@ -51,21 +52,21 @@
       ],
       "cambiosId": []
     },
-    "Martin Reyes": {
-      "standupDeHoy": false,
-      "hora": null,
-      "hallazgos": [],
-      "estancados": [],
-      "aclarados": [],
-      "faltantes": [
+    "susana": {
+      "standupDeHoy": true,
+      "hora": "16:12",
+      "hallazgos": [
         {
-          "dia": "16/10/2026",
-          "ultimoStandup": null
+          "regla": "id",
+          "detalle": "\"Petroservicios reporte liq (pendiente de caso, ya le dije a Martín para que lo diera de alta).\": trabajo sin número de caso."
         }
       ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
       "cambiosId": []
     },
-    "susana": {
+    "Martin Reyes": {
       "standupDeHoy": false,
       "hora": null,
       "hallazgos": [],
@@ -82,8 +83,8 @@
   },
   "ttCompartidos": [],
   "ventana": {
-    "standups": 42,
-    "eventos": 3,
+    "standups": 53,
+    "eventos": 4,
     "aclaraciones": 2
   }
 }

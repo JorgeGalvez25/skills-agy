@@ -11,6 +11,7 @@ Debe estar en la misma carpeta que ellas (`C:\Users\jorge\.gemini\config\skills\
 | `feriados-extra.json` | Días no laborables de la empresa que no son feriado de la LFT | Los mismos, a través de `fechas.js` |
 | `standup.js` | Parser único de los standups: línea → caso, tipo, código, etapa | `mtto-standup`, `mtto-rendimiento`, `canal.js` |
 | `canal.js` + `canal.md` | Caché compartida de #mtto y cómo actualizarla | `mtto-standup`, `mtto-fechas`, `mtto-quincenal`, `mtto-rendimiento` |
+| `correos.ps1` + `correos.js` + `correos.md` | Caché compartida de los correos de casos TT (Outlook) y cómo actualizarla y consultarla | `mtto-standup`, `mtto-fechas` |
 | `vocabulario.md` | Cómo leer los estatus | `mtto-fechas`, `mtto-quincenal` |
 
 ## Cambios frecuentes

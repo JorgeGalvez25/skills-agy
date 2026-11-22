@@ -1,5 +1,6 @@
 {
   "fecha": "26/10/2026",
+  "anomaliasCorreo": [],
   "diasSinRegistro": [],
   "colaboradores": {
     "Saulo Lopez": {
@@ -44,6 +45,21 @@
         }
       ]
     },
+    "susana": {
+      "standupDeHoy": true,
+      "hora": "16:08",
+      "hallazgos": [
+        {
+          "regla": "ortografia",
+          "tt": "TT105002",
+          "detalle": "Posible error de dedo \"cierra\" → \"cierre\" en \"TT105002 - AP - CEC: se cierra\"."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
     "Martin Reyes": {
       "standupDeHoy": true,
       "hora": "17:20",
@@ -59,27 +75,12 @@
       "aclarados": [],
       "faltantes": [],
       "cambiosId": []
-    },
-    "susana": {
-      "standupDeHoy": true,
-      "hora": "16:08",
-      "hallazgos": [
-        {
-          "regla": "ortografia",
-          "tt": "TT105002",
-          "detalle": "Posible error de dedo \"cierra\" → \"cierre\" en \"TT105002 - AP - CEC: se cierra\"."
-        }
-      ],
-      "estancados": [],
-      "aclarados": [],
-      "faltantes": [],
-      "cambiosId": []
     }
   },
   "ttCompartidos": [],
   "ventana": {
-    "standups": 42,
-    "eventos": 3,
+    "standups": 53,
+    "eventos": 4,
     "aclaraciones": 2
   }
 }

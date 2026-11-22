@@ -1,5 +1,6 @@
 {
   "fecha": "09/10/2026",
+  "anomaliasCorreo": [],
   "diasSinRegistro": [],
   "colaboradores": {
     "Saulo Lopez": {
@@ -31,7 +32,7 @@
       ],
       "cambiosId": []
     },
-    "Martin Reyes": {
+    "susana": {
       "standupDeHoy": false,
       "hora": null,
       "hallazgos": [],
@@ -45,7 +46,7 @@
       ],
       "cambiosId": []
     },
-    "susana": {
+    "Martin Reyes": {
       "standupDeHoy": false,
       "hora": null,
       "hallazgos": [],
@@ -62,8 +63,8 @@
   },
   "ttCompartidos": [],
   "ventana": {
-    "standups": 42,
-    "eventos": 3,
+    "standups": 53,
+    "eventos": 4,
     "aclaraciones": 2
   }
 }

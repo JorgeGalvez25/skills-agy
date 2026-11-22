@@ -1,6 +1,6 @@
 ---
 name: mtto-fechas
-description: 'Revisa el canal de Slack #mtto y compara los standups diarios del equipo de mantenimiento con una captura del tablero de tickets (columnas PROCESO / ENTREGADO con TT#####, responsable y fecha) para decir a qué tickets hay que moverles la fecha, cuáles revisar/cerrar y cuáles van bien. Usar cuando digan "/mtto-fechas", adjunten la imagen del tablero, o pregunten "a cuál le muevo la fecha".'
+description: 'Revisa el canal de Slack #mtto y compara los standups diarios del equipo de mantenimiento con una captura del tablero de tickets (columnas PROCESO / ENTREGADO con TT#####, responsable y fecha) para decir a qué tickets hay que moverles la fecha, cuáles revisar/cerrar y cuáles van bien; también cruza los correos de los casos (entregas, RSP, CEC, LDP, cambios de ID) como evidencia. Usar cuando digan "/mtto-fechas", adjunten la imagen del tablero, o pregunten "a cuál le muevo la fecha".'
 ---
 
 # Revisión de fechas del tablero vs. #mtto (/mtto-fechas)
@@ -32,6 +32,20 @@ Si no hay imagen adjunta, pídela y detente.
 Usa el **último standup de cada responsable** como estatus vigente y el `historial` para ver la tendencia.
 Un caso con `enUltimo: false` y sin etapa de cierre (`rsp`, `ldp`, `cierre`) ni `revpr` se trata como "dejó de aparecer".
 
+## 2b. Correos de los casos
+
+1. Actualiza la caché de correos (sin argumentos; puedes lanzarla en paralelo con el subagente lector del canal).
+   Si Outlook falla, avisa y sigue solo con el canal:
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\jorge\.gemini\config\skills\mtto-comun\correos.ps1"
+   ```
+2. Consúltala con los mismos 12 días:
+   ```powershell
+   node "C:\Users\jorge\.gemini\config\skills\mtto-comun\correos.js" estado <dd/mm/aaaa de hace 12 días>
+   ```
+   Por TT usa `casos[TT].ultimo` (último correo propio: tipo, fecha, asunto), `sinRespuesta` (entrega o estatus sin respuesta posterior; se apaga con una respuesta externa o con un RSP, CEC o LDP posterior), `soporte` (ID anterior de soporte)
+   y `atiendeCon` (TT con el que sigue el trabajo tras un CEC). A nivel global, `cambiosId` (`antes` → `nuevo`) y `anomalias` (ruta de entrega de otro TT).
+
 ## 3. Cruzar y clasificar
 
 Hoy = fecha actual. Para cada ticket del tablero:
@@ -45,15 +59,26 @@ Hoy = fecha actual. Para cada ticket del tablero:
    el ticket lleva mucho tiempo pausado ("x3", "pausado"), menciónalo como riesgo.
 4. **Sin información**: no aparece en el canal; dilo, no inventes.
 
-Nunca supongas un estatus que el canal no diga; cita brevemente lo que dice el standup y de qué día.
+El canal sigue siendo la fuente del estatus; el correo lo confirma o lo contradice:
+
+- **Entregado por correo y `sinRespuesta`**: refuerza "Mover fecha" (en espera de respuesta); cita la fecha del correo de entrega.
+  Si hubo respuesta del cliente o soporte después de la entrega, menciónalo.
+- **Correo `cec`, `rsp` o `ldp` del caso**: "Revisar estatus" (cerrar, pasar a Entregado, confirmar RSP/LDP), aunque el standup no lo diga todavía; señala la discrepancia con el standup.
+- **CEC con `atiendeCon`**: la tarjeta se cierra y el trabajo sigue en el otro TT; di cuál.
+- **TT de la tarjeta que en `cambiosId` es el ID de soporte (`antes`)**: indica el ID definitivo (`nuevo`), busca el estatus con ese ID y sugiere actualizar la tarjeta.
+- **Nada en el canal pero con correos**: ya no es "Sin información"; usa el último correo como evidencia.
+- **`anomalias`** de TT del tablero: menciónalas aparte.
+
+Nunca supongas lo que el canal o el correo no digan; cita brevemente lo que dice el standup y de qué día, y del correo tipo, fecha y asunto.
 
 ## 4. Respuesta
 
 En español, breve, con este formato:
 
-- Una línea con el rango de mensajes leídos (ej. "Leí #mtto del 21/09 al 01/10").
-- **Mover fecha**: tabla `Ticket (responsable) | Fecha actual | Qué dicen en el canal`, del más atrasado al menos.
+- Una línea con el rango de mensajes leídos (ej. "Leí #mtto del 21/09 al 01/10 y correos del 21/09 al 01/10").
+- **Mover fecha**: tabla `Ticket (responsable) | Fecha actual | Qué dicen en el canal | Correo`, del más atrasado al menos.
 - **Revisar estatus**: viñetas con la acción sugerida (pasar a Entregado, confirmar RSP o LDP, cerrar).
+- **Correos que contradicen el standup** (si aplica): viñetas cortas, también las `anomalias`.
 - **Sin cambio**: viñetas cortas.
 - **Sin información** (si aplica).
 

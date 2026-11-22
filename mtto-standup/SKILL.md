@@ -1,6 +1,6 @@
 ---
 name: mtto-standup
-description: 'Revisión de cierre del día de los standups del equipo de Mantenimiento en #mtto. Compara el standup de hoy de cada colaborador con sus anteriores (Hoy vs. Hoy previo, TT que desaparecen sin cierre, cambios de ID de soporte a definitivo, formato TT - C/F/AP - Código, seguimiento copiado, contadores x2/x3, retrocesos de estatus, IDs mal escritos, errores de dedo, trabajo sin caso, eventos LDP/REABIERTO/ORIGEN faltantes, estancamiento) y redacta un mensaje directo para cada colaborador con lo que debe corregir. Antes lee lo que cada colaborador respondió por DM a la retro anterior: propone corregir la retro cuando la respuesta la invalida y guarda las aclaraciones aceptadas para que no se repitan. Solo muestra los borradores; con autorización explícita los deja como borrador en el DM de Slack para que Jorge los envíe (nunca los envía). Usar cuando digan "/mtto-standup", "revisa los standups", "revisión de standups de hoy", "/mtto-standup respuestas", "revisa qué contestaron a la retro".'
+description: 'Revisión de cierre del día de los standups del equipo de Mantenimiento en #mtto. Compara el standup de hoy de cada colaborador con sus anteriores (Hoy vs. Hoy previo, TT que desaparecen sin cierre, cambios de ID de soporte a definitivo, formato TT - C/F/AP - Código, seguimiento copiado, contadores x2/x3, retrocesos de estatus, IDs mal escritos, errores de dedo, trabajo sin caso, eventos LDP/REABIERTO/ORIGEN faltantes, estancamiento) y los contrasta con los correos de los casos (entrega, RSP, CEC, LDP y asignaciones con cambio de ID) como evidencia, y redacta un mensaje directo para cada colaborador con lo que debe corregir. Antes lee lo que cada colaborador respondió por DM a la retro anterior: propone corregir la retro cuando la respuesta la invalida y guarda las aclaraciones aceptadas para que no se repitan. Solo muestra los borradores; con autorización explícita los deja como borrador en el DM de Slack para que Jorge los envíe (nunca los envía). Usar cuando digan "/mtto-standup", "revisa los standups", "revisión de standups de hoy", "/mtto-standup respuestas", "revisa qué contestaron a la retro".'
 argument-hint: "[ayer (default) | hoy | dd/mm/aaaa | respuestas]"
 ---
 
@@ -15,14 +15,15 @@ de mensaje directo por colaborador y **solo dejas en Slack, como borrador, los q
 - `/mtto-standup dd/mm/aaaa`: flujo completo sobre esa fecha.
 - La **fecha revisada** es la que resulta de lo anterior; en el resto de la skill, "hoy" / "standup de hoy" se refiere a ella. Dila en la primera línea del Paso 4.
 - **Los borradores nunca dicen "hoy"**: el equipo registra por la tarde y Jorge envía la retro a la mañana siguiente (o el lunes, si registraron el viernes).
-  Si la fecha revisada es ayer, dilo así ("tu standup de ayer", "ayer TT##### decía…"); si no, nómbrala con día y fecha ("tu standup del viernes 30/10").
-  Los standups anteriores van siempre con día y fecha ("el miércoles 28/10 TT##### decía…").
+  Toda fecha del borrador (standups, retros anteriores) que sea ayer o antier respecto al día en que se redacta se dice así ("tu standup de ayer",
+  "te lo comenté antier", "antier TT##### decía…"); las demás, con día y fecha ("tu standup del viernes 30/10", "el miércoles 28/10 TT##### decía…").
 - **Día sin registros de nadie** (entre semana): probablemente fue festivo. El script no lo cuenta como hábil (huecos, contadores, estancados) y lo lista en `diasSinRegistro`.
 - `/mtto-standup respuestas`: solo el Paso 0 y su parte de los Pasos 4 y 5 (útil por la mañana, cuando ya contestaron la retro de la tarde anterior).
 
 **Script:** `C:\Users\jorge\.gemini\config\skills\mtto-standup\scripts\revisar.js` (Node, sin dependencias). JSON de trabajo en el scratchpad.
 **Comunes:** `C:\Users\jorge\.gemini\config\skills\mtto-comun` — equipo y canal (`equipo.json`), caché compartida de #mtto (`canal.md`, `canal.js`) y el parser de standups (`standup.js`), que también usan `/mtto-rendimiento`, `/mtto-fechas` y `/mtto-quincenal`.
 **Aclaraciones:** `C:\Users\jorge\.gemini\config\skills\mtto-standup\aclaraciones.json` (persistente; el script lo lee solo; ver "Aclaraciones" al final).
+**Correos:** caché `C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/datos/correos_mtto.json` (la arma `mtto-comun/correos.ps1`; `revisar.js` la lee solo y, sin ella, la revisión funciona sin correos).
 **Pruebas:** después de cambiar una regla en `revisar.js` o en `mtto-comun\standup.js`, corre `node "C:/Users/jorge/.gemini/config/skills/mtto-standup/pruebas/probar.js"` (ver "Pruebas" al final).
 
 ## Delegación (ahorro de tokens)
@@ -147,6 +148,8 @@ Sigue `C:\Users\jorge\.gemini\config\skills\mtto-comun\canal.md` (léelo): `node
 el subagente lector del canal y `node "C:\Users\jorge\.gemini\config\skills\mtto-comun\canal.js" unir`. Normalmente solo se leen los últimos días, porque lo anterior ya está en la caché.
 Si el helper de Slack falla por el token (p. ej. error de autenticación o token expirado no renovable) o la unión marca la lectura como incompleta, avisa y detente.
 
+Actualiza también la caché de correos: `powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\jorge\.gemini\config\skills\mtto-comun\correos.ps1"` (sin argumentos). Si falla Outlook, avisa y sigue sin correos.
+
 ## Paso 2 — Ejecutar la revisión
 
 ```powershell
@@ -158,15 +161,16 @@ Sin fecha, el script toma el último día con standups antes de hoy (igual que l
 Lee la caché de #mtto (los 10 días naturales anteriores a la fecha revisada), así que el Paso 1 debe haber terminado.
 Devuelve por colaborador `standupDeHoy`, `hora`, `hallazgos[]` (`regla`, `tt`, `detalle`), `estancados[]`, `faltantes[]` (días hábiles sin standup: `dia`, `ultimoStandup`; solo informativo), `aclarados[]`
 (hallazgos que cubre una aclaración vigente, con su `nota` y `fuente`; no se le vuelven a señalar al colaborador) y `cambiosId[]` (`antes`, `nuevo`, `fuente`: IDs unidos por la marca
-`(antes TT#####)` o por una aclaración), además de `diasSinRegistro` (días entre semana sin standup de nadie; no cuentan como hábiles) y `ttCompartidos` (con `tester` cuando alguien lo trae como `PRU`, `ESPBUG` o `FINPRU`).
+`(antes TT#####)`, por una aclaración o por un correo, que además trae `fecha` y `asunto`). Los hallazgos con evidencia de correo traen `evidencia` (`fecha`, `asunto`). También devuelve `anomaliasCorreo[]` (correos de entrega cuya ruta apunta a otro TT; solo para Jorge) y `diasSinRegistro` (días entre semana sin standup de nadie; no cuentan como hábiles) y `ttCompartidos` (con `tester` cuando alguien lo trae como `PRU`, `ESPBUG` o `FINPRU`).
 
 | Regla | Qué detecta |
 |---|---|
-| `sin-standup` | Faltan días hábiles entre su standup anterior y el de hoy **y** además hay un hallazgo de continuidad (`desaparece`, `copiado`, `contador`, `retroceso`, `evento`). Sin eso, el hueco solo va en `faltantes`. Si no publicó en la fecha revisada, tampoco es hallazgo: va en `faltantes` y se revisa cuando publique |
+| `sin-standup` | Faltan días hábiles entre su standup anterior y el de hoy **y** además hay un hallazgo de continuidad (`desaparece`, `cambio-id`, `copiado`, `contador`, `retroceso`, `sin-rsp`, `evento`, `correo`). Sin eso, el hueco solo va en `faltantes`. Si no publicó en la fecha revisada, tampoco es hallazgo: va en `faltantes` y se revisa cuando publique |
 | `estructura` | No hay casos en standby/seguimiento o (desde el 08/10/2026) todavía incluye "Ayer"/"Viernes" |
-| `desaparece` | Un TT de su "Hoy" anterior ya no aparece y su último estatus no era de cierre (RSP, LDP, CEC, cancelado) ni `REVPR`, y no hay un TT nuevo que lo continúe |
-| `cambio-id` | Un TT (o `TTsinidN`) desaparece sin cierre y hoy aparece uno nuevo (que no es `PRU`, `ESPBUG` ni `FINPRU`) del mismo tipo con dos o más palabras en común en el motivo, o el único TT nuevo cuando solo desapareció uno, sin la marca `(antes TT#####)` o `(antes sin ID)` |
-| `sin-rsp` | Un caso propio entra a pruebas (`ESPLDP`, `BUGPRU`, SDP, "en espera de LDP"), a `REVPR` o a `LDP` desde `ENT`, `EST` o trabajo, sin haber estado en RSP. De RSP a LDP directo sí vale (SCRUM, pruebas y liberación el mismo día). Solo si el TT ya aparecía en la ventana leída: si es nuevo en la ventana, su RSP pudo ser anterior |
+| `desaparece` | Un TT de su "Hoy" anterior ya no aparece y su último estatus no era de cierre (RSP, LDP, CEC, cancelado) ni `REVPR`, y no hay un TT nuevo que lo continúe. Solo si hay correo `cec` o `rsp` del propio colaborador, o `ldp`, posterior a su standup anterior, se emite `correo` en su lugar |
+| `cambio-id` | Un TT (o `TTsinidN`) desaparece sin cierre y hoy aparece uno nuevo (que no es `PRU`, `ESPBUG` ni `FINPRU`) del mismo tipo con dos o más palabras en común en el motivo, o el único TT nuevo cuando solo desapareció uno, sin la marca `(antes TT#####)` o `(antes sin ID)`. Si el `TTsinidN` tiene correo de asignación del TT nuevo (mismo día o día hábil anterior), agrega la `evidencia` y no une las historias. Con correo de asignación con relación `soporte` A→B dirigido al colaborador (en `para`), sin B como tester (`PRU`, `ESPBUG`, `FINPRU`), y el colaborador trajo A y luego B, une las historias (`cambiosId`, fuente correo) y, si la línea de B no trae `(antes A)`, el hallazgo es afirmativo y trae `evidencia` |
+| `sin-rsp` | Un caso propio entra a pruebas (`ESPLDP`, `BUGPRU`, SDP, "en espera de LDP"), a `REVPR` o a `LDP` desde `ENT`, `EST` o trabajo, sin haber estado en RSP. De RSP a LDP directo sí vale (SCRUM, pruebas y liberación el mismo día). Solo si el TT ya aparecía en la ventana leída: si es nuevo en la ventana, su RSP pudo ser anterior. No se emite si hay correo `rsp` del TT |
+| `correo` | El standup contradice un correo del propio colaborador enviado después de su standup anterior y hasta la hora del standup revisado (lo posterior se evalúa en el siguiente; los `RE:`/`RV:` no cuentan): `entrega` y el TT sigue en `R`, `AN`, `D` o `P` (en `PIL` no) → debió ir `ENT`; `rsp` y el TT no llegó a `RSP` ni a una etapa posterior → debió ir `RSP`; `cec` y el TT no aparece con `CEC` → debió aparecer con `CEC`; si el TT ya está en RSP o más allá (en el standup revisado o en su historial de la ventana), el detalle dice que el correo se mandó como CEC y que un caso que pasa a RSP lleva el correo «TT##### RSP» (CEC es solo para cerrar sin RSP), y si ya tiene `CEC` en el historial no hay hallazgo (si el correo dice que se atiende con otro TT, lo menciona; no es cambio de ID); `ldp` (del tester) de un TT propio sin `LDP` en el standup → debió ir `LDP` (si ya trae `LDP` y falta el evento, lo pide `evento`) |
 | `formato` | Solo desde `INICIO_CODIGOS`: línea con TT sin código de la tabla, sin tipo o con `M` (las mejoras van con `C`), con `CAN` (va `CEC`), o `P` fuera de standby / otro código en standby. Siempre (sin esperar `INICIO_CODIGOS`): `LDP` puesto por quien probó el caso como tester (va `FINPRU`), un `F` en `AN`, `D` o `PIL`, un `AP` con un código fuera de `P`, `R`, `ENT`, `EST`, `CEC`, `RSP` sin `Fecha Entrega dd/mm/aaaa` al final del motivo y `RSP` después de `REVPR` |
 | `copiado` | La sección de seguimiento es idéntica a la del standup anterior (ningún estatus ni contador cambió) |
 | `contador` | Un contador baja, salta más de lo que permiten los días transcurridos (uno por día hábil, contando los días sin standup) o desaparece con el mismo estatus |
@@ -188,9 +192,11 @@ El script es estricto a propósito. Antes de redactar, descarta o matiza:
 - `desaparece` cuando el último estatus fue "Entregado" o "en espera de respuesta" y es razonable que lo haya sacado; conviértelo en pregunta ("¿se cerró?") en lugar de corrección.
 - `ortografia` que sea una palabra válida o un nombre propio.
 - Si al leer los mensajes ves que un caso ya estaba en pruebas aunque el script no lo detectó (lo dijeron con otras palabras), descarta el `retroceso`: una vez iniciadas las pruebas no hay retroceso. Si un caso volvió a seguimiento para pruebas sin decirlo, sugiere indicarlo (p. ej. "SDP enviada", "En pruebas con el tester").
-- `cambio-id`: redáctalo siempre como pregunta ("¿TT12345 pasó a TT54321? Si es así, indícalo en la línea nueva con (antes TT12345)"). Si confirma por DM, propón
+- `cambio-id`: redáctalo como pregunta (salvo el de correo con relación `soporte`, que va afirmativo: "TT107050 pasó a TT107056 (correo de asignación del 19/10 «REVISIÓN DE FALLO: TT107056»); indícalo en la línea nueva con (antes TT107050)"; el que solo trae `evidencia` de un `TTsinidN` sigue siendo pregunta) ("¿TT12345 pasó a TT54321? Si es así, indícalo en la línea nueva con (antes TT12345)"). Si confirma por DM, propón
   la aclaración con `regla: "cambio-id"`, `tt` (el ID anterior) y `nuevo` (ver "Aclaraciones"). Si lo ves leyendo los mensajes aunque el script no lo marcó
   (desaparece un TT y aparece otro con otras palabras), conviértelo también en pregunta en lugar de `desaparece`.
+- `correo` y los hallazgos con `evidencia`: redáctalos como hecho, citando la fecha y el asunto del correo ("mandaste el CEC por correo el 17/11 («TT106803 CEC»); falta anotarlo con CEC en el standup"). Si el CEC por correo es de un caso que pasó a RSP, no pidas anotarlo con CEC: dile que el correo de ese caso es el de RSP («TT107583 RSP»). Si el correo contradice lo que el colaborador aclaró por DM, pregúntalo en lugar de corregir.
+  Entrega por correo con el caso en `P`: si el motivo habla del piloto (se entregó para pilotear), pregúntale si va `ENT` o `PIL`; si dice "en espera de respuesta", es `ENT`. Con el caso en `PIL` no se marca.
 - `formato`: los primeros días después de `INICIO_CODIGOS`, agrúpalo en una sola viñeta de recordatorio amable con la tabla de códigos, no una por línea.
 - Un caso que después de RSP vuelve con "corrección para liberación", "observaciones del PR" o similar es `REVPR`: no es retroceso ni cambio de ID.
   Si no trae el código, sugiere `TT##### - C/F - REVPR: <motivo>` en lugar de pedir REABIERTO.
@@ -210,7 +216,7 @@ El script es estricto a propósito. Antes de redactar, descarta o matiza:
    - Para cada `aclarado`: la entrada propuesta para `aclaraciones.json` (en bloque de código) y, si la retro original estaba mal, el borrador de
      **corrección**, que se envía como respuesta en el hilo de esa retro: "Tienes razón, <qué estaba mal>. Lo quito de la revisión. Gracias por aclararlo."
    - Para cada `desacuerdo`: las opciones para que Jorge decida (mantener la regla, excepción con `hasta`, cambiar la regla de la skill).
-3. **Para ti (no se envía):** estancados (TT, estatus, desde, días hábiles), `cambiosId` aplicados, TT compartidos, `faltantes` (quién no publicó y qué días), `diasSinRegistro` (probables días festivos), `aclarados` que aplicó el script, hallazgos descartados y por qué.
+3. **Para ti (no se envía):** estancados (TT, estatus, desde, días hábiles), `cambiosId` aplicados (los de fuente correo, con fecha y asunto), `anomaliasCorreo` (entrega con la ruta de otro TT: posible ID equivocado), TT compartidos, `faltantes` (quién no publicó y qué días), `diasSinRegistro` (probables días festivos), `aclarados` que aplicó el script, hallazgos descartados y por qué.
 4. **Borradores**, uno por colaborador con hallazgos, cada uno en un bloque de código para que se lea exacto:
 
 ```
@@ -222,7 +228,7 @@ Hola <nombre>, revisé tu standup del dd/mm contra los de días anteriores y enc
 ¿Me ayudas a corregirlo editando el mensaje del standup? Gracias.
 ```
 
-   Tono cordial y directo, tuteo, sin "hoy" para referirse al standup revisado ("ayer", o su día y fecha), sin regaños ni adjetivos. Máximo 5 viñetas por persona (prioriza: IDs, desaparece/cambio-id, retrocesos/sin-rsp/eventos, copiado/estructura/formato, ortografía).
+   Tono cordial y directo, tuteo, sin "hoy" para referirse al standup revisado ("ayer"/"antier" si aplica, o su día y fecha), sin regaños ni adjetivos. Máximo 5 viñetas por persona (prioriza: IDs, desaparece/cambio-id, retrocesos/sin-rsp/eventos, copiado/estructura/formato, ortografía).
    El mensaje sale de la cuenta de Jorge, así que no se firma. Un standup faltante no lleva borrador (regla 6); solo si Jorge lo pide:
    "Hola <nombre>, no encontré tu standup del dd/mm en #mtto. ¿Me ayudas a publicarlo?".
 5. Termina preguntando a quién se le deja el borrador, qué correcciones se dejan y qué aclaraciones se guardan.
@@ -252,4 +258,5 @@ Antes de proponer o guardar una entrada lee `references\aclaraciones.md` (campos
 `pruebas\probar.js` corre `revisar.js` sobre los standups de ejemplo de `pruebas\standups.json` (con `pruebas\aclaraciones.json`) y compara cada fecha con `pruebas\esperado\`.
 - Si una fecha cambia sin que la hayas tocado a propósito, la regla nueva rompió otra: corrígelo antes de entregar.
 - Si el cambio es el que se quería, revisa qué fechas cambiaron y guarda la salida nueva con `node "C:\Users\jorge\.gemini\config\skills\mtto-standup\pruebas\probar.js" --actualizar`.
+- Los correos de las pruebas están en `pruebas/correos.json` (formato de la caché; `probar.js` lo pasa con `MTTO_CORREOS`).
 - Una regla nueva lleva su caso: agrega a `standups.json` un standup que la dispare (y otro parecido que no deba dispararla) y actualiza.

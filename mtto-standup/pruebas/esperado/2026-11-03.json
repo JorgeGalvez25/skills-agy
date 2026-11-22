@@ -1,0 +1,138 @@
+{
+  "fecha": "03/11/2026",
+  "anomaliasCorreo": [],
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "16:10",
+      "hallazgos": [
+        {
+          "regla": "correo",
+          "tt": "TT108005",
+          "detalle": "TT108005: mandaste el CEC por correo el 02/11/2026, pero el caso ya no aparece; falta anotarlo con CEC en el standup (se atiende con TT108099).",
+          "evidencia": {
+            "fecha": "02/11/2026",
+            "asunto": "TT108005 CEC"
+          }
+        },
+        {
+          "regla": "correo",
+          "tt": "TT108009",
+          "detalle": "TT108009: mandaste el CEC por correo el 02/11/2026, pero el standup lo trae \"Revisando: error de cheques\"; falta anotarlo con CEC en el standup.",
+          "evidencia": {
+            "fecha": "02/11/2026",
+            "asunto": "TT108009 CEC"
+          }
+        },
+        {
+          "regla": "correo",
+          "tt": "TT108010",
+          "detalle": "TT108010: el tester mandó la LDP por correo el 02/11/2026, pero el standup lo trae \"En espera de LDP: nuevo reporte\"; falta anotarlo con LDP en el standup.",
+          "evidencia": {
+            "fecha": "02/11/2026",
+            "asunto": "LDP TT108010"
+          }
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:00",
+      "hallazgos": [
+        {
+          "regla": "sin-rsp",
+          "tt": "TT108013",
+          "detalle": "TT108013 pasó de \"Revisando: ajuste de inventario\" a \"En espera de LDP: ajuste de inventario\" sin pasar por RSP. Las pruebas con el tester empiezan después de RSP (cuando el cliente da por bueno el caso); el día en que quedó en RSP se anota con ese código."
+        },
+        {
+          "regla": "correo",
+          "tt": "TT108001",
+          "detalle": "TT108001: mandaste el correo de entrega el 02/11/2026, pero el standup lo trae \"Revisando: error de timbrado\"; debió ir ENT.",
+          "evidencia": {
+            "fecha": "02/11/2026",
+            "asunto": "ENTREGA TT108001"
+          }
+        },
+        {
+          "regla": "correo",
+          "tt": "TT108003",
+          "detalle": "TT108003: mandaste el RSP por correo el 02/11/2026, pero el standup lo trae \"Desarrollo: reporte de ventas\"; falta anotarlo con RSP en el standup.",
+          "evidencia": {
+            "fecha": "02/11/2026",
+            "asunto": "RSP TT108003"
+          }
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "03/11/2026",
+          "ultimoStandup": "27/10/2026"
+        }
+      ],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "16:20",
+      "hallazgos": [
+        {
+          "regla": "cambio-id",
+          "tt": "TTsinid1",
+          "detalle": "TTsinid1 estaba en su standup del 02/11/2026 (\"Revisando: error de poliza de nomina\") y ya no aparece; el 03/11/2026 aparece TT108020 (\"Revisando: error de poliza de nomina\"), que parece el mismo caso (correo de asignación de TT108020 del 03/11/2026 «REVISIÓN DE FALLO: TT108020»). Si cambió de ID, se indica en la línea nueva con \"(antes sin ID)\".",
+          "evidencia": {
+            "fecha": "03/11/2026",
+            "asunto": "REVISIÓN DE FALLO: TT108020"
+          }
+        },
+        {
+          "regla": "cambio-id",
+          "tt": "TT108040",
+          "detalle": "TT108040 pasó a TT108041 (correo de asignación del 03/11/2026 «REVISIÓN DE FALLO: TT108041»); indícalo en la línea nueva con (antes TT108040).",
+          "evidencia": {
+            "fecha": "03/11/2026",
+            "asunto": "REVISIÓN DE FALLO: TT108041"
+          }
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TT108030",
+          "nuevo": "TT108031",
+          "fuente": "marca del 03/11/2026"
+        },
+        {
+          "antes": "TT108040",
+          "nuevo": "TT108041",
+          "fuente": "correo",
+          "fecha": "03/11/2026",
+          "asunto": "REVISIÓN DE FALLO: TT108041"
+        }
+      ]
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 53,
+    "eventos": 4,
+    "aclaraciones": 2
+  }
+}

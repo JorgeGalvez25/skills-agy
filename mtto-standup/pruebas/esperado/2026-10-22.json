@@ -1,5 +1,6 @@
 {
   "fecha": "22/10/2026",
+  "anomaliasCorreo": [],
   "diasSinRegistro": [],
   "colaboradores": {
     "Saulo Lopez": {
@@ -59,20 +60,6 @@
         }
       ]
     },
-    "Martin Reyes": {
-      "standupDeHoy": true,
-      "hora": "17:20",
-      "hallazgos": [
-        {
-          "regla": "id",
-          "detalle": "\"Apoyo a soporte sin caso instalacion\": trabajo sin número de caso."
-        }
-      ],
-      "estancados": [],
-      "aclarados": [],
-      "faltantes": [],
-      "cambiosId": []
-    },
     "susana": {
       "standupDeHoy": false,
       "hora": null,
@@ -85,6 +72,20 @@
           "ultimoStandup": "20/10/2026"
         }
       ],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [
+        {
+          "regla": "id",
+          "detalle": "\"Apoyo a soporte sin caso instalacion\": trabajo sin número de caso."
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
       "cambiosId": []
     }
   },
@@ -101,8 +102,8 @@
     }
   ],
   "ventana": {
-    "standups": 42,
-    "eventos": 3,
+    "standups": 53,
+    "eventos": 4,
     "aclaraciones": 2
   }
 }

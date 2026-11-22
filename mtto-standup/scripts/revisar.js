@@ -2,6 +2,7 @@
 // Sin archivo, lee la caché compartida de #mtto (mtto-comun/canal.js; se actualiza con mtto-comun/canal.md) y toma
 // los VENTANA_DIAS días naturales anteriores a la fecha revisada. Con archivo (pruebas o una lectura suelta):
 // [{ "fecha": "2026-10-06 16:08", "autor": "Saulo Lopez", "texto": "..." }, ...] (o "ts" de Slack en lugar de "fecha").
+// Los correos de los casos (caché de ARCH_CORREOS, si existe) sirven de evidencia: cambios de ID, entregas, RSP, CEC y LDP enviados.
 // Revisa el último standup de cada colaborador del día indicado (por defecto el día hábil anterior; "hoy" para el día actual) contra sus standups anteriores
 // e imprime en JSON los hallazgos por colaborador.
 // Los hallazgos que coinciden con una aclaración vigente de ../aclaraciones.json (lo que el colaborador explicó por DM
@@ -9,10 +10,11 @@
 const fs = require('fs');
 const path = require('path');
 const COMUN = path.join(__dirname, '..', '..', 'mtto-comun');
-const { utc, dmy, leerFecha, fechaMensaje, esLaborable } = require(path.join(COMUN, 'fechas'));
+const { utc, dmy, iso, leerFecha, fechaMensaje, esLaborable } = require(path.join(COMUN, 'fechas'));
 const { sinAcentos, limpiar, RX_EVENTO, CODIGOS_TESTER, parsear } = require(path.join(COMUN, 'standup'));
 const canal = require(path.join(COMUN, 'canal'));
 const ARCH_ACLARACIONES = process.env.MTTO_ACLARACIONES || path.join(__dirname, '..', 'aclaraciones.json');   // la variable es para las pruebas
+const ARCH_CORREOS = process.env.MTTO_CORREOS || 'C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/datos/correos_mtto.json';   // caché de correos de los casos (mtto-comun/correos.ps1)
 
 const VENTANA_DIAS = 10;       // días naturales de standups anteriores a la fecha revisada que se comparan
 const DIAS_ESTANCADO = 5;      // días hábiles con el mismo estatus
@@ -95,6 +97,8 @@ function erroresDedo(texto) {
 }
 
 const RX_COMO_TESTER = /como tester/i;
+// Etapas (standup.js) del caso que ya pasó por RSP o más allá
+const ETAPAS_TRAS_RSP = ['rsp', 'revpr', 'pruebas', 'tester', 'ldp'];
 
 // Palabras que distinguen un caso (sin estatus ni palabras comunes), para reconocer un cambio de ID
 const COMUNES = new Set([...VOCAB, ...VALIDAS, 'cliente', 'clientes', 'fallo', 'cambio', 'mejora', 'continua', 'continuando', 'sigue', 'todavia',
@@ -148,6 +152,8 @@ try {
   const hoyN = new Date();
   const diaActual = utc(hoyN.getFullYear(), hoyN.getMonth() + 1, hoyN.getDate());
   const aclaraciones = fs.existsSync(ARCH_ACLARACIONES) ? JSON.parse(fs.readFileSync(ARCH_ACLARACIONES, 'utf8')) : [];
+  const todosCorreos = fs.existsSync(ARCH_CORREOS) ? JSON.parse(fs.readFileSync(ARCH_CORREOS, 'utf8')).correos || [] : [];
+  const equipo = JSON.parse(fs.readFileSync(path.join(COMUN, 'equipo.json'), 'utf8')).equipo;
 
   // Standups y eventos
   let standups, eventos;
@@ -179,10 +185,16 @@ try {
     crudos = crudos.filter(m => fechaMensaje(m).dia.getTime() >= desde);
     diasReg = cargar();
   }
+  // Correos de la ventana, hasta el fin de la fecha revisada (la regla `correo` corta en la hora del standup de cada colaborador)
+  const correos = todosCorreos.filter(c => c.fecha.slice(0, 10) >= iso(new Date(dia.getTime() - VENTANA_DIAS * 864e5)) && c.fecha.slice(0, 10) <= iso(dia));
+  const diaCorreo = c => fechaMensaje(c).dia;
   const conRegistro = new Set(diasReg);
   for (let t = diasReg[0]; t < diasReg[diasReg.length - 1]; t += 864e5) if (esHabil(new Date(t)) && !conRegistro.has(t)) sinRegistro.add(t);
 
-  const resultado = { fecha: dmy(dia), diasSinRegistro: [...sinRegistro].sort((a, b) => a - b).map(t => dmy(new Date(t))), colaboradores: {} };
+  // Anomalías: solo las de correos posteriores al día anterior con standups, para no repetirlas
+  const diaPrevio = diasReg.filter(t => t < dia.getTime()).pop() || 0;
+  const resultado = { fecha: dmy(dia), anomaliasCorreo: correos.filter(c => diaCorreo(c).getTime() > diaPrevio).flatMap(c => (c.relaciones || []).filter(x => x.tipo === 'anomalia')
+      .map(x => ({ tt: c.tt, otro: x.tt, fecha: dmy(diaCorreo(c)), asunto: c.asunto, evidencia: x.evidencia }))), diasSinRegistro: [...sinRegistro].sort((a, b) => a - b).map(t => dmy(new Date(t))), colaboradores: {} };
   for (const [autor, lista] of Object.entries(standups)) {
     // Uno por día: el último publicado
     const porDia = {};
@@ -203,9 +215,21 @@ try {
     });
     for (const a of aclaraciones) if (a.regla === 'cambio-id' && a.tt && a.nuevo && llave(a.colaborador) === llave(autor))
       alias.set(a.tt.toUpperCase(), { nuevo: a.nuevo.toUpperCase(), fuente: a.fuente || 'aclaración' });
+    // Correo de asignación con relación soporte A→B: el colaborador traía A y luego B
+    const correo = (equipo.find(e => llave(e.slack) === llave(autor)) || {}).correo;
+    const cambiosCorreo = [];
+    const primera = tt => serie.find(s => s.dia <= dia && s.bloques.some(b => b.items.some(i => i.tt === tt)));
+    // Solo si el caso es del colaborador: la asignación va para él y no trae el TT nuevo como tester
+    const esTester = tt => serie.some(s => s.bloques.some(b => b.items.some(i => i.tt === tt && CODIGOS_TESTER.includes(i.codigo))));
+    for (const c of correos) for (const x of c.relaciones || []) if (x.tipo === 'soporte' && !alias.has(x.tt) && (c.para || []).includes(correo) && !esTester(c.tt)) {
+      const a = primera(x.tt), b = primera(c.tt);
+      if (!a || !b || a.dia >= b.dia) continue;
+      alias.set(x.tt, { nuevo: c.tt, fuente: 'correo', fecha: dmy(diaCorreo(c)), asunto: c.asunto });
+      cambiosCorreo.push({ antes: x.tt, nuevo: c.tt, c, dia: b.dia });
+    }
     const destino = tt => { let t = tt, n = 0; while (alias.has(t) && n++ < 5) t = alias.get(t).nuevo; return t; };
     for (const s of serie) for (const b of s.bloques) for (const it of b.items) if (alias.has(it.tt)) { it.ttOriginal = it.tt; it.tt = destino(it.tt); }
-    for (const e of eventos) if (alias.has(e.tt)) e.tt = destino(e.tt);
+    const eventosC = eventos.map(e => ({ ...e, tt: destino(e.tt) })); // alias propios de este colaborador
     const act = serie.find(s => s.dia.getTime() === dia.getTime());
     const h = [];
     const r = { standupDeHoy: !!act, hora: act ? act.hora : null, hallazgos: h, estancados: [], aclarados: [], faltantes: [], cambiosId: [] };
@@ -219,9 +243,11 @@ try {
     const previos = serie.filter(s => s.dia < dia);
     const ant = previos[previos.length - 1];
     const bHoy = bloqueHoy(act);
+    let ayerHabil = dia;
+    do ayerHabil = new Date(ayerHabil.getTime() - 864e5); while (!esHabil(ayerHabil));
     // Estatus del TT en sus standups anteriores y hoy, en orden
     const historial = tt => [...previos, act].map(p => bloqueHoy(p).items.find(i => i.tt === tt)).filter(Boolean).map(i => i.estatus);
-    r.cambiosId = [...alias].filter(([, v]) => bHoy.items.some(i => i.tt === destino(v.nuevo))).map(([antes, v]) => ({ antes, nuevo: v.nuevo, fuente: v.fuente }));
+    r.cambiosId = [...alias].filter(([, v]) => bHoy.items.some(i => i.tt === destino(v.nuevo))).map(([antes, v]) => ({ antes, nuevo: v.nuevo, fuente: v.fuente, ...(v.asunto ? { fecha: v.fecha, asunto: v.asunto } : {}) }));
 
     // Estructura: solo secciones standby/seguimiento con casos, sin títulos de día
     const titulos = [...new Set(act.bloques.map(b => b.etiqueta).filter(e => e !== 'hoy'))];
@@ -251,7 +277,10 @@ try {
       const nuevos = [...mHoy.values()].filter(i => !RX_COMO_TESTER.test(i.estatus) &&!previos.some(p => p.bloques.some(b => b.items.some(x => x.tt === i.tt))));
       for (const [tt, it] of salen) {
         const par = parecido(it, nuevos, salen.length === 1);
-        if (par) h.push({ regla: 'cambio-id', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece; el ${dmy(dia)} aparece ${par.tt} ("${par.estatus}"), que parece el mismo caso. Si cambió de ID, se indica en la línea nueva con "(antes ${it.sinId ? 'sin ID' : tt})".` });
+        // TTsinidN: si el TT nuevo tiene correo de asignación del mismo día o del día hábil anterior, se agrega como evidencia (no se unen las historias)
+        const asig = par && it.sinId && correos.find(c => c.tipo === 'asignacion' && !c.respuesta && c.tt === par.tt && [dia.getTime(), ayerHabil.getTime()].includes(diaCorreo(c).getTime()));
+        if (par) h.push({ regla: 'cambio-id', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece; el ${dmy(dia)} aparece ${par.tt} ("${par.estatus}"), que parece el mismo caso${asig ? ` (correo de asignación de ${par.tt} del ${dmy(diaCorreo(asig))} «${asig.asunto}»)` : ''}. Si cambió de ID, se indica en la línea nueva con "(antes ${it.sinId ? 'sin ID' : tt})".`,
+          ...(asig ? { evidencia: { fecha: dmy(diaCorreo(asig)), asunto: asig.asunto } } : {}) });
         else h.push({ regla: 'desaparece', tt, detalle: `${tt} estaba en su standup del ${dmy(ant.dia)} ("${it.estatus}") y ya no aparece, sin estatus de cierre (RSP, LDP, CEC, cancelado).` });
       }
 
@@ -272,7 +301,7 @@ try {
         if (!ult || it.tipo === 'AP' || esCierre(ult.it.estatus) || !esRsp(ult.it.estatus) || esRevpr(it.estatus) || iniciaronPruebas(historial(tt))) continue;
         const r1 = rango(it.estatus);
         if (r1 < 1 || r1 > 2) continue;
-        if (eventos.some(e => e.tt === tt && e.tipo === 'REABIERTO' && e.dia >= ult.dia)) continue; // ya registrada
+        if (eventosC.some(e => e.tt === tt && e.tipo === 'REABIERTO' && e.dia >= ult.dia)) continue; // ya registrada
         h.push({ regla: 'retroceso', tt, detalle: `${tt} pasó de "${ult.it.estatus}" (${dmy(ult.dia)}) a "${it.estatus}" y no hay mensaje REABIERTO en el canal.` });
       }
       // Cerrado (CEC, cancelado, LDP) que reaparece. CEC o cancelado que regresa a trabajo es reapertura (lleva REABIERTO);
@@ -286,7 +315,7 @@ try {
           if (!esLdp(hoyEst)) detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}"). Después de la LDP el caso no se reabre: el problema nuevo va en otro TT (con ORIGEN si lo causó este).`;
         } else if (rango(hoyEst) < 5) {
           // Un AP (apoyo a soporte) nunca genera eventos: regresar a trabajo después de CEC no es reapertura
-          if (it.tipo !== 'AP' && mHoy.get(it.tt).tipo !== 'AP' && !eventos.some(e => e.tt === it.tt && e.tipo === 'REABIERTO' && e.dia >= p.dia))
+          if (it.tipo !== 'AP' && mHoy.get(it.tt).tipo !== 'AP' && !eventosC.some(e => e.tt === it.tt && e.tipo === 'REABIERTO' && e.dia >= p.dia))
             detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}") sin mensaje REABIERTO en el canal.`;
         } else
           detalle = `${it.tt} se reportó "${it.estatus}" el ${dmy(p.dia)} y vuelve a aparecer el ${dmy(dia)} ("${hoyEst}"). El cierre con CEC aparece solo el día en que se envía; en el siguiente standup el caso ya no va.`;
@@ -331,7 +360,7 @@ try {
         // REABIERTO aplica a lo que ya estuvo en RSP (si ya se marcó retroceso, no se repite)
         const tuvoRsp = it.tt && previos.some(p => bloqueHoy(p).items.some(x => x.tt === it.tt && !esCierre(x.estatus) && esRsp(x.estatus)));
         if (tuvoRsp && !esRevpr(it.estatus) && !iniciaronPruebas(historial(it.tt)) && !h.some(x => x.regla === 'retroceso' && x.tt === it.tt) &&
-          /reabr|regres[oó]|volvi[oó] a|otra vez|de nuevo/i.test(it.estatus) && !eventos.some(e => e.tt === it.tt && /REABIERTO|ORIGEN/.test(e.tipo)))
+          /reabr|regres[oó]|volvi[oó] a|otra vez|de nuevo/i.test(it.estatus) && !eventosC.some(e => e.tt === it.tt && /REABIERTO|ORIGEN/.test(e.tipo)))
           h.push({ regla: 'evento', tt: it.tt, detalle: `${it.tt} estuvo en RSP, el ${dmy(dia)} dice "${it.estatus}" y no hay mensaje REABIERTO u ORIGEN en el canal.` });
         // Las pruebas y la LDP de un caso propio van después de RSP: de ENT, EST o trabajo no se pasa directo a pruebas
         // (de RSP a LDP directo sí, si la SCRUM, las pruebas y la liberación son el mismo día). Solo si el TT ya aparecía antes en la ventana.
@@ -340,7 +369,8 @@ try {
           const antes = previos.map(p => bloqueHoy(p).items.find(x => x.tt === it.tt)).filter(Boolean);
           const prev = antes[antes.length - 1];
           const ests = antes.map(x => x.estatus);
-          if (prev && !esLdp(prev.estatus) && !ests.some(e => esRsp(e) || esRevpr(e)) && !iniciaronPruebas(ests) && !ests.some(e => RX_COMO_TESTER.test(e)))
+          if (prev && !esLdp(prev.estatus) && !ests.some(e => esRsp(e) || esRevpr(e)) && !iniciaronPruebas(ests) && !ests.some(e => RX_COMO_TESTER.test(e)) &&
+            !correos.some(c => c.tipo === 'rsp' && !c.respuesta && destino(c.tt) === it.tt)) // el correo RSP lo cubre
             h.push({ regla: 'sin-rsp', tt: it.tt, detalle: esRevpr(it.estatus)
               ? `${it.tt} pasó de "${prev.estatus}" a "${it.estatus}" sin pasar por RSP. REVPR es para corregir observaciones del PR de un caso que ya pasó por RSP; el día en que quedó en RSP se anota con ese código.`
               : `${it.tt} pasó de "${prev.estatus}" a "${it.estatus}" sin pasar por RSP. Las pruebas con el tester empiezan después de RSP (cuando el cliente da por bueno el caso); el día en que quedó en RSP se anota con ese código.` });
@@ -349,9 +379,45 @@ try {
         if (b === bHoy && it.codigo === 'LDP' && historial(it.tt).some(e => RX_COMO_TESTER.test(e)))
           h.push({ regla: 'formato', tt: it.tt, detalle: `"${it.linea}": LDP es solo del dueño del caso; quien lo probó como tester cierra con FINPRU (sin evento).` });
         // El evento LDP lo publica el desarrollador responsable; quien lo probó como tester (PRU, ESPBUG) no
-        if (it.tt && esLdp(it.estatus) && !historial(it.tt).some(e => RX_COMO_TESTER.test(e)) && !eventos.some(e => e.tt === it.tt && /LDP|LIBERADO/.test(e.tipo)))
+        if (it.tt && esLdp(it.estatus) && !historial(it.tt).some(e => RX_COMO_TESTER.test(e)) && !eventosC.some(e => e.tt === it.tt && /LDP|LIBERADO/.test(e.tipo)))
           h.push({ regla: 'evento', tt: it.tt, detalle: `${it.tt} dice "${it.estatus}" y no hay mensaje LDP en el canal.` });
       }
+    }
+
+    // Correos: cambio de ID por correo sin la marca en la línea nueva, y lo que el colaborador envió (o el tester, LDP)
+    // después de su standup anterior y que el standup contradice
+    const ev = c => ({ fecha: dmy(diaCorreo(c)), asunto: c.asunto });
+    for (const x of cambiosCorreo.filter(x => x.dia.getTime() === dia.getTime()))
+      h.push({ regla: 'cambio-id', tt: x.antes, detalle: `${x.antes} pasó a ${x.nuevo} (correo ${x.c.tipo === 'asignacion' ? 'de asignación ' : ''}del ${dmy(diaCorreo(x.c))} «${x.c.asunto}»); indícalo en la línea nueva con (antes ${x.antes}).`, evidencia: ev(x.c) });
+    if (ant) {
+      const etapas = tt => [...previos, act].map(p => bloqueHoy(p).items.find(i => i.tt === tt)).filter(Boolean).map(i => i.etapa);
+      const desdeAnt = `${iso(ant.dia)} ${ant.hora || '23:59'}`, hastaHoy = `${iso(dia)} ${act.hora || '23:59'}`; // lo posterior a este standup se evalúa en el siguiente
+      const soporteDe = new Map(correos.flatMap(c => (c.relaciones || []).filter(x => x.tipo === 'soporte').map(x => [c.tt, x.tt]))); // ID nuevo -> ID de soporte
+      const conCorreo = new Set(), vistos = new Set();
+      for (const c of correos.filter(c => !c.respuesta && c.fecha > desdeAnt && c.fecha <= hastaHoy)) {
+        const ttC = destino(c.tt), it = bHoy.items.find(i => i.tt === ttC) || bHoy.items.find(i => i.tt === soporteDe.get(ttC)), tt = it ? it.tt : ttC, clave = tt + c.tipo;
+        if (vistos.has(clave)) continue;
+        const mio = c.de === correo, f = dmy(diaCorreo(c));
+        const estaba = it ? `el standup lo trae "${it.estatus}"` : 'el caso ya no aparece';
+        let detalle = null;
+        if (mio && c.tipo === 'entrega' && it && ['trabajo', 'pausa'].includes(it.etapa) && it.codigo !== 'PIL')
+          detalle = `${tt}: mandaste el correo de entrega el ${f}, pero ${estaba}; debió ir ENT.`;
+        else if (mio && c.tipo === 'rsp' && !etapas(tt).some(e => ETAPAS_TRAS_RSP.includes(e)))
+          detalle = `${tt}: mandaste el RSP por correo el ${f}, pero ${estaba}; falta anotarlo con RSP en el standup.`;
+        else if (mio && c.tipo === 'cec' && etapas(tt).some(e => ETAPAS_TRAS_RSP.includes(e)) && !etapas(tt).includes('cierre'))
+          detalle = `${tt}: el ${f} mandaste el correo «${c.asunto}», pero el caso pasó a RSP; un caso que va a RSP lleva el correo «${tt} RSP» (CEC es solo para cerrar sin RSP).`;
+        else if (mio && c.tipo === 'cec' && !etapas(tt).includes('cierre')) {
+          const con = (c.relaciones || []).find(x => x.tipo === 'atiende-con');
+          detalle = `${tt}: mandaste el CEC por correo el ${f}, pero ${estaba}; falta anotarlo con CEC en el standup${con ? ` (se atiende con ${con.tt})` : ''}.`;
+        } else if (c.tipo === 'ldp' && historial(tt).length && !historial(tt).some(e => RX_COMO_TESTER.test(e)) && !etapas(tt).includes('ldp'))
+          detalle = `${tt}: el tester mandó la LDP por correo el ${f}, pero ${estaba}; falta anotarlo con LDP en el standup.`;
+        if (!detalle) continue;
+        vistos.add(clave);
+        if (c.tipo !== 'entrega') conCorreo.add(tt);
+        h.push({ regla: 'correo', tt, detalle, evidencia: ev(c) });
+      }
+      // El correo explica por qué el caso salió del standup
+      for (let i = h.length - 1; i >= 0; i--) if (h[i].regla === 'desaparece' && conCorreo.has(h[i].tt)) h.splice(i, 1);
     }
 
     // Estancamiento y trabajo sin caso a lo largo de la serie
@@ -375,7 +441,7 @@ try {
     }
 
     // Hueco de standups: solo se señala si al comparar con el anterior algo no cuadra
-    const CONTINUIDAD = ['desaparece', 'cambio-id', 'copiado', 'contador', 'retroceso', 'sin-rsp', 'evento'];
+    const CONTINUIDAD = ['desaparece', 'cambio-id', 'copiado', 'contador', 'retroceso', 'sin-rsp', 'evento', 'correo'];
     if (faltan > 0 && h.some(x => CONTINUIDAD.includes(x.regla)))
       h.unshift({ regla: 'sin-standup', detalle: `No hay standup en ${faltan} día(s) hábil(es) entre el ${dmy(ant.dia)} y el ${dmy(dia)}, y al comparar con el del ${dmy(ant.dia)} hay cambios sin explicar.` });
 

@@ -15,17 +15,18 @@ const actualizar = process.argv.includes('--actualizar');
 
 // Se revisa cada día que tiene standups
 const dias = [...new Set(JSON.parse(fs.readFileSync(MENSAJES, 'utf8')).map(m => m.fecha.slice(0, 10)))].sort();
-const resumen = r => Object.entries(r.colaboradores || {}).flatMap(([autor, c]) => [
-  ...c.hallazgos.map(h => `${autor} | ${h.regla} | ${h.tt || '-'}`),
+const resumen = r => [...(r.anomaliasCorreo || []).map(a => `anomalía de correo | ${a.tt} -> ${a.otro} | ${a.fecha}`),
+  ...Object.entries(r.colaboradores || {}).flatMap(([autor, c]) => [
+  ...c.hallazgos.map(h => `${autor} | ${h.regla} | ${h.tt || '-'}${h.evidencia ? ` | correo ${h.evidencia.fecha} «${h.evidencia.asunto}»` : ''}`),
   ...c.estancados.map(e => `${autor} | estancados | ${e.tt}`),
   ...c.aclarados.map(a => `${autor} | aclarado:${a.regla} | ${a.tt || '-'}`),
-  ...c.cambiosId.map(x => `${autor} | cambio aplicado | ${x.antes} -> ${x.nuevo}`)]);
+  ...c.cambiosId.map(x => `${autor} | cambio aplicado | ${x.antes} -> ${x.nuevo} | ${x.fuente}`)])];
 
 let fallas = 0, hallazgos = 0;
 for (const d of dias) {
   const fecha = `${d.slice(8)}/${d.slice(5, 7)}/${d.slice(0, 4)}`;
   const p = spawnSync(process.execPath, [REVISAR, MENSAJES, fecha], { encoding: 'utf8',
-    env: { ...process.env, MTTO_ACLARACIONES: path.join(AQUI, 'aclaraciones.json'), MTTO_FERIADOS_EXTRA: path.join(AQUI, 'sin-feriados-extra.json') } });
+    env: { ...process.env, MTTO_ACLARACIONES: path.join(AQUI, 'aclaraciones.json'), MTTO_CORREOS: path.join(AQUI, 'correos.json'), MTTO_FERIADOS_EXTRA: path.join(AQUI, 'sin-feriados-extra.json') } });
   if (p.status !== 0) { console.log(`✗ ${fecha}: revisar.js terminó con error\n${p.stderr || p.stdout}`); fallas++; continue; }
   const arch = path.join(ESPERADO, `${d}.json`);
   const actual = JSON.parse(p.stdout);

@@ -1,5 +1,6 @@
 {
   "fecha": "27/10/2026",
+  "anomaliasCorreo": [],
   "diasSinRegistro": [],
   "colaboradores": {
     "Saulo Lopez": {
@@ -30,27 +31,6 @@
       ],
       "cambiosId": []
     },
-    "Martin Reyes": {
-      "standupDeHoy": true,
-      "hora": "17:20",
-      "hallazgos": [
-        {
-          "regla": "copiado",
-          "detalle": "La sección de seguimiento es idéntica a la del standup del 26/10/2026: ningún caso cambió de estatus ni de contador."
-        }
-      ],
-      "estancados": [
-        {
-          "tt": "TT105500",
-          "estatus": "Desarrollo: multi-estación JAG",
-          "desde": "19/10/2026",
-          "diasHabiles": 6
-        }
-      ],
-      "aclarados": [],
-      "faltantes": [],
-      "cambiosId": []
-    },
     "susana": {
       "standupDeHoy": true,
       "hora": "16:08",
@@ -72,12 +52,33 @@
       "aclarados": [],
       "faltantes": [],
       "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": true,
+      "hora": "17:20",
+      "hallazgos": [
+        {
+          "regla": "copiado",
+          "detalle": "La sección de seguimiento es idéntica a la del standup del 26/10/2026: ningún caso cambió de estatus ni de contador."
+        }
+      ],
+      "estancados": [
+        {
+          "tt": "TT105500",
+          "estatus": "Desarrollo: multi-estación JAG",
+          "desde": "19/10/2026",
+          "diasHabiles": 6
+        }
+      ],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
     }
   },
   "ttCompartidos": [],
   "ventana": {
-    "standups": 42,
-    "eventos": 3,
+    "standups": 53,
+    "eventos": 4,
     "aclaraciones": 2
   }
 }

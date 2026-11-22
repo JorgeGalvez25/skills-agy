@@ -1,5 +1,6 @@
 {
   "fecha": "19/10/2026",
+  "anomaliasCorreo": [],
   "diasSinRegistro": [],
   "colaboradores": {
     "Saulo Lopez": {
@@ -43,6 +44,33 @@
       "faltantes": [],
       "cambiosId": []
     },
+    "susana": {
+      "standupDeHoy": true,
+      "hora": "16:06",
+      "hallazgos": [
+        {
+          "regla": "cambio-id",
+          "tt": "TT107050",
+          "detalle": "TT107050 pasó a TT107056 (correo de asignación del 19/10/2026 «REVISIÓN DE FALLO: TT107056»); indícalo en la línea nueva con (antes TT107050).",
+          "evidencia": {
+            "fecha": "19/10/2026",
+            "asunto": "REVISIÓN DE FALLO: TT107056"
+          }
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": [
+        {
+          "antes": "TT107050",
+          "nuevo": "TT107056",
+          "fuente": "correo",
+          "fecha": "19/10/2026",
+          "asunto": "REVISIÓN DE FALLO: TT107056"
+        }
+      ]
+    },
     "Martin Reyes": {
       "standupDeHoy": true,
       "hora": "17:20",
@@ -51,26 +79,12 @@
       "aclarados": [],
       "faltantes": [],
       "cambiosId": []
-    },
-    "susana": {
-      "standupDeHoy": false,
-      "hora": null,
-      "hallazgos": [],
-      "estancados": [],
-      "aclarados": [],
-      "faltantes": [
-        {
-          "dia": "19/10/2026",
-          "ultimoStandup": null
-        }
-      ],
-      "cambiosId": []
     }
   },
   "ttCompartidos": [],
   "ventana": {
-    "standups": 42,
-    "eventos": 3,
+    "standups": 53,
+    "eventos": 4,
     "aclaraciones": 2
   }
 }

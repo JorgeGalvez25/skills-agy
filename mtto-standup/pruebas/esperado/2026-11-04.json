@@ -1,0 +1,78 @@
+{
+  "fecha": "04/11/2026",
+  "anomaliasCorreo": [],
+  "diasSinRegistro": [],
+  "colaboradores": {
+    "Saulo Lopez": {
+      "standupDeHoy": true,
+      "hora": "16:10",
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "Miguel Armenta": {
+      "standupDeHoy": true,
+      "hora": "16:00",
+      "hallazgos": [
+        {
+          "regla": "correo",
+          "tt": "TT108050",
+          "detalle": "TT108050: el 04/11/2026 mandaste el correo «TT108050 CEC», pero el caso pasó a RSP; un caso que va a RSP lleva el correo «TT108050 RSP» (CEC es solo para cerrar sin RSP).",
+          "evidencia": {
+            "fecha": "04/11/2026",
+            "asunto": "TT108050 CEC"
+          }
+        },
+        {
+          "regla": "correo",
+          "tt": "TT108080",
+          "detalle": "TT108080: mandaste el RSP por correo el 04/11/2026, pero el standup lo trae \"Revisando: error de ordenes\"; falta anotarlo con RSP en el standup.",
+          "evidencia": {
+            "fecha": "04/11/2026",
+            "asunto": "RSP TT108081"
+          }
+        }
+      ],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [],
+      "cambiosId": []
+    },
+    "susana": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "04/11/2026",
+          "ultimoStandup": "27/10/2026"
+        }
+      ],
+      "cambiosId": []
+    },
+    "Martin Reyes": {
+      "standupDeHoy": false,
+      "hora": null,
+      "hallazgos": [],
+      "estancados": [],
+      "aclarados": [],
+      "faltantes": [
+        {
+          "dia": "04/11/2026",
+          "ultimoStandup": "03/11/2026"
+        }
+      ],
+      "cambiosId": []
+    }
+  },
+  "ttCompartidos": [],
+  "ventana": {
+    "standups": 53,
+    "eventos": 4,
+    "aclaraciones": 2
+  }
+}
