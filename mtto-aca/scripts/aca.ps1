@@ -64,10 +64,10 @@ $saludo = if ((Get-Date).Hour -lt 12) { 'buen día' } else { 'buenas tardes' }
 $nombre = $dev.Split(' ')[0]
 $cid = "aca$($TT.ToLower())"
 $firma = "style='color:#2F5496'"
-# Ancho máximo de 1320 px (ancho del cuerpo del correo en pantalla de 1080p) para que la captura quepa completa en la ventana del correo
+# La captura se incluye con su tamaño original
 Add-Type -AssemblyName System.Drawing
 $img = [Drawing.Image]::FromFile((Resolve-Path $Imagen).Path)
-$ancho = [Math]::Min($img.Width, 1320); $alto = [Math]::Round($img.Height * $ancho / $img.Width)
+$ancho = $img.Width; $alto = $img.Height
 # Estilo "Rectángulo con sombra": sombra difusa abajo a la derecha, dibujada en un PNG con fondo transparente
 $d = 3; $blur = 5
 $bmp = New-Object Drawing.Bitmap ([int]($ancho + $d + $blur * 2)), ([int]($alto + $d + $blur * 2))
