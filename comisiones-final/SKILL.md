@@ -1,12 +1,12 @@
 ---
 name: comisiones-final
-description: Genera el concentrado mensual de comisiones de Mantenimiento (Mantenimiento_Comisiones_<Mes>_<año>.xlsx). Se ejecuta desde la carpeta del mes (C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Comisiones\<año>\YYYYMM-Mes), toma como base el concentrado del mes anterior, llena los cambios externos con el externos.PDF del mes y los internos con los HorasCambioTT#####.xlsx de CambiosInternos tal como estén guardados, y conserva igual la hoja Mejoras. Usar cuando digan "/comisiones-final", "genera el concentrado de comisiones", "archivo final de comisiones" o "Mantenimiento_Comisiones del mes".
+description: Genera el concentrado mensual de comisiones de Mantenimiento (Mantenimiento_Comisiones_<Mes>_<año>.xlsx). Se ejecuta desde la carpeta del mes (C:\Users\jorge\Dropbox\MTTO\Reportes Mensuales\Comisiones\<año>\YYYYMM-Mes), toma como base el concentrado del mes anterior, llena los cambios externos con el externos.PDF del mes y los internos con los HorasCambioTT#####.xlsx de CambiosInternos tal como estén guardados, y conserva igual la hoja Mejoras. Si el Excel ya existe, deja en Outlook el borrador del correo "Resumen de comisiones" con el archivo adjunto. Usar cuando digan "/comisiones-final", "genera el concentrado de comisiones", "archivo final de comisiones" o "Mantenimiento_Comisiones del mes".
 ---
 
 # Concentrado mensual de comisiones (/comisiones-final)
 
 Generas el archivo final con todas las comisiones del mes, con las mismas fórmulas y el mismo formato del mes anterior.
-Va después de `/comisiones-internos` (que crea los `HorasCambioTT#####.xlsx`) y de que el usuario los haya revisado o editado.
+Si el Excel del mes ya existe, la skill solo deja el borrador del correo (ver el final). Va después de `/comisiones-internos` (que crea los `HorasCambioTT#####.xlsx`) y de que el usuario los haya revisado o editado.
 
 - **Carpeta de la skill:** `C:\Users\jorge\.gemini\config\skills\comisiones-final`.
 - **Carpeta del mes** (`$MES`): la carpeta de trabajo actual, con nombre `YYYYMM-Mes` (por ejemplo `202609-Septiembre`).
@@ -89,3 +89,37 @@ Si falla:
 3. El total de externos, internos y general, y el resumen por beneficiario.
 4. Los TT arrastrados con pago pendiente (se listan como `Pago k/N` en la columna Colab.) y los que terminaron su último pago.
 5. Si algo no cuadra (un TT sin título o un externo sin beneficiario), dilo.
+
+## Borrador del correo (cuando el Excel ya está generado)
+
+Si `Mantenimiento_Comisiones_<Mes>_<año>.xlsx` ya existe en la carpeta del mes y el usuario no pide regenerarlo, **no corras `concentrado.ps1`**: deja el borrador en Outlook con el archivo tal como esté guardado (incluye las ediciones del usuario).
+
+```powershell
+& 'C:\Users\jorge\.gemini\config\skills\comisiones-final\scripts\correo.ps1'
+```
+
+Usa la herramienta PowerShell con un timeout de unos 120000 ms. **No lo envía.** Reemplaza el borrador previo con el mismo asunto. Si el Excel está abierto, se detiene; pide al usuario que lo cierre y vuelve a correrlo.
+
+Redacción fija, tomada del correo de octubre 2026 (`<mes>` en minúscula; el de pago es el mes siguiente, con su año):
+
+- **Para:** `'rosaescalante@imagensoft.com.mx'; Ma. Esther Ahumada (estherahumada@imagensoft.com.mx)`
+- **CC:** `'jorgeorduno@imagensoft.com.mx'`
+- **Asunto:** `Resumen de comisiones de <mes> de <año>`
+- **Adjunto:** el concentrado del mes.
+- **Cuerpo:**
+
+```
+Buen día,
+
+Envío resumen de comisiones correspondientes al mes de <mes> de <año> a pagar en <mes de pago> de <año de pago>.
+
+Cualquier duda o comentario quedo a la orden.
+
+Saludos…
+
+
+Jorge Armando Gálvez Martínez
+Analista - Desarrollador
+```
+
+En el chat, entrega el asunto, los destinatarios y la fecha de guardado del Excel adjunto, y si reemplazó un borrador anterior.
