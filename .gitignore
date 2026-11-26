@@ -10,6 +10,7 @@
 !/rcalidad/
 !/rfallos/
 !/rpdf/
+!/vtiger/
 
 # Dependencias (se reinstalan con npm install)
 node_modules/

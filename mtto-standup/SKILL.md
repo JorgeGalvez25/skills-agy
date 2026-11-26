@@ -24,6 +24,7 @@ de mensaje directo por colaborador y **solo dejas en Slack, como borrador, los q
 **Comunes:** `C:\Users\jorge\.gemini\config\skills\mtto-comun` — equipo y canal (`equipo.json`), caché compartida de #mtto (`canal.md`, `canal.js`) y el parser de standups (`standup.js`), que también usan `/mtto-rendimiento`, `/mtto-fechas` y `/mtto-quincenal`.
 **Aclaraciones:** `C:\Users\jorge\.gemini\config\skills\mtto-standup\aclaraciones.json` (persistente; el script lo lee solo; ver "Aclaraciones" al final).
 **Correos:** caché `C:/Users/jorge/Dropbox/MTTO/ReportesMTTO/datos/correos_mtto.json` (la arma `mtto-comun/correos.ps1`; `revisar.js` la lee solo y, sin ella, la revisión funciona sin correos).
+**VTiger:** estado actual de los casos con `C:\Users\jorge\.gemini\config\skills\mtto-comun\vtiger.js` (Paso 2b). Es evidencia adicional; no reemplaza a los correos. Credenciales en `C:\Users\jorge\.mtto\vtiger.json`; nunca las muestres.
 **Pruebas:** después de cambiar una regla en `revisar.js` o en `mtto-comun\standup.js`, corre `node "C:/Users/jorge/.gemini/config/skills/mtto-standup/pruebas/probar.js"` (ver "Pruebas" al final).
 
 ## Delegación (ahorro de tokens)
@@ -185,6 +186,26 @@ Devuelve por colaborador `standupDeHoy`, `hora`, `hallazgos[]` (`regla`, `tt`, `
 (p. ej. "Apoyo servidores JAG") pueden ir sin TT; solo llevan número de caso cuando él lo reporta. El script no marca `id` ni `sin-caso`
 en esas líneas, y tú tampoco le pidas TT por ellas. Las demás reglas sí aplican (si trae TT, se sigue como cualquier caso). La excepción es solo de Martín y del cliente JAG.
 
+## Paso 2b — Contrastar con VTiger
+
+Guarda la salida de `revisar.js` en el scratchpad y consulta en VTiger todos los TT que menciona:
+
+```powershell
+$tts = (Select-String -Path "<scratchpad>\revision.json" -Pattern 'TT\d{5,}' -AllMatches).Matches.Value | Sort-Object -Unique
+if ($tts) { node "C:\Users\jorge\.gemini\config\skills\mtto-comun\vtiger.js" casos @tts > "<scratchpad>\vtiger.json" }
+```
+
+Por TT trae `tipo`, `estatus` (del flujo), `ticketstatus`, `asignado`, `soporte` (ID de soporte, `cf_1275`), `definitivos` (casos que lo tienen como soporte) y `fechas` con valor; `faltan` son los TT que no existen en VTiger.
+Si VTiger falla, avisa y sigue sin él. Úsalo en el Paso 3:
+
+- **`cambio-id`:** si el TT nuevo tiene como `soporte` al anterior (o el anterior lo trae en `definitivos`), el cambio de ID es un hecho: redáctalo afirmativo, citando VTiger, igual que el de correo con relación `soporte`.
+- **`desaparece`:** si VTiger tiene el caso cerrado (`ticketstatus` Closed, estatus Terminado, Cerrado, Liberado o Cancelado), pregunta por el cierre que falta en el standup (CEC, RSP o LDP) en lugar de "¿se cerró?".
+- **`faltan`:** un TT del standup que no existe en VTiger es un ID mal escrito; súmalo a la regla `id`.
+- **VTiger atrasado (va al colaborador):** cada desarrollador mueve sus propios casos en VTiger (rol H38). Si el standup revisado trae el caso en `ENT` (o posterior) y VTiger no está en Entregado ni más adelante, o trae `LDP` y VTiger no está en Liberado ni más adelante, agrégalo como viñeta: "TT##### lo traes en ENT y en VTiger sigue en Codificando; muévelo a Entregado". Otras diferencias de etapa van en las discrepancias para Jorge.
+- **Comentarios del caso:** para cada `desaparece`, `copiado` y estancado, lee los comentarios recientes con `vtiger.js caso TT#####` (los de los últimos 5 días hábiles). Si un comentario explica el estado (el cliente respondió, se canceló, se espera información), úsalo como evidencia, cita fecha y autor, y no le preguntes al colaborador lo que ya dice ahí.
+- **Casos olvidados:** consulta `vtiger.js tablero <colaborador>` por cada colaborador con standup. Un caso abierto asignado a él, en estatus de trabajo (Cambio en Analizando o Codificando; Fallo en Revisión, Codificando o Corrección de bugs), que no aparece en ningún standup de la ventana, va en "Para ti" con su estatus y su fecha de asignación (`cf_1066`).
+- **Discrepancias para Jorge** (no se le señalan al colaborador): VTiger lo tiene cerrado y el standup lo sigue trabajando; el `asignado` de VTiger no es quien lo trae en su standup (salvo como tester); otras diferencias de etapa entre el standup y VTiger.
+
 ## Paso 3 — Depurar (tu criterio)
 
 El script es estricto a propósito. Antes de redactar, descarta o matiza:
@@ -216,7 +237,7 @@ El script es estricto a propósito. Antes de redactar, descarta o matiza:
    - Para cada `aclarado`: la entrada propuesta para `aclaraciones.json` (en bloque de código) y, si la retro original estaba mal, el borrador de
      **corrección**, que se envía como respuesta en el hilo de esa retro: "Tienes razón, <qué estaba mal>. Lo quito de la revisión. Gracias por aclararlo."
    - Para cada `desacuerdo`: las opciones para que Jorge decida (mantener la regla, excepción con `hasta`, cambiar la regla de la skill).
-3. **Para ti (no se envía):** estancados (TT, estatus, desde, días hábiles), `cambiosId` aplicados (los de fuente correo, con fecha y asunto), `anomaliasCorreo` (entrega con la ruta de otro TT: posible ID equivocado), TT compartidos, `faltantes` (quién no publicó y qué días), `diasSinRegistro` (probables días festivos), `aclarados` que aplicó el script, hallazgos descartados y por qué.
+3. **Para ti (no se envía):** estancados (TT, estatus, desde, días hábiles), `cambiosId` aplicados (los de fuente correo, con fecha y asunto), `anomaliasCorreo` (entrega con la ruta de otro TT: posible ID equivocado), TT compartidos, `faltantes` (quién no publicó y qué días), `diasSinRegistro` (probables días festivos), `aclarados` que aplicó el script, hallazgos descartados y por qué, los casos olvidados y las discrepancias con VTiger del Paso 2b (si Jorge quiere corregir VTiger, usa `/vtiger`).
 4. **Borradores**, uno por colaborador con hallazgos, cada uno en un bloque de código para que se lea exacto:
 
 ```
@@ -228,7 +249,7 @@ Hola <nombre>, revisé tu standup del dd/mm contra los de días anteriores y enc
 ¿Me ayudas a corregirlo editando el mensaje del standup? Gracias.
 ```
 
-   Tono cordial y directo, tuteo, sin "hoy" para referirse al standup revisado ("ayer"/"antier" si aplica, o su día y fecha), sin regaños ni adjetivos. Máximo 5 viñetas por persona (prioriza: IDs, desaparece/cambio-id, retrocesos/sin-rsp/eventos, copiado/estructura/formato, ortografía).
+   Tono cordial y directo, tuteo, sin "hoy" para referirse al standup revisado ("ayer"/"antier" si aplica, o su día y fecha), sin regaños ni adjetivos. Máximo 5 viñetas por persona (prioriza: IDs, desaparece/cambio-id, retrocesos/sin-rsp/eventos, VTiger atrasado, copiado/estructura/formato, ortografía).
    El mensaje sale de la cuenta de Jorge, así que no se firma. Un standup faltante no lleva borrador (regla 6); solo si Jorge lo pide:
    "Hola <nombre>, no encontré tu standup del dd/mm en #mtto. ¿Me ayudas a publicarlo?".
 5. Termina preguntando a quién se le deja el borrador, qué correcciones se dejan y qué aclaraciones se guardan.

@@ -13,7 +13,7 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)] [fecha reu
 - **Si el Excel no existe** se crea copiando `references\plantilla.xlsx` (formato oficial tomado de la 4.3.11.0: tabla `Table2`, `TableStyleMedium2`, anchos 8 / 11.5 / 62.88 / 6.5 / 19.63 / 18 / 14 / 51.75 / 30.25 / 77.38 / 9.5 / 15.38, texto ajustado en C y H–J, alineación superior, K como texto, L `dd/mm/aaaa`). Los casos salen **solo de los informes** (decisión de Jorge); los TT sin informe no aparecen y se avisan. A–E salen de la ficha del informe:
   - **ID** = TT del nombre; **Descripción** = nombre del archivo tras `_IC_`, normalizado a `TT##### - …`.
   - **Tipo** = `Cambio` si la ficha dice Cambio, si no `Fallo` (Corrección).
-  - **ID Soporte** = el otro TT entre paréntesis en "Ticket VTiger" solo si es Fallo; si no hay, o es Cambio, `-`. Los Fallos que quedan en `-` se avisan (el ID de soporte viene de VTiger y a veces no está en el informe).
+  - **ID Soporte** = el otro TT entre paréntesis en "Ticket VTiger" solo si es Fallo; si no hay, o es Cambio, `-`. Los Fallos sin él en el informe lo toman de VTiger (paso 1); los que siguen en `-` se avisan.
   - **Responsable** = desarrollador normalizado. Orden de filas: Martín, Miguel, Saulo, Susana; Fallos antes que Cambios; número de TT.
 - **Si el Excel existe** no se tocan A–E ni el orden; solo se llena el Tester donde esté vacío y G–L.
 
@@ -25,6 +25,11 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)] [fecha reu
    ```
    Genera `<scratchpad>\casos.json` (A–F por caso) y `<scratchpad>\digest.md`. Leer el digest completo con la herramienta `read_file` (usar `ByteOffset` si el archivo supera el límite por lectura): trae la tabla de casos (qué TT no tiene informe, tester ya asignado, filas con G/H llenos) y, por informe, las secciones 1 (Ficha), 2 (Resumen técnico), 3.1/3.3 (archivos modificados, BD y configuración) y 4 (hallazgos).
    - Si alguna fila ya tiene G/H llenos, preguntar antes de sobrescribirla.
+   - **ID Soporte desde VTiger** (en el mismo turno que la lectura del digest):
+     ```powershell
+     node "C:\Users\jorge\.gemini\config\skills\mtto-acuerdos\scripts\soporte.js" "<scratchpad>/casos.json"
+     ```
+     Completa en `casos.json` los Fallos en `-` con el ticket de soporte de VTiger (`cf_1275`) cuando el Excel se va a crear, e imprime `llenados`, `difieren` (informe o Excel contra VTiger; no se corrigen solos) y `sinSoporte`. Usa `mtto-comun\vtiger.js` (credenciales en `C:\Users\jorge\.mtto\vtiger.json`; nunca las muestres). Si VTiger falla, sigue sin él.
 2. **Redactar** `<scratchpad>\acuerdos.json` con `write_file`: arreglo `[{ "id", "G", "H", "I", "J" }]`, solo para los TT con informe. Saltos de línea dentro de I y J con `\n`. Seguir los criterios de abajo y el ejemplo `references\ejemplo-4.3.12.0.json`.
 3. **Asignar testers** (solo a los casos sin tester; usa G e I del paso 2):
    ```powershell
@@ -36,7 +41,7 @@ argument-hint: "[versión, p. ej. 4.3.13.0 (default: carpeta actual)] [fecha reu
    & "C:\Users\jorge\.gemini\config\skills\mtto-acuerdos\scripts\llenar.ps1" -Carpeta "<carpeta>" -Casos "<scratchpad>\casos.json" -Json "<scratchpad>\acuerdos.json" -Fecha yyyy-MM-dd -Respaldo "<scratchpad>"
    ```
    Su salida (fila | ID | responsable | tester | complejidad | versión | fecha) es la verificación; no volver a abrir el archivo.
-5. **Resumen al usuario** con este formato: qué se llenó o creó y de dónde salió; tabla de carga por tester (casos, Alta, Media, Baja, puntos) y la asignación caso → tester; reparto de complejidad en una tabla (Alta / Media / Baja con sus TT); tabla de los casos donde la complejidad difiere de la que trae el informe; acuerdos con pendientes agrupados por tipo; y la lista "Revisa esto antes de la reunión" (TT sin informe, Fallos sin ID Soporte, fecha usada si fue la de hoy, URLs de repositorio que quedaron en la base del repo).
+5. **Resumen al usuario** con este formato: qué se llenó o creó y de dónde salió; tabla de carga por tester (casos, Alta, Media, Baja, puntos) y la asignación caso → tester; reparto de complejidad en una tabla (Alta / Media / Baja con sus TT); tabla de los casos donde la complejidad difiere de la que trae el informe; acuerdos con pendientes agrupados por tipo; y la lista "Revisa esto antes de la reunión" (TT sin informe, Fallos sin ID Soporte, ID Soporte que difiere de VTiger, fecha usada si fue la de hoy, URLs de repositorio que quedaron en la base del repo).
 6. **Casos de atención especial** (mensaje aparte, después del resumen): guardar el análisis en `<carpeta>\Atencion_Especial_<versión>.md` con `write_file` (título "Casos que requieren atención especial — versión <versión>", fecha de reunión y número de casos analizados) y luego mandarlo como el último mensaje. Se analiza con el digest del paso 1 y lo decidido en los pasos 2–4; no se lee nada más. Ver criterios en "Criticidad".
 
 ## Criterios de llenado

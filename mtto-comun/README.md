@@ -12,6 +12,7 @@ Debe estar en la misma carpeta que ellas (`C:\Users\jorge\.gemini\config\skills\
 | `standup.js` | Parser único de los standups: línea → caso, tipo, código, etapa | `mtto-standup`, `mtto-rendimiento`, `canal.js` |
 | `canal.js` + `canal.md` | Caché compartida de #mtto y cómo actualizarla | `mtto-standup`, `mtto-fechas`, `mtto-quincenal`, `mtto-rendimiento` |
 | `correos.ps1` + `correos.js` + `correos.md` | Caché compartida de los correos de casos TT (Outlook) y cómo actualizarla y consultarla | `mtto-standup`, `mtto-fechas` |
+| `vtiger.js` | VTiger: lecturas directas (caso, varios casos, vista del caso, búsqueda, tablero, promesas de fallos, fallos atendidos del mes, VTQL paginado) y escrituras por la API de MelissaVirtual con confirmación y log. Credenciales en `%USERPROFILE%\.mtto\vtiger.json` | `vtiger`, `mtto-fechas`, `mtto-standup`, `mtto-aca`, `mtto-acuerdos`, `mtto-quincenal`, `mtto-rendimiento`, `rfallos` (y `mtto-docu`, opcional) |
 | `vocabulario.md` | Cómo leer los estatus | `mtto-fechas`, `mtto-quincenal` |
 
 ## Cambios frecuentes

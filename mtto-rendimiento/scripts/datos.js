@@ -6,6 +6,7 @@ const C = require('./comun');
 const { fs, path } = C;
 
 const EVENTOS_JS = path.join(__dirname, '..', '..', 'rcalidad', 'scripts', 'eventos.js');
+const VTIGER_JS = path.join(__dirname, '..', '..', 'mtto-comun', 'vtiger.js');
 const POST_ENTREGA = ['entregado', 'rsp', 'piloto', 'revpr', 'pruebas', 'ldp'];
 
 // Mensajes de #mtto de la caché compartida. Con <mensajes_nuevos.json> <desde> los une antes (igual que "canal.js unir")
@@ -37,6 +38,15 @@ function cambiosProceso() {
     r[id] = { titulo: String(x[1] || '').trim(), dev: C.colaborador(x[2]), estatus: x[3], asignacion: iFa >= 0 ? C.fecha(x[iFa]) : null };
   }
   return r;
+}
+
+// Asignación (cf_1066) y entrega (cf_1104) de los cambios en VTiger; si VTiger falla, el reporte sigue con las demás fuentes
+function vtiger(ids, avisos) {
+  if (!ids.length) return {};
+  const r = spawnSync(process.execPath, [VTIGER_JS, 'casos', ...ids], { encoding: 'utf8', maxBuffer: 64 << 20 });
+  if (r.status !== 0) { avisos.push('VTiger: ' + (r.stderr || r.stdout).trim()); return {}; }
+  const f = (v, cf) => { const e = Object.entries(v.fechas).find(([k]) => k.endsWith(`(${cf})`)); return e ? C.deIso(e[1].slice(0, 10)) : null; };
+  return Object.fromEntries(Object.entries(JSON.parse(r.stdout).casos).map(([id, v]) => [id, { asignacion: f(v, 'cf_1066'), entrega: f(v, 'cf_1104') }]));
 }
 
 // Detalle de cada MMYYYY_RelacionFallosAtendidos.xlsx (salida de /rfallos)
@@ -149,6 +159,7 @@ try {
   const ids = new Set(Object.keys(hist));
   for (const [id, r] of Object.entries(rel)) if (r.respuesta >= inicio) ids.add(final(id));
   for (const [id, r] of Object.entries(cp)) if (r.asignacion && r.asignacion >= inicio) ids.add(id);
+  const avisosVTiger = [], vt = vtiger([...ids].filter(id => cp[id]), avisosVTiger);
 
   const ldpEv = {};
   for (const e of [...ev.cambios, ...ev.fallosLdp]) { const id = final(e.tt), f = C.fecha(e.fecha); if (!ldpEv[id] || f < ldpEv[id]) ldpEv[id] = f; }
@@ -158,7 +169,7 @@ try {
 
   const casos = [], dudas = { sinDueno: [], variosDuenos: [], reasignados: [], entregaAntesDeDatos: [] };
   for (const id of [...ids].sort((a, b) => C.numTT(a) - C.numTT(b))) {
-    const h = hist[id] || [], c = cp[id], r = rel[id], a = acu.porTT[id], pr = prs[id];
+    const h = hist[id] || [], c = cp[id], r = rel[id], v = vt[id], a = acu.porTT[id], pr = prs[id];
     // Dueño: decisión de Jorge > quien lo trae en su standup > CambiosProceso > acuerdos
     const cuenta = {};
     for (const x of h) cuenta[x.dev] = (cuenta[x.dev] || 0) + 1;
@@ -176,7 +187,7 @@ try {
 
     const primera = h[0] ? h[0].dia : null;
     // La más temprana: un caso puede atenderse primero con el ID de soporte
-    const fuentes = [['ACA', c && c.asignacion], ['VTiger', r && r.asignacion], ['standup', primera]].filter(x => x[1]).sort((x, y) => x[1] - y[1]);
+    const fuentes = [['ACA', c && c.asignacion], ['VTiger', (r && r.asignacion) || (v && v.asignacion)], ['standup', primera]].filter(x => x[1]).sort((x, y) => x[1] - y[1]);
     let asignacion = fuentes.length ? fuentes[0][1] : null, fuenteAsig = fuentes.length ? fuentes[0][0] : null;
     // Ya venía abierto en los primeros standups leídos: la asignación real es anterior y no se conoce
     if (fuenteAsig === 'standup' && C.habiles(C.deIso(primerDia), asignacion) <= 3) { asignacion = null; fuenteAsig = 'antes de los datos'; }
@@ -189,6 +200,8 @@ try {
       if (pEnt === h[0] && C.habiles(C.deIso(primerDia), pEnt.dia) <= 3) dudas.entregaAntesDeDatos.push(id);
       else { entrega = pEnt.dia; fuenteEnt = 'standup'; }
     }
+    // Cambios: la entrega registrada en VTiger si es anterior a la del standup
+    if (!r && v && v.entrega && (!entrega || v.entrega < entrega)) { entrega = v.entrega; fuenteEnt = 'VTiger'; }
     const pRsp = h.find(x => x.etapa === 'rsp');
     const rsp = pRsp ? (h.find(x => x.etapa === 'rsp' && x.fechaEntrega) || {}).fechaEntrega || pRsp.dia : null;
     const ldp = ldpEv[id] || (h.find(x => x.etapa === 'ldp') || {}).dia || null;
@@ -220,7 +233,7 @@ try {
   console.log(JSON.stringify({
     clave, mensajes: todos.length, agregados, rango: [primerDia, [...diasStandup].sort().pop()],
     casos, wip, tester: testerOut, modulos,
-    eventos: { noLeidos: ev.noLeidos, avisos: ev.avisos },
+    eventos: { noLeidos: ev.noLeidos, avisos: ev.avisos }, avisosVTiger,
     dudas
   }, null, 1));
 } catch (e) {

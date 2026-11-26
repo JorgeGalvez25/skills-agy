@@ -32,8 +32,8 @@ El Excel lo crea **siempre** `scripts/generar.js`. Tu trabajo: actualizar la cac
 | Dato | Fuente |
 |---|---|
 | Dueño del caso | `atribuciones.json` > quien lo trae en su standup (no como tester) > Desarrollador de CambiosProceso > Responsable de los acuerdos |
-| Fecha de asignación | La más temprana entre la columna `Fecha asignación` de CambiosProceso (la llena `/mtto-aca`; los históricos salieron de los correos "TT##### ACA"), la asignación de VTiger de la relación de `/rfallos` y el primer standup |
-| Entrega | Fallos y AP: fecha real de respuesta de VTiger (relación de `/rfallos`). Cambios: primer standup en Entregado o posterior |
+| Fecha de asignación | La más temprana entre la columna `Fecha asignación` de CambiosProceso (la llena `/mtto-aca`; los históricos salieron de los correos "TT##### ACA"), la asignación de VTiger (fallos: relación de `/rfallos`; cambios: `cf_1066` en vivo) y el primer standup |
+| Entrega | Fallos y AP: fecha real de respuesta de VTiger (relación de `/rfallos`). Cambios: la más temprana entre el primer standup en Entregado o posterior y la entrega de VTiger (`cf_1104`) |
 | RSP | `Fecha Entrega dd/mm/aaaa` del motivo del RSP o, sin ella, el primer standup en RSP |
 | LDP | Evento `LDP`/`LIBERADO` (`rcalidad/scripts/eventos.js`) o el standup en LDP |
 | Criticidad y cumplimiento | Relaciones `MMYYYY_RelacionFallosAtendidos.xlsx` de todos los meses |
@@ -55,7 +55,8 @@ node "C:\Users\jorge\.gemini\config\skills\mtto-rendimiento\scripts\datos.js" YY
 ```
 
 Lee la caché de #mtto y arma un registro por caso. Para reconsolidar no hace falta volver a leer Slack.
-Revisa `dudas` y `eventos.noLeidos` del JSON (con `node -e`, sin volcar todo el archivo).
+Revisa `dudas`, `eventos.noLeidos` y `avisosVTiger` del JSON (con `node -e`, sin volcar todo el archivo).
+Las fechas de los cambios en VTiger se leen en vivo con `mtto-comun\vtiger.js`; si `avisosVTiger` trae un error, el reporte salió sin ellas: dilo en la entrega.
 
 ## Paso 3 — Resolver dudas con Jorge (ask_question, varias por llamada)
 

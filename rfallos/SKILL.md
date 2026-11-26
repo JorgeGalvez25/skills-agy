@@ -1,6 +1,6 @@
 ---
 name: rfallos
-description: Genera la relación mensual de fallos atendidos del Departamento de Mantenimiento (indicador 1, "Cumplimiento de atención de fallos según criticidad") para cualquier mes. Recibe el mes como YYYYMM (año de 4 dígitos + mes de 2 dígitos, p. ej. 202610 o 202701), lee la exportación de VTiger de la carpeta de ese mes, asigna la criticidad P1–P4 de cada caso según su título y crea MMYYYY_RelacionFallosAtendidos.xlsx con el formato oficial. Usar cuando digan "/rfallos YYYYMM", "rfallos <mes>", "relación de fallos atendidos de <mes>" o "genera el indicador de fallos del mes".
+description: Genera la relación mensual de fallos atendidos del Departamento de Mantenimiento (indicador 1, "Cumplimiento de atención de fallos según criticidad") para cualquier mes. Recibe el mes como YYYYMM (año de 4 dígitos + mes de 2 dígitos, p. ej. 202610 o 202701), lee la exportación de VTiger de la carpeta de ese mes (si no está, la arma desde VTiger), asigna la criticidad P1–P4 de cada caso según su título y crea MMYYYY_RelacionFallosAtendidos.xlsx con el formato oficial. Usar cuando digan "/rfallos YYYYMM", "rfallos <mes>", "relación de fallos atendidos de <mes>" o "genera el indicador de fallos del mes".
 argument-hint: YYYYMM
 ---
 
@@ -17,8 +17,8 @@ Los scripts son de **Node** (`node`); no pasarlos a Python. Ejecuta los scripts 
 ## Reglas que no se negocian
 
 1. **Argumento:** clave `YYYYMM` de 6 dígitos para **cualquier mes** (año de 4 dígitos + mes 01–12). Ejemplos: `202610` = octubre de 2026, `202701` = enero de 2027. Los nombres de carpeta y archivos se derivan de esa clave (carpeta `YYYYMM`, archivos `MMYYYY_...`); nunca asumas un mes fijo. Si no viene o tiene otro formato, pregunta el mes y no continúes.
-2. **No crees carpetas.** La carpeta `$RAIZ\YYYYMM` ya debe existir y contener la exportación de VTiger. Si falta, avisa al usuario y detente.
-3. **No modifiques la exportación de VTiger** ni ningún otro archivo de la carpeta del mes. Solo se crea `MMYYYY_RelacionFallosAtendidos.xlsx`.
+2. **No crees carpetas.** La carpeta `$RAIZ\YYYYMM` ya debe existir. Si falta, avisa al usuario y detente.
+3. **No modifiques la exportación de VTiger** ni ningún otro archivo de la carpeta del mes. Solo se crean `MMYYYY_RelacionFallosAtendidos.xlsx` y, si no había exportación, `MMYYYY_RelacionFallosAtendidos.xls` con el Paso 0.
 4. **No sobrescribas.** Si el xlsx de salida ya existe (`salidaExiste: true`), pregunta antes. Usa `--sobrescribir` solo con autorización explícita para ese mes.
 5. **No cambies el estilo ni el script** para un mes en particular. Si algo no encaja (columnas distintas, fechas raras), detente y pregunta.
 6. **Integridad:** no ajustes criticidades para mejorar el porcentaje. La criticidad se decide por el impacto que describe el título, no por el tiempo que tardó el caso.
@@ -45,6 +45,17 @@ Si el usuario cambia algún objetivo, actualiza `OBJETIVOS` en `$SK\scripts\comu
 - Archivo: exportación del reporte de VTiger **"Relacion fallos atendidos"** (Clase = Proyectos; Tipo = Fallo, Apoyo a soporte o Piloto; Suite = I-Gas; Fecha real de respuesta dentro del mes de la clave; en VTiger se usa el filtro "Mes anterior" cuando se exporta al mes siguiente o un rango de fechas para cualquier otro mes), nombrada `MMYYYY_RelacionFallosAtendidos.xls`. Por ejemplo, para `202610` es `102026_RelacionFallosAtendidos.xls` y para `202701` es `012027_RelacionFallosAtendidos.xls`.
   - Si tiene otro nombre pero es el único `*RelacionFallosAtendidos*.xls/.xlsx/.csv` de la carpeta, el script lo usa. Si hay varios, el script falla y debes preguntar cuál usar.
 - Columnas obligatorias (primera hoja, encabezados en la fila 1): `Id Caso`, `Título`, `Tipo`, `Estatus fallo`, `Asignación de caso`, `Fecha real de respuesta`. Las fechas vienen como `dd-mm-aaaa` (con o sin hora).
+
+## Paso 0 — Exportación desde VTiger (solo si falta)
+
+Si la carpeta del mes no tiene exportación, ármala directo de VTiger en lugar de pedirla:
+
+```powershell
+node "C:\Users\jorge\.gemini\config\skills\rfallos\scripts\exportar.js" YYYYMM
+```
+
+Aplica el filtro del reporte "Relacion fallos atendidos" (Proyectos, I-Gas, Fallo/Apoyo a soporte/Piloto, Fecha real de respuesta en el mes), con sus 11 columnas, y crea `MMYYYY_RelacionFallosAtendidos.xls`.
+Usa `C:\Users\jorge\.gemini\config\skills\mtto-comun\vtiger.js` (credenciales en `C:\Users\jorge\.mtto\vtiger.json`; nunca las muestres). No sobrescribe una exportación existente. Si VTiger falla, pide la exportación manual.
 
 ## Paso 1 — Extraer y validar los casos
 

@@ -20,7 +20,7 @@ Columnas (desde `13-10`): **Desarrollador | Caso | Estatus | Observaciones | Fec
 
 1. **Solo trabajo vigente.** Un caso que en el periodo quedó con estatus de cierre (CEC, RSP, LDP, LIBERADO, Cancelado/CANCELADO, Cerrado) **no se incluye**,
    aunque estuviera en la hoja anterior. Si después de RSP volvió al standup (REVPR por observaciones al PR, integración/pruebas con el tester), sí se incluye.
-2. **Fecha cierre vacía** salvo que haya información para determinarla (Jorge la da o pasa una captura del tablero con la fecha). No se arrastran las fechas de la hoja anterior ni se calculan.
+2. **Fecha cierre vacía** salvo que haya información para determinarla (Jorge la da, pasa una captura del tablero con la fecha o pide tomar la promesa del tablero de VTiger: `vtiger.js promesas`, campo `fecha`). No se arrastran las fechas de la hoja anterior ni se calculan.
 3. **Bloque de Jorge**: no se genera contenido. Se dejan 5 filas vacías con "Jorge" en Desarrollador y su color (lila) para que él capture (`captura` en la spec).
 4. **Casos de la hoja anterior sin información en #mtto** (no se pueden ligar a ningún TT ni mención del periodo): se incluyen igual, con el texto de Caso y Observaciones de la hoja anterior,
    con el Estatus de la hoja anterior (si no tenía, `Proceso`), sin fecha y con una `nota` (comentario de celda) "Sin información en #mtto del dd/mm al dd/mm. Revisar." Jorge decide qué hacer con ellos.
@@ -76,6 +76,9 @@ Por desarrollador, toma su **último standup** del periodo como estatus vigente 
   - La fila "Atención a casos de mantenimiento" lleva `Proceso`. Si la hoja anterior tiene un valor distinto a estos para el mismo caso y no hay avance, consérvalo.
 - **Observaciones**: frase breve para dirección sobre cómo está hoy y, si cambió, qué avanzó ("El cliente respondió a la propuesta; en codificación").
   Complementa al Estatus, no lo repite solo (evita Estatus `Proceso` + Observaciones "Proceso"). Sin vocabulario interno (x2/x3, CEC, RSP, SDP, "preguntar estatus") ni nombres del cliente que ya estén en el título.
+- **VTiger:** consulta todos los TT que van a la hoja (y los de la hoja anterior que salen) con
+  `node "C:/Users/jorge/.gemini/config/skills/mtto-comun/vtiger.js" casos TT##### TT##### ...` (credenciales en `C:\Users\jorge\.mtto\vtiger.json`; nunca las muestres).
+  El título de `titulos` manda; si no está ahí, usa el `titulo` de VTiger en lugar de la descripción del standup. Si VTiger tiene cerrado (`ticketstatus` Closed) un caso que el standup trae abierto, o al revés, inclúyelo según el standup y ponlo en **Revisar**. Si VTiger falla, sigue sin él.
 - Orden: Saulo, Miguel, Martín, Susana, Jorge. Dentro de cada uno: lo que está en seguimiento activo, luego lo pausado/en espera, luego casos de la regla 4, al final "Atención a casos de mantenimiento".
 
 ## Paso 4 — Preguntar y generar
@@ -106,4 +109,4 @@ node "C:\Users\jorge\.gemini\config\skills\mtto-quincenal\scripts\hoja.js" gener
 - **Salieron de la hoja** (cerrados en el periodo): TT, estatus de cierre y fecha.
 - **Nuevos** respecto a la hoja anterior.
 - **Avances relevantes** (lo que conviene comentar en la reunión).
-- **Revisar**: casos de la regla 4, títulos que no se encontraron, ligas dudosas entre renglones y TT.
+- **Revisar**: casos de la regla 4, títulos que no se encontraron, ligas dudosas entre renglones y TT, diferencias de cierre entre VTiger y el standup.

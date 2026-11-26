@@ -115,7 +115,7 @@ Reúne en **una sola** pregunta al desarrollador lo que no puedas obtener del c�
 |---|---|---|
 | Tipo (corrección / cambio) | Si no lo indicó | Corrección si el título describe una falla; Cambio si describe algo nuevo |
 | Antecedente | Si no dio el texto del ticket | Redacción basada en el título del commit |
-| **Ticket origen de soporte** (solo correcciones) | **Siempre que no esté identificado como tal** en el texto del ticket, la conversación o lo que dio el desarrollador | El TT de `ticketsRelacionados` en `resumen.json` (otros TT en los commits), si hay; si no, sin propuesta: pídelo |
+| **Ticket origen de soporte** (solo correcciones) | **Siempre que no esté identificado como tal** en el texto del ticket, la conversación o lo que dio el desarrollador | El `Ticket soporte (cf_1275)` de VTiger, si está disponible (ver abajo); si no, el TT de `ticketsRelacionados` en `resumen.json` (otros TT en los commits); si no hay, sin propuesta: pídelo |
 | Cliente | Si el título solo trae una abreviatura | El nombre del título |
 | Versión de entrega | Si la rama no subió `FileVersion` | Siguiente versión de la línea actual |
 | Script SQL | Hay cambio de BD sin `.sql` en el diff | Pedir la ruta |
@@ -125,6 +125,10 @@ Reúne en **una sola** pregunta al desarrollador lo que no puedas obtener del c�
 Si todo está claro, no preguntes y continúa.
 
 **Ticket origen de soporte** (solo correcciones; los cambios no lo llevan): es el ticket de VTiger con el que soporte reportó la falla. En una corrección no tiene excepciones: si no lo puedes obtener, pregúntalo aunque todo lo demás esté claro, y si el desarrollador no lo da, no generes la revisión interna (díselo en la entrega). Un TT que solo aparece mencionado en un commit es una propuesta, no un dato: confírmalo. Debe tener la forma `TT#####`; si el desarrollador indica que el origen es el mismo caso, anótalo así.
+
+**VTiger (opcional):** si en el equipo existen `%USERPROFILE%\.gemini\config\skills\mtto-comun\vtiger.js` y sus credenciales en `%USERPROFILE%\.mtto\vtiger.json`, consulta el caso antes de preguntar
+(`node "$env:USERPROFILE\.gemini\config\skills\mtto-comun\vtiger.js" caso TT#####`; nunca muestres las credenciales). Trae el título, el tipo (Cambio o Fallo) y el ticket de soporte (`cf_1275`).
+El ticket de soporte de VTiger es un dato registrado: úsalo sin preguntarlo, salvo que contradiga lo que dio el desarrollador (en ese caso, pregunta). Si el script no está o falla, sigue como siempre.
 
 ## Paso 4. Informe para distribuidores (.docx)
 

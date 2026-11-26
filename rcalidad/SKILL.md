@@ -52,7 +52,7 @@ Devuelve `mes`, `periodo`, `finSeguimiento`, `corte`, `seguimientoCompleto`, `sl
 
 - `ERROR:` → muéstralo y detente.
 - `seguimientoCompleto: false` es lo normal (se ejecuta a inicios del mes siguiente): menciónalo en la entrega con la fecha de corte; no hace falta preguntar.
-- Sin relación de `/rfallos` del mes → propón correr primero `/rfallos YYYYMM`. Si eso no es posible (meses anteriores a 202609), ve a **Transición**.
+- Sin relación de `/rfallos` del mes → propón correr primero `/rfallos YYYYMM` (ya no necesita la exportación manual: la arma desde VTiger). Si eso no es posible (meses anteriores a 202609), ve a **Transición**.
 
 ## Delegación (ahorro de tokens)
 
@@ -105,13 +105,30 @@ Márcalo como **sospechoso** solo si una mención **posterior a la fecha base** 
 Que el TT siga en los standups como "Entregado, en espera de respuesta", "RSP" o "CEC" **no** es reapertura.
 Sí es reapertura que el caso pase de RSP, CEC o Cancelado a revisión o desarrollo (desde el 16/10/2026). Que pase de Entregado a revisión no lo es (antes del 16/10/2026 sí contaba), ni que pase de RSP a `REVPR` (corrección por observaciones al PR, desde el 28/10/2026; antes aparecía como "corrección para liberación"). Una vez iniciadas las pruebas (SDP, tester, integración) no hay reapertura: lo que encuentre el tester se corrige en el mismo TT hasta la LDP. No marques sospechosos en ese tramo. Los apoyos a soporte (tipo `AP`) nunca son reapertura.
 
+## Paso 3b — Contrastar con VTiger
+
+Credenciales en `C:\Users\jorge\.mtto\vtiger.json`; nunca las muestres. Si VTiger falla, avisa y sigue sin él.
+
+1. **Tipo y comentarios** de todos los TT evaluados (cambios de `datos.json`, `fallosLdp`, `origenes` y sospechosos del paso 3):
+   ```powershell
+   node "C:\Users\jorge\.gemini\config\skills\mtto-comun\vtiger.js" casos TT##### TT##### ...
+   ```
+   El `tipo` de VTiger decide si un LDP es de cambio o de fallo: si coincide con el evento, no preguntes; si no coincide, pregúntalo en el paso 4 citando VTiger.
+   Para cada sospechoso, lee los comentarios con `vtiger.js caso TT#####`: un comentario de soporte o del cliente que diga que el problema regresó es evidencia, y uno que diga que es una solicitud nueva la descarta. Cítalo en la pregunta.
+2. **Cambios liberados sin LDP:** cambios que VTiger tiene liberados en el mes y no tienen evento:
+   ```powershell
+   node "C:\Users\jorge\.gemini\config\skills\mtto-comun\vtiger.js" query "SELECT ticket_no,ticket_title,cf_1086,cf_901 FROM HelpDesk WHERE cf_751='Proyectos' AND cf_867='Cambio' AND cf_901>='AAAA-MM-01' AND cf_901<='AAAA-MM-<último día>'"
+   ```
+   Cada uno sin `LDP` en `datos.json` va al paso 4 (¿se agrega con la fecha de liberación de VTiger?). Al revés, un `LDP` cuya liberación en VTiger (`cf_901`) cae en otro mes, menciónalo en la entrega. La consulta solo trae los cambios que se liberaron por la API (`/vtiger`); si regresa vacía, no es error.
+
 ## Paso 4 — Resolver dudas con el usuario (ask_question, varias por llamada)
 
 Pregunta antes de generar sobre:
 - cada línea de `noLeidos` (qué quiso decir; corrige el evento en `datos.json` solo con su respuesta);
 - cada sospechoso del paso 3 (¿se agrega como REABIERTO/ORIGEN?);
 - `ORIGEN` cuya causa parezca un problema distinto o una solicitud nueva (la guía dice que eso no es reincidencia);
-- `LDP` (o `LIBERADO`) de CAMBIO o MEJORA de un TT que también está en la relación de fallos (¿es cambio o corrección de fallo?).
+- `LDP` (o `LIBERADO`) de CAMBIO o MEJORA de un TT que también está en la relación de fallos (¿es cambio o corrección de fallo?), salvo que VTiger ya lo resuelva (paso 3b);
+- cambios liberados en VTiger sin `LDP` (paso 3b).
 
 Si el usuario confirma un evento no etiquetado, agrégalo a `datos.json` con `"autor": "confirmado por Jorge"`.
 Los comentarios generales (transición, eventos confirmados, baja muestra) se informan solo en el chat; los reportes no llevan observaciones.
