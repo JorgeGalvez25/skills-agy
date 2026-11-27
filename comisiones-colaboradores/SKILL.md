@@ -52,7 +52,16 @@ Si en esta ejecución generaste los Excel, aquí terminas: **no hagas borradores
 & 'C:\Users\jorge\.gemini\config\skills\comisiones-colaboradores\scripts\correos.ps1'
 ```
 
-Usa la herramienta PowerShell con un timeout de unos 120000 ms. Por cada Excel de `PorBeneficiario`, el script deja un borrador en Outlook con ese archivo adjunto, tal como esté guardado. **No lo envía.** Si ya había un borrador con el mismo asunto para esa persona, lo borra y crea uno nuevo. Si un Excel está abierto, se detiene; pide al usuario que lo cierre y vuelve a correrlo.
+Usa la herramienta PowerShell con un timeout de unos 180000 ms. Por cada Excel de `PorBeneficiario`, el script deja un borrador en Outlook con ese archivo adjunto, tal como esté guardado. **No lo envía.** Si ya había un borrador con el mismo asunto para esa persona, lo borra y crea uno nuevo. Si un Excel (de `PorBeneficiario`, el concentrado o `CambiosProceso.xlsm`) está abierto, se detiene antes de hacer nada; pide al usuario que lo cierre y vuelve a correrlo.
+
+Después actualiza `C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm` (`Tabla1`) con lo pagado en este mes, según los cambios internos del concentrado (filas 16 a 28; externos y Mejoras no se tocan):
+
+| Concepto | Valor |
+|---|---|
+| Columna `Cobrado` | Porcentaje pagado después de este pago: `k/N` si el concepto termina en `(Pago k de N)`, 100 % si no |
+| Pagado al 100 % | Se quita el relleno amarillo de la fila |
+
+Como escribe el porcentaje acumulado (no lo suma), correr la skill varias veces deja el mismo resultado.
 
 Redacción fija, tomada de los que Jorge envió en agosto 2026 (`<mes>` en minúscula; el de pago es el mes siguiente, con su año):
 
@@ -68,4 +77,4 @@ Jorge Armando Gálvez Martínez
 Analista - Desarrollador
 ```
 
-En el chat, entrega la lista de borradores (persona, correo y fecha de guardado del Excel) y cuáles reemplazaron a uno anterior.
+En el chat, entrega la lista de borradores (persona, correo y fecha de guardado del Excel) y cuáles reemplazaron a uno anterior, y los TT con el porcentaje que quedó en `Cobrado` (y a cuáles se les quitó el amarillo). Si un TT no está en CambiosProceso, dilo.

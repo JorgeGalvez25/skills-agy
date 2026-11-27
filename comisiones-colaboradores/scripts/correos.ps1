@@ -16,6 +16,13 @@ foreach ($x in $archivos) {
   try { $s = [IO.File]::Open($x.FullName, 'Open', 'Read', 'None'); $s.Close() }
   catch { throw "$($x.Name) está abierto; guárdalo y ciérralo antes de generar el correo" }
 }
+# El concentrado y CambiosProceso también, para actualizar el porcentaje pagado
+$conc = "$Mes\Mantenimiento_Comisiones_$($nombre)_$anio.xlsx"
+$procesos = 'C:\Users\jorge\Dropbox\MTTO\ReportesMTTO\CambiosProceso.xlsm'
+foreach ($f in $conc, $procesos) {
+  try { $s = [IO.File]::Open($f, 'Open', 'ReadWrite', 'None'); $s.Close() }
+  catch { throw "$(Split-Path $f -Leaf) no existe o está abierto; guárdalo y ciérralo antes de generar el correo" }
+}
 
 $asunto = "Reporte de comisiones $($nombre.ToLower()) $anio"
 $ol = New-Object -ComObject Outlook.Application
@@ -36,3 +43,30 @@ foreach ($x in $archivos) {
   $m.Save()
   "$($persona -replace '_', ' ') -> $para$(if ($previos.Count) { ' (reemplazó el anterior)' })  [guardado $($x.LastWriteTime.ToString('dd/MM/yyyy HH:mm'))]"
 }
+
+# Porcentaje pagado de cada cambio interno en CambiosProceso (Cobrado): k/N si va "(Pago k de N)", si no 100 %
+$xl = New-Object -ComObject Excel.Application
+$xl.Visible = $false; $xl.DisplayAlerts = $false; $xl.AutomationSecurity = 3
+try {
+  $wb = $xl.Workbooks.Open($conc, 0, $true)
+  $v = $wb.Worksheets.Item(1).Range('A1:F28').Value2
+  $wb.Close($false)
+  $wb = $xl.Workbooks.Open($procesos, 0, $false)
+  $lo = $wb.Worksheets.Item(1).ListObjects.Item('Tabla1')
+  $col = $lo.ListColumns.Item('Cobrado').Index
+  $ids = $lo.ListColumns.Item('ID').DataBodyRange.Value2
+  ''
+  foreach ($r in 16..28) {
+    $tt = [string]$v[$r,2]
+    if ($tt -notmatch '^TT\d+$') { continue }
+    $pct = [double]$(if ([string]$v[$r,6] -match '\(Pago (\d+) de (\d+)\)\s*$') { [int]$Matches[1] / [int]$Matches[2] } else { 1 })
+    $i = 0; for ($k = 1; $k -le $ids.GetLength(0); $k++) { if ($ids[$k,1] -eq $tt) { $i = $k; break } }
+    if (-not $i) { "$tt no está en CambiosProceso.xlsm; no se actualizó el porcentaje"; continue }
+    $fila = $lo.ListRows.Item($i).Range
+    $fila.Cells.Item(1,$col).Value2 = $pct
+    # Pagado completo: se quita el amarillo de la fila
+    if ($pct -eq 1) { foreach ($c in $fila.Cells) { if ($c.Interior.Color -eq 65535) { $c.Interior.ColorIndex = -4142 } } }
+    "{0} -> Cobrado {1:P0}{2}" -f $tt, $pct, $(if ($pct -eq 1) { ' (sin amarillo)' })
+  }
+  $wb.Save(); $wb.Close($false)
+} finally { $xl.Quit(); [void][Runtime.InteropServices.Marshal]::ReleaseComObject($xl) }
