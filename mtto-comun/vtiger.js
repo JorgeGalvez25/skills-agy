@@ -10,6 +10,8 @@
 //   node vtiger.js query "<VTQL sin LIMIT>"         -> consulta libre, paginada
 //   node vtiger.js mover TT##### <acción> [fecha=AAAA-MM-DD] [usuario=Nombre] [motivo=..] [observaciones=..] [notificar=si|no] [--confirmar]
 //                                                    -> sin --confirmar solo muestra lo que haría
+//   node vtiger.js editar TT##### campo=valor [campo=...] [--confirmar]
+//                                                    -> corrige datos de registro (revise); sin --confirmar solo muestra lo que haría
 const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
@@ -23,13 +25,13 @@ const hoy = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.get
 
 // Campos de HelpDesk que usan las skills
 const CAMPOS = {
-  id: 'Id', ticket_no: 'Caso', ticket_title: 'Título', cf_867: 'Tipo', cf_751: 'Clase', ticketstatus: 'Status',
+  id: 'Id', ticket_no: 'Caso', ticket_title: 'Título', cf_867: 'Tipo', cf_751: 'Clase', ticketstatus: 'Status', ticketpriorities: 'Prioridad',
   cf_1086: 'Estatus cambio', cf_1084: 'Estatus fallo', assigned_user_id: 'Asignado a', cf_1113: 'Desarrollador',
   cf_1111: 'Tester', cf_1275: 'Ticket soporte', cf_871: 'Suite', cf_875: 'Solicitante', cf_1191: 'Versión',
   createdtime: 'Creado', modifiedtime: 'Modificado', cf_873: 'Fecha de hoy', cf_1066: 'Asignación caso',
   cf_1068: 'Asignación codificación', cf_1072: 'Promesa envío pruebas', cf_895: 'Primer envío pruebas',
   cf_897: 'Último envío pruebas', cf_899: 'Última respuesta pruebas', cf_1104: 'Entrega', cf_901: 'Liberación',
-  cf_903: 'Cierre', cf_1229: 'Promesa entrega corrección', cf_1076: 'Entrega corrección', cf_1078: 'Promesa respuesta',
+  cf_903: 'Cierre', cf_913: 'Seguimiento', cf_937: 'Reunión SCRUM', cf_1229: 'Promesa entrega corrección', cf_1076: 'Entrega corrección', cf_1078: 'Promesa respuesta',
   cf_1082: 'Respuesta real', cf_753: 'Resolución',
 };
 const LISTA = Object.keys(CAMPOS).join(',');
@@ -38,12 +40,17 @@ const LISTA = Object.keys(CAMPOS).join(',');
 const ACCIONES = {
   Cambio: {
     analizando: ['Analizando', { usuario: 'assignedUserId', fecha: 'asignacionCaso' }],
-    codificando: ['Codificando', { usuario: 'assignedUserId', fecha: 'asignacionCodificacion' }],
+    codificando: ['Codificando', { usuario: 'assignedUserId', fecha: 'asignacionCodificacion', promesa: 'promesaEntrega' }],
     pruebas: ['Pruebas', { fecha: 'envioPruebas' }],
     entregado: ['Entregado', { fecha: 'fechaEntrega' }],
     liberado: ['Liberado', { fecha: 'fechaLiberacion' }],
-    terminado: ['Terminado', { fecha: 'fechaCierre' }],
+    terminado: ['Terminado', { fecha: 'fechaRespuesta' }],
+    cerrado: ['Cerrado', { fecha: 'fechaCierre' }],
     cancelado: ['Cancelado', { fecha: 'fechaCierre' }],
+    fijar: ['Fijar', {}],
+    quitar: ['Quitar', {}],
+    'promesa-entrega': ['PromesaEntrega', { fecha: 'promesaEntrega' }],
+    rsp: ['Rsp', { fecha: 'fechaReunion' }],
   },
   Fallo: {
     'en-proceso': ['EnProceso', { usuario: 'assignedUserId', fecha: 'asignacionCaso', notificar: 'notificarEmail' }],
@@ -229,14 +236,14 @@ async function mover(tt, accion, opciones = {}, confirmar = false) {
     if (k === 'notificar' && v) v = /^(si|sí|true|1)$/i.test(v) ? 'true' : 'false';
     if (v) params[p] = v;
   }
-  const plan = { caso: t.ticket_no, id: t.id, tipo: t.cf_867, antes: { estatus: t.estatus, ticketstatus: t.ticketstatus, asignado: t.asignado },
+  const plan = { caso: t.ticket_no, id: t.id, tipo: t.cf_867, antes: { estatus: t.estatus, ticketstatus: t.ticketstatus, prioridad: t.ticketpriorities, asignado: t.asignado },
     llamada: `PUT ${ctl}/${ruta}`, params };
   if (!confirmar) return { ...plan, ejecutado: false };
   const { api } = cfg();
   const r = await fetch(`${api}/${ctl}/${ruta}?${new URLSearchParams(params)}`, { method: 'PUT', headers: { Authorization: await tokenApi() } });
   const txt = (await r.text()).slice(0, 300);
   const d = await caso(t.id);
-  const despues = { estatus: d.estatus, ticketstatus: d.ticketstatus, asignado: d.asignado };
+  const despues = { estatus: d.estatus, ticketstatus: d.ticketstatus, prioridad: d.ticketpriorities, asignado: d.asignado };
   const res = { ...plan, ejecutado: true, http: r.status, respuesta: txt || null, despues };
   try {
     fs.mkdirSync(path.dirname(LOG), { recursive: true });
@@ -246,7 +253,32 @@ async function mover(tt, accion, opciones = {}, confirmar = false) {
   return res;
 }
 
-module.exports = { CAMPOS, ACCIONES, LOG, query, retrieve, caso, detalle, buscar, casos, promesas, fallosAtendidos, tablero, vista, comentarios, leerUsuarios, idUsuario, mover };
+// Corrige datos de registro vía webservice revise (no usar para transiciones del flujo)
+async function editar(tt, campos, confirmar = false) {
+  if (!campos || !Object.keys(campos).length) throw new Error('Indica al menos un campo=valor para editar.');
+  const t = await caso(tt);
+  const actual = await retrieve(t.id);
+  const cambios = {};
+  for (let [k, v] of Object.entries(campos)) {
+    if (k === 'assigned_user_id' && v && !/^\d+x\d+$/.test(v)) v = (await idUsuario(v)).id;
+    if (k === 'caso_origen' && /^TT\d+$/i.test(v)) v = (await caso(v)).id;
+    cambios[k] = v;
+  }
+  const antes = Object.fromEntries(Object.keys(cambios).map(k => [k, actual[k] ?? '']));
+  const plan = { caso: t.ticket_no, id: t.id, llamada: 'WS revise', antes, cambios };
+  if (!confirmar) return { ...plan, ejecutado: false };
+  await vt({ operation: 'revise', sessionName: await login(), element: JSON.stringify({ id: t.id, ...cambios }) }, true);
+  const d = await retrieve(t.id);
+  const despues = Object.fromEntries(Object.keys(cambios).map(k => [k, d[k] ?? '']));
+  const res = { ...plan, ejecutado: true, despues };
+  try {
+    fs.mkdirSync(path.dirname(LOG), { recursive: true });
+    fs.appendFileSync(LOG, JSON.stringify({ fecha: new Date().toISOString(), ...res }) + '\n');
+  } catch (e) { res.avisoLog = e.message; }
+  return res;
+}
+
+module.exports = { CAMPOS, ACCIONES, LOG, query, retrieve, caso, detalle, buscar, casos, promesas, fallosAtendidos, tablero, vista, comentarios, leerUsuarios, idUsuario, mover, editar };
 
 // Encabezado del caso como lo muestra VTiger (Id Caso…Estado | Cuenta…Dias); [etiqueta, valor, liga]
 const TRADUCE = { Open: 'Abierto', 'In Progress': 'En progreso', 'Wait For Response': 'Esperando respuesta', Closed: 'Cerrado',
@@ -286,6 +318,13 @@ if (require.main === module) {
       const op = Object.fromEntries(a.slice(2).filter(x => x.includes('=')).map(x => [x.slice(0, x.indexOf('=')), x.slice(x.indexOf('=') + 1)]));
       return ver(await mover(a[0], a[1].toLowerCase(), op, a.includes('--confirmar')));
     }
-    throw new Error('Uso: node vtiger.js caso|buscar|casos|vista|promesas|fallos|tablero|query|mover ... (ver encabezado de vtiger.js)');
+    if (cmd === 'editar' && a[1]) {
+      const campos = Object.fromEntries(a.slice(1).filter(x => x.includes('=')).map(x => {
+        const i = x.indexOf('=');
+        return [x.slice(0, i), x.slice(i + 1)];
+      }));
+      return ver(await editar(a[0], campos, a.includes('--confirmar')));
+    }
+    throw new Error('Uso: node vtiger.js caso|buscar|casos|vista|promesas|fallos|tablero|query|mover|editar ... (ver encabezado de vtiger.js)');
   })().catch(e => { console.error('ERROR:', e.message); if (e.res) console.log(JSON.stringify(e.res, null, 1)); process.exit(1); });
 }
